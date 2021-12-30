@@ -11,8 +11,8 @@ env:
   LOCAL_CHART_PATH_PREFIX: _rancher
   LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
   # LOCAL_CHART_ROOT_PATH: $LOCAL_CHARTS_ROOT_PATH/$LOCAL_CHART_PATH_PREFIX/$CHART_NAME
-  PR_COMMIT_PATH: ${RUNNER_TEMP}/PR_COMMIT_ROOT
-  PR_COMMIT_BASE_BRANCH: main
+  # PR_COMMIT_PATH: ${RUNNER_TEMP}/PR_COMMIT_ROOT
+  # PR_COMMIT_BASE_BRANCH: main
 
 on:
   push:
@@ -68,12 +68,19 @@ jobs:
 
       - name: Setup local path
         run: |
-          mkdir -p ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}
-          cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}/
+          mkdir -p ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
+          cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}/
           echo ""
-          echo PR_COMMIT_PATH_STRING=$(echo ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}) >> $GITHUB_ENV
-          echo "${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}"
-          echo "$(ls -alh ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }})"
+          echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
+          echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
+
+        # run: |
+        #   mkdir -p ${$GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
+        #   cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}/
+        #   echo ""
+        #   echo PR_COMMIT_PATH_STRING=$(echo ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+        #   echo "${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}"
+        #   echo "$(ls -alh ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }})"
       
       - name: Print variables
         run: |
@@ -83,8 +90,8 @@ jobs:
           echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
           echo "LOCAL_CHART_ROOT_PATH: ${{ env.LOCAL_CHART_ROOT_PATH }}"
           echo ""
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-          echo "$(ls -alh $GITHUB_WORKSPACE)"
+          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
+          echo "$(ls -alh ${GITHUB_WORKSPACE})"
           echo ""
           echo "RUNNER_TEMP: ${RUNNER_TEMP}"
           echo "$(ls -alh ${RUNNER_TEMP})"
@@ -122,9 +129,9 @@ jobs:
           signoff: false
           # path: "${{ env.LOCAL_CHART_ROOT_PATH }}"
           # path: ${{ env.LOCAL_CHARTS_ROOT_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}/
-          add-paths: |
-            ${{ env.PR_COMMIT_PATH_STRING }}/*
-          base: ${{ env.PR_COMMIT_BASE_BRANCH }}
+          # add-paths: |
+          #   ${{ env.PR_COMMIT_PATH_STRING }}/**
+          # base: ${{ env.PR_COMMIT_BASE_BRANCH }}
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
           delete-branch: true
