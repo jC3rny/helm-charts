@@ -7,9 +7,9 @@ env:
   REMOTE_CHART_DIR_PATH: deploy/chart
   REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
   LOCAL_CHARTS_ROOT_PATH: charts
-  CHART_PATH_PREFIX: _rancher
-  CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${CHART_PATH_PREFIX}/${CHART_NAME}
-  # CHART_ROOT_PATH: $LOCAL_CHARTS_ROOT_PATH/$CHART_PATH_PREFIX/$CHART_NAME
+  LOCAL_CHART_PATH_PREFIX: _rancher
+  LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
+  # LOCAL_CHART_ROOT_PATH: $LOCAL_CHARTS_ROOT_PATH/$LOCAL_CHART_PATH_PREFIX/$CHART_NAME
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
         id: localPathProvisionerVersion
         run: |
           echo ::set-output name=REMOTE_VERSION::$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*')
-          echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.CHART_ROOT_PATH }}/Chart.yaml)
+          echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)
 
 
   sync_chart:
@@ -65,18 +65,26 @@ jobs:
 
       - name: Check local path
         run: |
-          mkdir -p ${{ env.CHART_ROOT_PATH }}
+          mkdir -p ${{ env.LOCAL_CHART_ROOT_PATH }}
           echo ""
-          echo $(ls -alh ${{ env.CHART_ROOT_PATH }})
+          echo $(ls -alh ${{ env.LOCAL_CHARTS_ROOT_PATH }})
+          echo $(ls -alh ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX})
+          echo $(ls -alh ${{ env.LOCAL_CHART_ROOT_PATH }})
       
       - name: Print variables
         run: |
+          echo "CHART_OWNER: ${{ env.CHART_OWNER }}"
+          echo "CHART_NAME: ${{ env.CHART_NAME }}"
           echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
           echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
-          echo "CHART_ROOT_PATH: ${{ env.CHART_ROOT_PATH }}"
+          echo "LOCAL_CHART_ROOT_PATH: ${{ env.LOCAL_CHART_ROOT_PATH }}"
+          echo ""
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
           echo "RUNNER_TEMP: $RUNNER_TEMP"
           echo "$(ls -alh $RUNNER_TEMP)"
+          echo ""
           echo "$(git status)"
+          echo ""
           echo "ORIGINAL_COMMIT_ID: ${{ env.ORIGINAL_COMMIT_ID }}"
           echo "ORIGINAL_COMMIT_AUTHOR: ${{ env.ORIGINAL_COMMIT_AUTHOR }}"
           echo "ORIGINAL_COMMIT_DATE: ${{ env.ORIGINAL_COMMIT_DATE }}"
@@ -102,7 +110,7 @@ jobs:
           commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
           author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
           signoff: false
-          path: ${{ env.CHART_ROOT_PATH }}
+          path: ${{ env.LOCAL_CHART_ROOT_PATH }}
           add-paths: |
             $RUNNER_TEMP/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
           branch: ${{ env.CHART_NAME }}/patch
