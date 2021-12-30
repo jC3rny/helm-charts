@@ -116,7 +116,7 @@ jobs:
           author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
           signoff: false
           # path: "${{ env.LOCAL_CHART_ROOT_PATH }}"
-          path: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}/
+          path: ${{ env.LOCAL_CHARTS_ROOT_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}/
           add-paths: |
             ${RUNNER_TEMP}/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
           branch: ${{ env.CHART_NAME }}/patch
