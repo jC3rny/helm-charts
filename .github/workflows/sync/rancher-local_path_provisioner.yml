@@ -1,0 +1,144 @@
+name: Sync Rancher local-path-provisioner
+
+env:
+  CHART_OWNER: Rancher
+  CHART_NAME: local-path-provisioner
+  REMOTE_CHART_REPOSITORY: https://github.com/rancher/local-path-provisioner.git
+  REMOTE_CHART_DIR_PATH: deploy/chart
+  REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
+  LOCAL_PATH: charts
+  LOCAL_CHART_PATH_PREFIX: _rancher
+  LOCAL_CHART_DIR_PATH: ${{ env.LOCAL_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}
+
+on:
+  push:
+    branches: [ master ]
+  # pull_request:
+  #   branches: [ master ]
+  # schedule:
+  #   - cron:  "30 */6 * * *"
+  # workflow_dispatch:
+
+jobs:
+  check_version:
+    runs-on: ubuntu-latest
+    
+    outputs:
+      REMOTE_VERSION: ${{ steps.localPathProvisionerVersion.outputs.REMOTE_VERSION }}
+      LOCAL_VERSION: ${{ steps.localPathProvisionerVersion.outputs.LOCAL_VERSION }}
+    
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Get version
+        id: localPathProvisionerVersion
+        run: |
+          echo ::set-output name=REMOTE_VERSION::$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*')
+          echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_DIR_PATH }}/Chart.yaml)
+
+
+  sync_repo:
+    needs: [ check_version ]
+    
+    runs-on: ubuntu-latest
+    
+    if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Clone remote repository
+        run: |
+          git clone ${{ env.REMOTE_CHART_REPOSITORY }} $RUNNER_TEMP/${{ env.CHART_NAME }}
+          
+          echo ""
+          cd $RUNNER_TEMP/${{ env.CHART_NAME }}
+          git log --stat --pretty=format: -n 1 ${{ env.REMOTE_CHART_DIR_PATH }}
+          echo ""
+
+          echo ORIGINAL_COMMIT_ID=$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_DIR_PATH }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_AUTHOR=$(git log --pretty=format:"%aN <%aE>" -n 1 ${{ env.REMOTE_CHART_DIR_PATH }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_DATE=$(git log --pretty=format:"%aD" -n 1 ${{ env.REMOTE_CHART_DIR_PATH }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 ${{ env.REMOTE_CHART_DIR_PATH }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_URL=$(sed -r "s/\.git$/\/commit\/$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_DIR_PATH }})/" <<< ${{ env.REMOTE_CHART_REPOSITORY }}) >> $GITHUB_ENV
+
+      - name: Check local path
+        run: |
+          mkdir -p ${{ env.LOCAL_CHART_DIR_PATH }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.PAT_PUBLIC_MGR }}
+          title: "[Sync] ${{ env.CHART_OWNER }} ${{ env.CHART_NAME }} chart"
+          body: |
+            commit  [${{ env.ORIGINAL_COMMIT_ID }}][1]
+            Author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
+            Date:   ${{ env.ORIGINAL_COMMIT_DATE }}
+
+                    ${{ env.ORIGINAL_COMMIT_MESSAGE }}
+            
+            [1]: ${{ env.ORIGINAL_COMMIT_URL }}
+          labels: |
+            sync
+            ${{ env.CHART_NAME }}
+            automated
+          commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
+          author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
+          signoff: false
+          path: ${{ env.LOCAL_CHART_DIR_PATH }}
+          add-paths: |
+            $RUNNER_TEMP/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
+          branch: ${{ env.CHART_NAME }}/patch
+          branch-suffix: short-commit-hash
+          delete-branch: true
+          
+      
+      # - name: Print stats
+      #   run: |
+      #     cd $RUNNER_TEMP/${{ env.CHART_NAME }}
+      #     git log --stat --pretty=format: -n 1 deploy/chart
+        
+      # - name: Merge sources
+      #   run: |
+      #     cd $RUNNER_TEMP/${{ env.CHART_NAME }}
+      # 
+      #     echo ""
+      #     for F in $(git log --name-only --pretty=format: -n 1 ./deploy/chart); do
+      #       echo "$F";
+      #     done
+
+      - name: Print versions
+        run: |
+          echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
+          echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
+          echo "LOCAL_CHART_DIR_PATH: ${{ env.LOCAL_CHART_DIR_PATH }}"
+          echo "RUNNER_TEMP: $RUNNER_TEMP"
+          echo "$(ls -alh $RUNNER_TEMP)"
+          echo "$(git status)"
+          echo "ORIGINAL_COMMIT_ID: ${{ env.ORIGINAL_COMMIT_ID }}"
+          echo "ORIGINAL_COMMIT_AUTHOR: ${{ env.ORIGINAL_COMMIT_AUTHOR }}"
+          echo "ORIGINAL_COMMIT_DATE: ${{ env.ORIGINAL_COMMIT_DATE }}"
+          echo "ORIGINAL_COMMIT_MESSAGE: ${{ env.ORIGINAL_COMMIT_MESSAGE }}"
+          echo "ORIGINAL_COMMIT_URL: ${{ env.ORIGINAL_COMMIT_URL }}"
+      
+      # - name: sync
+
+
+# NOTES:
+#
+# reset act image
+#   rm -fv ~/.actrc
+#
+# remove docker images
+#   docker images -f "dangling=true" -q | xargs docker rmi
+#
+# get latest commit of folder
+#   git clone https://github.com/rancher/local-path-provisioner.git
+#   git log --name-only --pretty=format: -n 1 deploy/chart
+#   git log --name-status --pretty=format: -n 1 deploy/chart
+#   git log --pretty=format:"%H" -n 1 deploy/chart
+#   git log --pretty=format:"Author: %aN <%aE>" -n 1 deploy/chart
+#   git log --pretty=format:"Date:   %aD" -n 1 deploy/chart
+#   git log --pretty=format:"%B" -n 1 deploy/chart
+
