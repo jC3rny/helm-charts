@@ -65,11 +65,7 @@ jobs:
 
       - name: Check local path
         run: |
-          mkdir -p ${{ env.LOCAL_CHART_ROOT_PATH }}
-          echo ""
-          echo $(ls -alh ${{ env.LOCAL_CHARTS_ROOT_PATH }})
-          echo $(ls -alh ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX})
-          echo $(ls -alh ${{ env.LOCAL_CHART_ROOT_PATH }})
+          mkdir -p ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
       
       - name: Print variables
         run: |
