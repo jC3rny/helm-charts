@@ -8,7 +8,6 @@ env:
   REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
   LOCAL_PATH: charts
   LOCAL_CHART_PATH_PREFIX: _rancher
-  LOCAL_CHART_DIR_PATH: ${{ LOCAL_PATH }}/${{ LOCAL_CHART_PATH_PREFIX }}/${{ CHART_NAME }}
 
 on:
   push:
@@ -22,6 +21,9 @@ on:
 jobs:
   check_version:
     runs-on: ubuntu-latest
+
+    env:
+      LOCAL_CHART_DIR_PATH: ${{ env.LOCAL_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}
     
     outputs:
       REMOTE_VERSION: ${{ steps.localPathProvisionerVersion.outputs.REMOTE_VERSION }}
@@ -41,6 +43,9 @@ jobs:
     needs: [ check_version ]
     
     runs-on: ubuntu-latest
+
+    env:
+      LOCAL_CHART_DIR_PATH: ${{ env.LOCAL_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}
     
     if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
     
