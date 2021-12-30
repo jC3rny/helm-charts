@@ -81,6 +81,8 @@ jobs:
           echo "LOCAL_CHART_ROOT_PATH: ${{ env.LOCAL_CHART_ROOT_PATH }}"
           echo ""
           echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          echo "$(ls -alh $GITHUB_WORKSPACE)"
+          echo ""
           echo "RUNNER_TEMP: $RUNNER_TEMP"
           echo "$(ls -alh $RUNNER_TEMP)"
           echo ""
