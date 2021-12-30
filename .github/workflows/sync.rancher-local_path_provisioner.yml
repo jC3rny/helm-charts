@@ -8,8 +8,8 @@ env:
   REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
   LOCAL_CHARTS_ROOT_PATH: charts
   CHART_PATH_PREFIX: _rancher
-  # CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${CHART_PATH_PREFIX}/${CHART_NAME}
-  CHART_ROOT_PATH: $LOCAL_CHARTS_ROOT_PATH/$CHART_PATH_PREFIX/$CHART_NAME
+  CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${CHART_PATH_PREFIX}/${CHART_NAME}
+  # CHART_ROOT_PATH: $LOCAL_CHARTS_ROOT_PATH/$CHART_PATH_PREFIX/$CHART_NAME
 
 on:
   push:
@@ -38,7 +38,7 @@ jobs:
           echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.CHART_ROOT_PATH }}/Chart.yaml)
 
 
-  sync_repo:
+  sync_chart:
     needs: [ check_version ]
     
     runs-on: ubuntu-latest
@@ -66,6 +66,22 @@ jobs:
       - name: Check local path
         run: |
           mkdir -p ${{ env.CHART_ROOT_PATH }}
+          echo ""
+          echo $(ls -alh ${{ env.CHART_ROOT_PATH }})
+      
+      - name: Print variables
+        run: |
+          echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
+          echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
+          echo "CHART_ROOT_PATH: ${{ env.CHART_ROOT_PATH }}"
+          echo "RUNNER_TEMP: $RUNNER_TEMP"
+          echo "$(ls -alh $RUNNER_TEMP)"
+          echo "$(git status)"
+          echo "ORIGINAL_COMMIT_ID: ${{ env.ORIGINAL_COMMIT_ID }}"
+          echo "ORIGINAL_COMMIT_AUTHOR: ${{ env.ORIGINAL_COMMIT_AUTHOR }}"
+          echo "ORIGINAL_COMMIT_DATE: ${{ env.ORIGINAL_COMMIT_DATE }}"
+          echo "ORIGINAL_COMMIT_MESSAGE: ${{ env.ORIGINAL_COMMIT_MESSAGE }}"
+          echo "ORIGINAL_COMMIT_URL: ${{ env.ORIGINAL_COMMIT_URL }}"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
@@ -108,19 +124,6 @@ jobs:
       #       echo "$F";
       #     done
 
-      - name: Print versions
-        run: |
-          echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
-          echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
-          echo "CHART_ROOT_PATH: ${{ env.CHART_ROOT_PATH }}"
-          echo "RUNNER_TEMP: $RUNNER_TEMP"
-          echo "$(ls -alh $RUNNER_TEMP)"
-          echo "$(git status)"
-          echo "ORIGINAL_COMMIT_ID: ${{ env.ORIGINAL_COMMIT_ID }}"
-          echo "ORIGINAL_COMMIT_AUTHOR: ${{ env.ORIGINAL_COMMIT_AUTHOR }}"
-          echo "ORIGINAL_COMMIT_DATE: ${{ env.ORIGINAL_COMMIT_DATE }}"
-          echo "ORIGINAL_COMMIT_MESSAGE: ${{ env.ORIGINAL_COMMIT_MESSAGE }}"
-          echo "ORIGINAL_COMMIT_URL: ${{ env.ORIGINAL_COMMIT_URL }}"
       
       # - name: sync
 
