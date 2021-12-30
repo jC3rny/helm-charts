@@ -122,7 +122,7 @@ jobs:
           # path: "${{ env.LOCAL_CHART_ROOT_PATH }}"
           # path: ${{ env.LOCAL_CHARTS_ROOT_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}/
           add-paths: |
-            ${{ env.PR_COMMIT_PATH }}/*
+            ${RUNNER_TEMP}/PR_COMMIT_ROOT/*
           base: ${{ env.PR_COMMIT_BASE_BRANCH }}
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
