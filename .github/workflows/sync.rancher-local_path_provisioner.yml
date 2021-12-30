@@ -113,11 +113,14 @@ jobs:
           title: "[Sync] ${{ env.CHART_OWNER }} ${{ env.CHART_NAME }} chart"
           body: |
             ## Original commit log
-
             <br/>
+
             > commit &nbsp;[${{ env.ORIGINAL_COMMIT_ID }}][1]
+            >
             > Author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
+            >
             > Date: &nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_DATE }}
+            >
             > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_MESSAGE }}
             
             [1]: ${{ env.ORIGINAL_COMMIT_URL }}
