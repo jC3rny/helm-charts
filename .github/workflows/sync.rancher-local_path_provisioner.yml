@@ -3,13 +3,15 @@ name: Sync Rancher local-path-provisioner
 env:
   CHART_OWNER: Rancher
   CHART_NAME: local-path-provisioner
-  REMOTE_CHART_REPOSITORY: https://github.com/rancher/local-path-provisioner.git
-  REMOTE_CHART_DIR_PATH: deploy/chart
+  REMOTE_CHART_REPO_URL: https://github.com/rancher/local-path-provisioner.git
+  REMOTE_CHART_REPO_NAME: local-path-provisioner
+  REMOTE_CHART_ROOT_PATH: deploy/chart
   REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
   LOCAL_CHARTS_ROOT_PATH: charts
   LOCAL_CHART_PATH_PREFIX: _rancher
   LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
   # LOCAL_CHART_ROOT_PATH: $LOCAL_CHARTS_ROOT_PATH/$LOCAL_CHART_PATH_PREFIX/$CHART_NAME
+  PR_COMMIT_PATH: ${RUNNER_TEMP}/PR_COMMIT_ROOT
 
 on:
   push:
@@ -50,27 +52,26 @@ jobs:
 
       - name: Clone remote repository
         run: |
-          git clone ${{ env.REMOTE_CHART_REPOSITORY }} $RUNNER_TEMP/${{ env.CHART_NAME }}
+          git clone ${{ env.REMOTE_CHART_REPO_URL }} $RUNNER_TEMP/${{ env.REMOTE_CHART_REPO_NAME }}
           
           echo ""
-          cd $RUNNER_TEMP/${{ env.CHART_NAME }}
-          git log --stat --pretty=format: -n 1 ${{ env.REMOTE_CHART_DIR_PATH }}
+          cd ${RUNNER_TEMP}/${{ env.CHART_NAME }}
+          git log --stat --pretty=format: -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}
           echo ""
 
-          echo ORIGINAL_COMMIT_ID=$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_DIR_PATH }}) >> $GITHUB_ENV
-          echo ORIGINAL_COMMIT_AUTHOR=$(git log --pretty=format:"%aN <%aE>" -n 1 ${{ env.REMOTE_CHART_DIR_PATH }}) >> $GITHUB_ENV
-          echo ORIGINAL_COMMIT_DATE=$(git log --pretty=format:"%aD" -n 1 ${{ env.REMOTE_CHART_DIR_PATH }}) >> $GITHUB_ENV
-          echo ORIGINAL_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 ${{ env.REMOTE_CHART_DIR_PATH }}) >> $GITHUB_ENV
-          echo ORIGINAL_COMMIT_URL=$(sed -r "s/\.git$/\/commit\/$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_DIR_PATH }})/" <<< ${{ env.REMOTE_CHART_REPOSITORY }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_ID=$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_AUTHOR=$(git log --pretty=format:"%aN <%aE>" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_DATE=$(git log --pretty=format:"%aD" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_URL=$(sed -r "s/\.git$/\/commit\/$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }})/" <<< ${{ env.REMOTE_CHART_REPO_URL }}) >> $GITHUB_ENV
 
       - name: Check local path
         run: |
-          mkdir -p ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
+          mkdir -p ${{ env.PR_COMMIT_PATH }}/${{ env.REMOTE_CHART_ROOT_PATH }}
+          cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${{ env.PR_COMMIT_PATH }}/${{ env.REMOTE_CHART_ROOT_PATH }}/
           echo ""
-          echo "$(ls -alh ${GITHUB_WORKSPACE})"
-          echo ""
-          echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
-          echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
+          echo "${{ env.PR_COMMIT_PATH }}/${{ env.REMOTE_CHART_ROOT_PATH }}"
+          echo "$(ls -alh ${{ env.PR_COMMIT_PATH }}/${{ env.REMOTE_CHART_ROOT_PATH }})"
       
       - name: Print variables
         run: |
@@ -93,6 +94,8 @@ jobs:
           echo "ORIGINAL_COMMIT_DATE: ${{ env.ORIGINAL_COMMIT_DATE }}"
           echo "ORIGINAL_COMMIT_MESSAGE: ${{ env.ORIGINAL_COMMIT_MESSAGE }}"
           echo "ORIGINAL_COMMIT_URL: ${{ env.ORIGINAL_COMMIT_URL }}"
+          echo ""
+          echo "PR_COMMIT_PATH: ${{ env.PR_COMMIT_PATH }}"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
@@ -102,23 +105,23 @@ jobs:
           body: |
             ## Original commit log
 
-            commit  [${{ env.ORIGINAL_COMMIT_ID }}][1]
-            Author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
-            Date:   ${{ env.ORIGINAL_COMMIT_DATE }}
-                    ${{ env.ORIGINAL_COMMIT_MESSAGE }}
+            > commit  [${{ env.ORIGINAL_COMMIT_ID }}][1]
+            > Author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
+            > Date:   ${{ env.ORIGINAL_COMMIT_DATE }}
+            >         ${{ env.ORIGINAL_COMMIT_MESSAGE }}
             
             [1]: ${{ env.ORIGINAL_COMMIT_URL }}
           labels: |
+            automated
             sync
             ${{ env.CHART_NAME }}
-            automated
           commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
           author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
           signoff: false
           # path: "${{ env.LOCAL_CHART_ROOT_PATH }}"
-          path: ${{ env.LOCAL_CHARTS_ROOT_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}/
+          # path: ${{ env.LOCAL_CHARTS_ROOT_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}/
           add-paths: |
-            ${RUNNER_TEMP}/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
+            ${{ env.PR_COMMIT_PATH }}/*
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
           delete-branch: true
