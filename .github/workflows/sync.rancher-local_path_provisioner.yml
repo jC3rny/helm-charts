@@ -97,7 +97,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
-          token: "${{ secrets.PAT_PUBLIC_MGR }}"
+          token: ${{ secrets.PAT_PUBLIC_MGR }}
           title: "[Sync] ${{ env.CHART_OWNER }} ${{ env.CHART_NAME }} chart"
           body: |
             ## Original commit log
@@ -112,13 +112,14 @@ jobs:
             sync
             ${{ env.CHART_NAME }}
             automated
-          commit-message: "${{ env.ORIGINAL_COMMIT_MESSAGE }}"
-          author: "${{ env.ORIGINAL_COMMIT_AUTHOR }}"
+          commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
+          author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
           signoff: false
-          path: "${{ env.LOCAL_CHART_ROOT_PATH }}/"
+          # path: "${{ env.LOCAL_CHART_ROOT_PATH }}"
+          path: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
           add-paths: |
-            ${RUNNER_TEMP}/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
-          branch: "${{ env.CHART_NAME }}/patch"
+            ${{ RUNNER_TEMP }}/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
+          branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
           delete-branch: true
           
