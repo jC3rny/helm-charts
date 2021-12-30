@@ -118,7 +118,7 @@ jobs:
           # path: "${{ env.LOCAL_CHART_ROOT_PATH }}"
           path: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}/
           add-paths: |
-            ${{ RUNNER_TEMP }}/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
+            ${RUNNER_TEMP}/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
           delete-branch: true
