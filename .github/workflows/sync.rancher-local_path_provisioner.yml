@@ -66,11 +66,12 @@ jobs:
           echo ORIGINAL_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo ORIGINAL_COMMIT_URL=$(sed -r "s/\.git$/\/commit\/$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }})/" <<< ${{ env.REMOTE_CHART_REPO_URL }}) >> $GITHUB_ENV
 
-      - name: Check local path
+      - name: Setup local path
         run: |
           mkdir -p ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}
           cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}/
           echo ""
+          echo PR_COMMIT_PATH_STRING=$(echo ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo "${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}"
           echo "$(ls -alh ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }})"
       
@@ -122,7 +123,7 @@ jobs:
           # path: "${{ env.LOCAL_CHART_ROOT_PATH }}"
           # path: ${{ env.LOCAL_CHARTS_ROOT_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}/
           add-paths: |
-            ${{ env.PR_COMMIT_PATH }}/*
+            ${{ env.PR_COMMIT_PATH_STRING }}/*
           base: ${{ env.PR_COMMIT_BASE_BRANCH }}
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
