@@ -114,10 +114,11 @@ jobs:
           body: |
             ## Original commit log
 
-            > commit  [${{ env.ORIGINAL_COMMIT_ID }}][1]
+            <br/>
+            > commit &nbsp;[${{ env.ORIGINAL_COMMIT_ID }}][1]
             > Author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
-            > Date:   ${{ env.ORIGINAL_COMMIT_DATE }}
-            >         ${{ env.ORIGINAL_COMMIT_MESSAGE }}
+            > Date: &nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_DATE }}
+            > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_MESSAGE }}
             
             [1]: ${{ env.ORIGINAL_COMMIT_URL }}
           labels: |
