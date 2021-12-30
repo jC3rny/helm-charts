@@ -8,7 +8,7 @@ env:
   REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
   LOCAL_PATH: charts
   LOCAL_CHART_PATH_PREFIX: _rancher
-  LOCAL_CHART_DIR_PATH: ${{ env.LOCAL_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}
+  LOCAL_CHART_DIR_PATH: ${{ LOCAL_PATH }}/${{ LOCAL_CHART_PATH_PREFIX }}/${{ CHART_NAME }}
 
 on:
   push:
@@ -66,32 +66,32 @@ jobs:
         run: |
           mkdir -p ${{ env.LOCAL_CHART_DIR_PATH }}
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ secrets.PAT_PUBLIC_MGR }}
-          title: "[Sync] ${{ env.CHART_OWNER }} ${{ env.CHART_NAME }} chart"
-          body: |
-            commit  [${{ env.ORIGINAL_COMMIT_ID }}][1]
-            Author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
-            Date:   ${{ env.ORIGINAL_COMMIT_DATE }}
-
-                    ${{ env.ORIGINAL_COMMIT_MESSAGE }}
-            
-            [1]: ${{ env.ORIGINAL_COMMIT_URL }}
-          labels: |
-            sync
-            ${{ env.CHART_NAME }}
-            automated
-          commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
-          author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
-          signoff: false
-          path: ${{ env.LOCAL_CHART_DIR_PATH }}
-          add-paths: |
-            $RUNNER_TEMP/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
-          branch: ${{ env.CHART_NAME }}/patch
-          branch-suffix: short-commit-hash
-          delete-branch: true
+      # - name: Create Pull Request
+      #   uses: peter-evans/create-pull-request@v3
+      #   with:
+      #     token: ${{ secrets.PAT_PUBLIC_MGR }}
+      #     title: "[Sync] ${{ env.CHART_OWNER }} ${{ env.CHART_NAME }} chart"
+      #     body: |
+      #       commit  [${{ env.ORIGINAL_COMMIT_ID }}][1]
+      #       Author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
+      #       Date:   ${{ env.ORIGINAL_COMMIT_DATE }}
+# 
+      #               ${{ env.ORIGINAL_COMMIT_MESSAGE }}
+      #       
+      #       [1]: ${{ env.ORIGINAL_COMMIT_URL }}
+      #     labels: |
+      #       sync
+      #       ${{ env.CHART_NAME }}
+      #       automated
+      #     commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
+      #     author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
+      #     signoff: false
+      #     path: ${{ env.LOCAL_CHART_DIR_PATH }}
+      #     add-paths: |
+      #       $RUNNER_TEMP/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
+      #     branch: ${{ env.CHART_NAME }}/patch
+      #     branch-suffix: short-commit-hash
+      #     delete-branch: true
           
       
       # - name: Print stats
