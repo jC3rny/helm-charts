@@ -53,7 +53,7 @@ jobs:
 
       - name: Clone remote repository
         run: |
-          git clone ${{ env.REMOTE_CHART_REPO_URL }} $RUNNER_TEMP/${{ env.REMOTE_CHART_REPO_NAME }}
+          git clone ${{ env.REMOTE_CHART_REPO_URL }} ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
           
           echo ""
           cd ${RUNNER_TEMP}/${{ env.CHART_NAME }}
@@ -68,11 +68,11 @@ jobs:
 
       - name: Check local path
         run: |
-          mkdir -p ${{ env.PR_COMMIT_PATH }}/${{ env.REMOTE_CHART_ROOT_PATH }}
-          cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${{ env.PR_COMMIT_PATH }}/${{ env.REMOTE_CHART_ROOT_PATH }}/
+          mkdir -p ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}
+          cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}/
           echo ""
-          echo "${{ env.PR_COMMIT_PATH }}/${{ env.REMOTE_CHART_ROOT_PATH }}"
-          echo "$(ls -alh ${{ env.PR_COMMIT_PATH }}/${{ env.REMOTE_CHART_ROOT_PATH }})"
+          echo "${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}"
+          echo "$(ls -alh ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }})"
       
       - name: Print variables
         run: |
@@ -85,8 +85,8 @@ jobs:
           echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
           echo "$(ls -alh $GITHUB_WORKSPACE)"
           echo ""
-          echo "RUNNER_TEMP: $RUNNER_TEMP"
-          echo "$(ls -alh $RUNNER_TEMP)"
+          echo "RUNNER_TEMP: ${RUNNER_TEMP}"
+          echo "$(ls -alh ${RUNNER_TEMP})"
           echo ""
           echo "$(git status)"
           echo ""
@@ -122,7 +122,7 @@ jobs:
           # path: "${{ env.LOCAL_CHART_ROOT_PATH }}"
           # path: ${{ env.LOCAL_CHARTS_ROOT_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}/
           add-paths: |
-            ${RUNNER_TEMP}/PR_COMMIT_ROOT/*
+            ${{ env.PR_COMMIT_PATH }}/*
           base: ${{ env.PR_COMMIT_BASE_BRANCH }}
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
