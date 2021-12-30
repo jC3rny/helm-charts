@@ -6,9 +6,10 @@ env:
   REMOTE_CHART_REPOSITORY: https://github.com/rancher/local-path-provisioner.git
   REMOTE_CHART_DIR_PATH: deploy/chart
   REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
-  LOCAL_PATH: charts
-  LOCAL_CHART_PATH_PREFIX: _rancher
-  LOCAL_CHART_DIR_PATH: ${LOCAL_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
+  LOCAL_CHARTS_ROOT_PATH: charts
+  CHART_PATH_PREFIX: _rancher
+  # CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${CHART_PATH_PREFIX}/${CHART_NAME}
+  CHART_ROOT_PATH: $LOCAL_CHARTS_ROOT_PATH/$CHART_PATH_PREFIX/$CHART_NAME
 
 on:
   push:
@@ -34,7 +35,7 @@ jobs:
         id: localPathProvisionerVersion
         run: |
           echo ::set-output name=REMOTE_VERSION::$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*')
-          echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_DIR_PATH }}/Chart.yaml)
+          echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.CHART_ROOT_PATH }}/Chart.yaml)
 
 
   sync_repo:
@@ -64,7 +65,7 @@ jobs:
 
       - name: Check local path
         run: |
-          mkdir -p ${{ env.LOCAL_CHART_DIR_PATH }}
+          mkdir -p ${{ env.CHART_ROOT_PATH }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
@@ -85,7 +86,7 @@ jobs:
           commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
           author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
           signoff: false
-          path: ${{ env.LOCAL_CHART_DIR_PATH }}
+          path: ${{ env.CHART_ROOT_PATH }}
           add-paths: |
             $RUNNER_TEMP/${{ env.CHART_NAME }}/${{ env.REMOTE_CHART_DIR_PATH }}/*
           branch: ${{ env.CHART_NAME }}/patch
@@ -111,7 +112,7 @@ jobs:
         run: |
           echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
           echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
-          echo "LOCAL_CHART_DIR_PATH: ${{ env.LOCAL_CHART_DIR_PATH }}"
+          echo "CHART_ROOT_PATH: ${{ env.CHART_ROOT_PATH }}"
           echo "RUNNER_TEMP: $RUNNER_TEMP"
           echo "$(ls -alh $RUNNER_TEMP)"
           echo "$(git status)"
