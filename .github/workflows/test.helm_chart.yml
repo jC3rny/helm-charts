@@ -30,11 +30,11 @@ jobs:
           git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo ""
           git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname
-          echo ""
+          echo "uniq"
           git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname | uniq
-          echo ""
-          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname | uniq | find -name "Chart.yaml"
-          echo ""
+          echo "find"
+          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname | find -name "Chart.yaml"
+          echo "end"
           git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname | uniq | find -name "Chart.yaml" | xargs dirname | xargs helm lint
       
       - run: exit 1
