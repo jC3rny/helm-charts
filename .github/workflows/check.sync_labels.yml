@@ -1,0 +1,18 @@
+name: Sync Label Checker
+
+on:
+  pull_request:
+    types:
+      - opened
+      - labeled
+
+jobs:
+  check_sync_labels:
+  
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: docker://agilepathway/pull-request-label-checker:latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          all_of: sync, automated
