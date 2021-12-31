@@ -113,7 +113,7 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.PAT_PUBLIC_MGR }}
-          title: ":: Sync :: ${{ env.CHART_OWNER }} ${{ env.CHART_NAME }} chart version [${{ needs.check_version.outputs.REMOTE_VERSION }}]"
+          title: "[Sync] ${{ env.CHART_OWNER }} ${{ env.CHART_NAME }} chart (version ${{ needs.check_version.outputs.REMOTE_VERSION }})"
           # title: "[Sync] Chart version ${{ needs.check_version.outputs.REMOTE_VERSION }}"
           body: |
             ## Original commit log
