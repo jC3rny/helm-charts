@@ -61,7 +61,8 @@ jobs:
           echo ""
 
           echo ORIGINAL_COMMIT_ID=$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
-          echo ORIGINAL_COMMIT_AUTHOR=$(git log --pretty=format:"[%aN](mailto:%aE)" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_AUTHOR_NAME=$(git log --pretty=format:"%aN" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+          echo ORIGINAL_COMMIT_AUTHOR_EMAIL=$(git log --pretty=format:"%aE" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo ORIGINAL_COMMIT_DATE=$(git log --pretty=format:"%aD" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo ORIGINAL_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo ORIGINAL_COMMIT_URL=$(sed -r "s/\.git$/\/commit\/$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }})/" <<< ${{ env.REMOTE_CHART_REPO_URL }}) >> $GITHUB_ENV
@@ -106,6 +107,7 @@ jobs:
           echo ""
           echo "PR_COMMIT_PATH: ${{ env.PR_COMMIT_PATH }}"
 
+      # echo ORIGINAL_COMMIT_AUTHOR=$(git log --pretty=format:"%aN <%aE>" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
       - name: Create Pull Request
         id: createPullRequest
         uses: peter-evans/create-pull-request@v3
@@ -119,7 +121,7 @@ jobs:
 
             > commit [${{ env.ORIGINAL_COMMIT_ID }}][1]
             >
-            > Author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
+            > Author: [${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }}](mailto:${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }})
             >
             > Date: &nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_DATE }}
             >
@@ -131,7 +133,7 @@ jobs:
             sync
             ${{ env.CHART_NAME }}
           commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
-          author: ${{ env.ORIGINAL_COMMIT_AUTHOR }}
+          author: ${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>
           signoff: false
           # path: "${{ env.LOCAL_CHART_ROOT_PATH }}"
           # path: ${{ env.LOCAL_CHARTS_ROOT_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}/
