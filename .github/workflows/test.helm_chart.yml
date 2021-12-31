@@ -27,6 +27,14 @@ jobs:
       - run: |
           git log --name-status -n 1
           echo ""
+          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          echo ""
+          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname
+          echo ""
+          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname | uniq
+          echo ""
+          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname | uniq | find -name "Chart.yaml"
+          echo ""
           git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname | uniq | find -name "Chart.yaml" | xargs dirname | xargs helm lint
       
       - run: exit 1
