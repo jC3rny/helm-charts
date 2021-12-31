@@ -43,7 +43,7 @@ jobs:
           fi
 
       - name: Run chart-testing (lint)
-        run: ct lint --chart-dirs ${{ env.CHART_TESTING_CHART_DIRS }} --target-branch ${{ env.CHART_TESTING_TARGET_BRANCH }} --debug
+        run: ct lint --chart-dirs ${{ env.CHART_TESTING_CHART_DIRS }} --target-branch ${{ env.CHART_TESTING_TARGET_BRANCH }} --validate-yaml false --debug
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.2.0
