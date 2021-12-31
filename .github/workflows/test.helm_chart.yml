@@ -15,6 +15,7 @@ jobs:
           ls -alh 
           ls -alh charts
           ls -alh charts/_rancher
+          ls -alh charts/_rancher/local-path-provisioner
           exit 1
 
       - name: Set up Helm
