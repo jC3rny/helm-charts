@@ -1,5 +1,8 @@
 name: Test Helm chart
 
+env:
+  HELM_CHARTS_ROOT_PATH: charts
+  
 on:
   pull_request:
 
@@ -24,6 +27,6 @@ jobs:
       - run: |
           git log --name-status -n 1
           echo ""
-          git log --name-only --pretty=format: -n 1 -- deploy | xargs dirname | uniq | find -name "Chart.yaml" | xargs dirname | xargs helm lint
+          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname | uniq | find -name "Chart.yaml" | xargs dirname | xargs helm lint
       
       - run: exit 1
