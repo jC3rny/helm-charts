@@ -7,7 +7,7 @@ env:
   CHART_TESTING_TARGET_BRANCH: main
 
 jobs:
-  lint-test:
+  test_helm_chart:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
