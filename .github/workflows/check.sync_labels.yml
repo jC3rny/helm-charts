@@ -5,7 +5,7 @@ on:
     types:
       - opened
       - labeled
-  workflow_dispatch:
+  # workflow_dispatch:
 
 jobs:
   check_sync_labels:
