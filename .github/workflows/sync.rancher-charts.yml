@@ -31,6 +31,7 @@ jobs:
       REMOTE_VERSION: ${{ steps.localPathProvisionerVersion.outputs.REMOTE_VERSION }}
       LOCAL_VERSION: ${{ steps.localPathProvisionerVersion.outputs.LOCAL_VERSION }}
     
+    # check if is opened PR with label automated,sync,${{ env.CHART_NAME }}
     steps:
       - uses: actions/checkout@v2
       
