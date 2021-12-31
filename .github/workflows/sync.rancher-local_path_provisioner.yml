@@ -120,7 +120,7 @@ jobs:
             ${{ env.CHART_NAME }}
           commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
           author: ${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>
-          signoff: false
+          signoff: true
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
           delete-branch: true
