@@ -1,14 +1,14 @@
 name: Label Checker
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - labeled
-      - unlabeled
-  # workflow_dispatch:
+  # pull_request:
+  #   types:
+  #     - opened
+  #     - synchronize
+  #     - reopened
+  #     - labeled
+  #     - unlabeled
+  workflow_dispatch:
 
 jobs:
   check_sync_labels:
