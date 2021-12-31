@@ -37,9 +37,14 @@ jobs:
       - name: Get version
         id: localPathProvisionerVersion
         run: |
-          echo ::set-output name=REMOTE_VERSION::$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*')
+          if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
+              REMOTE_CHART_FILE_URL=$(sed -r "s|/${{ env.REMOTE_CHART_REPO_NAME }}/master/|/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_COMMIT_SHA1 }}/|" <<< ${{ env.REMOTE_CHART_FILE_URL }})
+              echo ::set-output name=REMOTE_VERSION::$(curl -SsL ${REMOTE_CHART_FILE_URL} | grep -oP '(?<=^version: ).*')
+          else
+              echo ::set-output name=REMOTE_VERSION::$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*')
+          fi
+          
           echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)
-
 
   sync_chart:
     needs: [ check_version ]
