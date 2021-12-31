@@ -10,15 +10,13 @@ env:
   LOCAL_CHARTS_ROOT_PATH: charts
   LOCAL_CHART_PATH_PREFIX: _rancher
   LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
-  # LOCAL_CHART_ROOT_PATH: $LOCAL_CHARTS_ROOT_PATH/$LOCAL_CHART_PATH_PREFIX/$CHART_NAME
-  # PR_COMMIT_PATH: ${RUNNER_TEMP}/PR_COMMIT_ROOT
   # PR_COMMIT_BASE_BRANCH: main
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  # push:
+  #   branches: [ master ]
+  # pull_request:
+  #   branches: [ master ]
   schedule:
     - cron:  "30 */6 * * *"
   workflow_dispatch:
@@ -54,12 +52,10 @@ jobs:
       - name: Clone remote repository
         run: |
           git clone ${{ env.REMOTE_CHART_REPO_URL }} ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
-          
           echo ""
           cd ${RUNNER_TEMP}/${{ env.CHART_NAME }}
           git log --stat --pretty=format: -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}
           echo ""
-
           echo ORIGINAL_COMMIT_ID=$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo ORIGINAL_COMMIT_AUTHOR_NAME=$(git log --pretty=format:"%aN" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo ORIGINAL_COMMIT_AUTHOR_EMAIL=$(git log --pretty=format:"%aE" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
@@ -71,50 +67,40 @@ jobs:
         run: |
           mkdir -p ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
           cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}/
-          echo ""
-          echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
-          echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
-
-        # run: |
-        #   mkdir -p ${$GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
-        #   cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}/
-        #   echo ""
-        #   echo PR_COMMIT_PATH_STRING=$(echo ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}) >> $GITHUB_ENV
-        #   echo "${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }}"
-        #   echo "$(ls -alh ${{ env.PR_COMMIT_PATH }}/${{ env.LOCAL_CHART_ROOT_PATH }})"
+        # echo ""
+        # echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
+        # echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
       
-      - name: Print variables
-        run: |
-          echo "CHART_OWNER: ${{ env.CHART_OWNER }}"
-          echo "CHART_NAME: ${{ env.CHART_NAME }}"
-          echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
-          echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
-          echo "LOCAL_CHART_ROOT_PATH: ${{ env.LOCAL_CHART_ROOT_PATH }}"
-          echo ""
-          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
-          echo "$(ls -alh ${GITHUB_WORKSPACE})"
-          echo ""
-          echo "RUNNER_TEMP: ${RUNNER_TEMP}"
-          echo "$(ls -alh ${RUNNER_TEMP})"
-          echo ""
-          echo "$(git status)"
-          echo ""
-          echo "ORIGINAL_COMMIT_ID: ${{ env.ORIGINAL_COMMIT_ID }}"
-          echo "ORIGINAL_COMMIT_AUTHOR: ${{ env.ORIGINAL_COMMIT_AUTHOR }}"
-          echo "ORIGINAL_COMMIT_DATE: ${{ env.ORIGINAL_COMMIT_DATE }}"
-          echo "ORIGINAL_COMMIT_MESSAGE: ${{ env.ORIGINAL_COMMIT_MESSAGE }}"
-          echo "ORIGINAL_COMMIT_URL: ${{ env.ORIGINAL_COMMIT_URL }}"
-          echo ""
-          echo "PR_COMMIT_PATH: ${{ env.PR_COMMIT_PATH }}"
+      # - name: Print variables
+      #   run: |
+      #     echo "CHART_OWNER: ${{ env.CHART_OWNER }}"
+      #     echo "CHART_NAME: ${{ env.CHART_NAME }}"
+      #     echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
+      #     echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
+      #     echo "LOCAL_CHART_ROOT_PATH: ${{ env.LOCAL_CHART_ROOT_PATH }}"
+      #     echo ""
+      #     echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
+      #     echo "$(ls -alh ${GITHUB_WORKSPACE})"
+      #     echo ""
+      #     echo "RUNNER_TEMP: ${RUNNER_TEMP}"
+      #     echo "$(ls -alh ${RUNNER_TEMP})"
+      #     echo ""
+      #     echo "$(git status)"
+      #     echo ""
+      #     echo "ORIGINAL_COMMIT_ID: ${{ env.ORIGINAL_COMMIT_ID }}"
+      #     echo "ORIGINAL_COMMIT_AUTHOR: ${{ env.ORIGINAL_COMMIT_AUTHOR }}"
+      #     echo "ORIGINAL_COMMIT_DATE: ${{ env.ORIGINAL_COMMIT_DATE }}"
+      #     echo "ORIGINAL_COMMIT_MESSAGE: ${{ env.ORIGINAL_COMMIT_MESSAGE }}"
+      #     echo "ORIGINAL_COMMIT_URL: ${{ env.ORIGINAL_COMMIT_URL }}"
+      #     echo ""
+      #     echo "PR_COMMIT_PATH: ${{ env.PR_COMMIT_PATH }}"
 
-      # echo ORIGINAL_COMMIT_AUTHOR=$(git log --pretty=format:"%aN <%aE>" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
       - name: Create Pull Request
         id: createPullRequest
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.PAT_PUBLIC_MGR }}
           title: "[Sync] ${{ env.CHART_OWNER }} ${{ env.CHART_NAME }} chart (version ${{ needs.check_version.outputs.REMOTE_VERSION }})"
-          # title: "[Sync] Chart version ${{ needs.check_version.outputs.REMOTE_VERSION }}"
           body: |
             ## Original commit log
             <br/>
@@ -135,11 +121,6 @@ jobs:
           commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
           author: ${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>
           signoff: false
-          # path: "${{ env.LOCAL_CHART_ROOT_PATH }}"
-          # path: ${{ env.LOCAL_CHARTS_ROOT_PATH }}/${{ env.LOCAL_CHART_PATH_PREFIX }}/${{ env.CHART_NAME }}/
-          # add-paths: |
-          #   ${{ env.PR_COMMIT_PATH_STRING }}/**
-          # base: ${{ env.PR_COMMIT_BASE_BRANCH }}
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
           delete-branch: true
@@ -152,38 +133,9 @@ jobs:
           pull-request-number: ${{ steps.createPullRequest.outputs.pull-request-number }}
           merge-method: squash
 
-      # - name: Print stats
-      #   run: |
-      #     cd $RUNNER_TEMP/${{ env.CHART_NAME }}
-      #     git log --stat --pretty=format: -n 1 deploy/chart
-        
-      # - name: Merge sources
-      #   run: |
-      #     cd $RUNNER_TEMP/${{ env.CHART_NAME }}
-      # 
-      #     echo ""
-      #     for F in $(git log --name-only --pretty=format: -n 1 ./deploy/chart); do
-      #       echo "$F";
-      #     done
-
-      
-      # - name: sync
-
-
-# NOTES:
-#
-# reset act image
-#   rm -fv ~/.actrc
-#
-# remove docker images
-#   docker images -f "dangling=true" -q | xargs docker rmi
-#
-# get latest commit of folder
-#   git clone https://github.com/rancher/local-path-provisioner.git
-#   git log --name-only --pretty=format: -n 1 deploy/chart
-#   git log --name-status --pretty=format: -n 1 deploy/chart
-#   git log --pretty=format:"%H" -n 1 deploy/chart
-#   git log --pretty=format:"Author: %aN <%aE>" -n 1 deploy/chart
-#   git log --pretty=format:"Date:   %aD" -n 1 deploy/chart
-#   git log --pretty=format:"%B" -n 1 deploy/chart
-
+      - name: Auto approve
+        if: steps.createPullRequest.outputs.pull-request-operation == 'created'
+        uses: juliangruber/approve-pull-request-action@v1
+        with:
+          github-token: ${{ secrets.PAT_PUBLIC_MGR }}
+          number: ${{ steps.createPullRequest.outputs.pull-request-number }}
