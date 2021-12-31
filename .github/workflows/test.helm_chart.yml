@@ -16,17 +16,7 @@ jobs:
 
       - uses: azure/setup-helm@v1
       
-      # for F in $(git log --name-only --pretty=format: -n 1 -- deploy); do find $(dirname $F) -name "Chart.yaml" ; done
-      #
-      # git log --name-only --pretty=format: -n 1 -- deploy | xargs dirname | uniq
-      # git log --name-only --pretty=format: -n 1 -- deploy | xargs dirname | uniq | find -name "Chart.yaml"
-      # git log --name-only --pretty=format: -n 1 -- deploy | xargs dirname | uniq | find -name "Chart.yaml" | xargs dirname | xargs helm lint
-      #
-      # find deploy -type d
-      
       - run: |
           git log --name-status -n 1
           echo ""
           git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
-      
-      - run: exit 1
