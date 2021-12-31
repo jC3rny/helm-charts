@@ -107,6 +107,7 @@ jobs:
           echo "PR_COMMIT_PATH: ${{ env.PR_COMMIT_PATH }}"
 
       - name: Create Pull Request
+        id: createPullRequest
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.PAT_PUBLIC_MGR }}
@@ -140,8 +141,15 @@ jobs:
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
           delete-branch: true
-          
       
+      - name: Enable Pull Request Automerge
+        if: steps.createPullRequest.outputs.pull-request-operation == 'created'
+        uses: peter-evans/enable-pull-request-automerge@v1
+        with:
+          token: ${{ secrets.PAT_PUBLIC_MGR }}
+          pull-request-number: ${{ steps.createPullRequest.outputs.pull-request-number }}
+          merge-method: squash
+
       # - name: Print stats
       #   run: |
       #     cd $RUNNER_TEMP/${{ env.CHART_NAME }}
