@@ -14,4 +14,4 @@ jobs:
       - uses: azure/setup-helm@v1
       
       - run: |
-          git status
+          git log --name-status -n 1
