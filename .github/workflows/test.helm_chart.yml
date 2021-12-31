@@ -31,6 +31,9 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.1.0
 
+      - run: |
+          cat /opt/hostedtoolcache/ct/v3.4.0/x86_64/etc/lintconf.yaml
+
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
