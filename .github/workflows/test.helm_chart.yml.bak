@@ -1,10 +1,9 @@
 name: Test Helm chart
+  
+on: pull_request
 
 env:
   HELM_CHARTS_ROOT_PATH: charts
-  
-on:
-  pull_request:
 
 jobs:
   test_helm_chart:
