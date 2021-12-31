@@ -3,7 +3,7 @@ name: Sync Rancher local-path-provisioner
 env:
   CHART_OWNER: Rancher
   CHART_NAME: local-path-provisioner
-  REMOTE_CHART_COMMIT_SHA1: d45bdcf6112a55c2cbaa03ea9cad4d65f4f20e54
+  # REMOTE_CHART_COMMIT_SHA1: d45bdcf6112a75c2cbaa03ea9cad4d65f4f20e54
   REMOTE_CHART_REPO_URL: https://github.com/rancher/local-path-provisioner.git
   REMOTE_CHART_REPO_NAME: local-path-provisioner
   REMOTE_CHART_ROOT_PATH: deploy/chart
@@ -11,7 +11,7 @@ env:
   LOCAL_CHARTS_ROOT_PATH: charts
   LOCAL_CHART_PATH_PREFIX: _rancher
   LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
-  # PR_COMMITER: Jan Černý <iam@c3rny.ninja>
+  # PR_COMMITER: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
   PR_BASE_BRANCH: main
   
 on:
@@ -91,9 +91,11 @@ jobs:
               echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
               echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
           else
-              echo "NEED FILES SYNC"
+              echo "TODO: NEED FILES SYNC"
               cd ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
               git log --name-status --pretty=format: -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}
+
+              exit 1
           fi
       
       # - name: Print variables
@@ -125,7 +127,8 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.PAT_PUBLIC_MGR }}
-          title: "[Sync] ${{ env.CHART_OWNER }} ${{ env.CHART_NAME }} chart (version ${{ needs.check_version.outputs.REMOTE_VERSION }})"
+          # [Sync] Update local-path-provisioner (version 0.0.19)
+          title: "[Sync] Update ${{ env.CHART_NAME }} (version ${{ needs.check_version.outputs.REMOTE_VERSION }})"
           body: |
             ## Original commit log
             <br/>
@@ -143,10 +146,11 @@ jobs:
             automated
             sync
             ${{ env.CHART_NAME }}
-          commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
+          # commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
+          commit-message: Sync version ${{ needs.check_version.outputs.REMOTE_VERSION }}
           # committer: ${{ env.PR_COMMITER }}
           author: ${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>
-          signoff: off
+          signoff: false
           assignees: ${{ github.actor }}
           # reviewers: ${{ github.actor }}
           base: ${{ env.PR_BASE_BRANCH }}
@@ -164,16 +168,8 @@ jobs:
     
     steps:
       - name: Enable Pull Request Automerge
-        # if: steps.createPullRequest.outputs.pull-request-operation == 'created'
         uses: peter-evans/enable-pull-request-automerge@v1
         with:
           token: ${{ secrets.PAT_PUBLIC_MGR }}
           pull-request-number: ${{ needs.sync_chart.outputs.PR_NUMBER }}
           merge-method: squash
-      
-      # - name: Auto approve
-      #   # if: steps.createPullRequest.outputs.pull-request-operation == 'created'
-      #   uses: juliangruber/approve-pull-request-action@v1
-      #   with:
-      #     github-token: ${{ secrets.PAT_PUBLIC_MGR }}
-      #     number: ${{ needs.sync_chart.outputs.PR_NUMBER }}
