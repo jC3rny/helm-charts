@@ -120,9 +120,11 @@ jobs:
             sync
             ${{ env.CHART_NAME }}
           commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
-          committer: ${{ env.PR_COMMITER }}
+          # committer: ${{ env.PR_COMMITER }}
           author: ${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>
-          signoff: true
+          signoff: off
+          assignees: ${{ github.actor }}
+          reviewers: ${{ github.actor }}
           base: ${{ env.PR_BASE_BRANCH }}
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
