@@ -1,4 +1,4 @@
-name: Sync Rancher local-path-provisioner
+name: Sync Rancher helm charts
 
 env:
   CHART_OWNER: Rancher
