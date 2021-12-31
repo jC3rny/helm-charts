@@ -16,7 +16,8 @@ jobs:
 
       - uses: azure/setup-helm@v1
       
-      - run: |
+      - name: Lint
+        run: |
           git log --name-status -n 1
           echo ""
           git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
