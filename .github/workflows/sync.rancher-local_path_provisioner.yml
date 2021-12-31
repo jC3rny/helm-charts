@@ -53,7 +53,7 @@ jobs:
       PR_OPERATION: ${{ steps.createPullRequest.outputs.pull-request-operation }}
 
     steps:
-      # - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - name: Clone remote repository
         run: |
@@ -61,7 +61,7 @@ jobs:
           
           cd ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
           
-          if [ -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
+          if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
               git reset --hard ${{ env.REMOTE_CHART_COMMIT_SHA1 }}
           fi
 
