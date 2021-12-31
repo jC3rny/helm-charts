@@ -11,6 +11,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - run: |
+          ls -alh 
+          ls -alh charts
+          ls -alh charts/_rancher
+
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
