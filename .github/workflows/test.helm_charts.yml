@@ -24,7 +24,7 @@ jobs:
           echo ":: git status"
           git status
           echo
-          echo ":: git log --name-status"
+          echo ":: git log"
           git log --name-status -n 1
           echo
           echo ":: helm lint"
