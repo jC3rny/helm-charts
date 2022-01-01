@@ -2,7 +2,45 @@ name: Push helm charts
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  #   branches: [ master ]
+  #   paths:
+  #     - 'charts/**'
+  # pull_request:
+  #   branches: [ master ]
+  
 
+env:
+  PUBLISH_REPO_URL: https://charts.c3rny.ninja
+  PUBLISH_REPO_NAME: c3rny.ninja
+  PUBLISH_TARGET_BRANCH: gh-pages
+  PUBLISH_PACKAGES_ROOT_PATH: packages
+
+jobs:
+  check_version:
+    runs-on: ubuntu-latest
+    
+    outputs: {}
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+
+      - name: Set up YQ
+        uses: chrisdickinson/setup-yq@latest
+
+      - name: Test
+        # runs-on: alpine/helm
+        run: |
+          jq --help
+          echo
+          yq --help
+          echo
+          helm repo add c3rny.ninja https://charts.c3rny.ninja
+          echo
+          helm repo update
+          echo
+          helm repo list
+          echo
+          helm search repo -r c3rny.ninja -o json --devel
