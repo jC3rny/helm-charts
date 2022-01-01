@@ -43,10 +43,6 @@ jobs:
         # echo PUBLISH_REPO_NAME=$(basename $(git rev-parse --show-toplevel)) >> $GITHUB_ENV
       
       - run: |
-          jq --help
-          echo
-          yq --help
-          echo
           echo "pwd"
           pwd
           echo
