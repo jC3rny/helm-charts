@@ -43,10 +43,13 @@ jobs:
       - name: Update YAML Lint config (update lintconf.yaml)
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval -i '.rules.empty-lines.max = 5' '/github/home/lintconf.yaml'
+          cmd: yq eval -i '.rules.empty-lines.max-end = 10' '/github/home/lintconf.yaml'
 
       - name: Update YAML Lint config (prepare lintconf.yaml)
-        run: cp -fv /home/runner/work/_temp/_github_home/lintconf.yaml $(dirname ${{ env.YAML_LINT_CONFIG_PATH }})
+        run: |
+          cp -fv /home/runner/work/_temp/_github_home/lintconf.yaml $(dirname ${{ env.YAML_LINT_CONFIG_PATH }})
+          echo ""
+          cat ${{ env.YAML_LINT_CONFIG_PATH }}
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -58,7 +61,7 @@ jobs:
 
       - name: Run chart-testing (lint)
         run: |
-          ct lint --chart-dirs ${{ env.CHART_TESTING_CHART_DIRS }} --target-branch ${{ env.CHART_TESTING_TARGET_BRANCH }} --debug
+          ct lint --validate-yaml false --chart-dirs ${{ env.CHART_TESTING_CHART_DIRS }} --target-branch ${{ env.CHART_TESTING_TARGET_BRANCH }} --debug
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.2.0
