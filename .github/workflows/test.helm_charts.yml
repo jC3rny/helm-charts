@@ -3,7 +3,10 @@ name: Test Helm charts
 on: pull_request
 
 env:
+  GIT_REMOTE: origin
+  GIT_REMOTE_TARGET_BRANCH: main
   HELM_CHARTS_ROOT_PATH: charts
+  
 
 jobs:
   test_helm_charts:
@@ -24,8 +27,8 @@ jobs:
 
       - name: Lint changed charts
         run: |
-          git diff --stat origin/master -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          git diff --stat ${{ env.GIT_REMOTE }}/${{ env.GIT_REMOTE_TARGET_BRANCH }} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo ""
-          git diff --stat origin/master -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
+          git diff --stat ${{ env.GIT_REMOTE }}/${{ env.GIT_REMOTE_TARGET_BRANCH }} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
 
     
