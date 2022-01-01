@@ -19,25 +19,30 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
       
-      # - name: Lint changed charts
-      #   run: |
-      #     git log --name-status -n 1
-      #     echo ""
-      #     git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
-
-      - name: Set up ENV
-        run: |
-          PR_MERGE_INTO_ID=$(git log --pretty=format:"%B" -n 1 ${{ env.HELM_CHARTS_ROOT_PATH }} | awk '{ n=split($0, a, " "); print a[n] }') >> ${GITHUB_ENV}
-
       - name: Lint changed charts
         run: |
           echo ":: git status"
           git status
           echo
-          echo ":: git branch"
-          git branch -a
+          echo ":: git log --name-status"
+          git log --name-status -n 1
           echo
-          echo ":: git diff --stat"
-          git diff --stat ${{ env.GIT_REMOTE }}/${PR_MERGE_INTO_ID} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
-          echo
-          git diff --name-only ${{ env.GIT_REMOTE }}/${{ env.PR_MERGE_INTO_ID }} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
+          echo ":: helm lint"
+          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
+
+      # - name: Set up ENV
+      #   run: |
+      #     PR_MERGE_INTO_ID=$(git log --pretty=format:"%B" -n 1 ${{ env.HELM_CHARTS_ROOT_PATH }} | awk '{ n=split($0, a, " "); print a[n] }') >> ${GITHUB_ENV}
+
+      # - name: Lint changed charts
+      #   run: |
+      #     echo ":: git status"
+      #     git status
+      #     echo
+      #     echo ":: git branch"
+      #     git branch -a
+      #     echo
+      #     echo ":: git diff --stat"
+      #     git diff --stat ${{ env.GIT_REMOTE }}/${PR_MERGE_INTO_ID} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+      #     echo
+      #     git diff --name-only ${{ env.GIT_REMOTE }}/${{ env.PR_MERGE_INTO_ID }} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
