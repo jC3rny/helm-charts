@@ -33,7 +33,7 @@ jobs:
           echo ":: git branch -a"
           git branch -a
           echo
-          echo ":: git log"
+          echo ":: git log -n 1"
           git log
           echo
           echo "git reflog"
