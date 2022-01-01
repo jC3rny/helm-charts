@@ -27,11 +27,20 @@ jobs:
 
       - name: Lint changed charts
         run: |
+          echo ":: git status"
           git status
           echo ""
+          echo ":: git branch -a"
           git branch -a
           echo ""
+          echo ":: git log"
           git log
+          echo ""
+          echo "git reflog"
+          git reflog
+          echo ""
+          echo "git rev-list --max-parents=0 HEAD"
+          git rev-list --max-parents=0 HEAD
           echo ""
           git diff --stat ${{ env.GIT_REMOTE }}/${{ env.GIT_REMOTE_TARGET_BRANCH }} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo ""
