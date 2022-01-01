@@ -35,6 +35,6 @@ jobs:
           git status
           echo
           echo ":: git diff --stat"
-          git diff --stat ${PR_MERGE_INTO_ID} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          git diff --stat ${{ env.GIT_REMOTE }}/${PR_MERGE_INTO_ID} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo
-          git diff --name-only ${{ env.PR_MERGE_INTO_ID }} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
+          git diff --name-only ${{ env.GIT_REMOTE }}/${{ env.PR_MERGE_INTO_ID }} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
