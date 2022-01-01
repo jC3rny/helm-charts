@@ -43,7 +43,7 @@ jobs:
           git rev-list --max-parents=0 HEAD
           echo
           echo "Merge into"
-          git log --pretty=format:"%H" -n 1 ${{ env.HELM_CHARTS_ROOT_PATH }} | awk '{ n=split($0, a, " "); print a[n] }'
+          git log --pretty=format:"%B" -n 1 ${{ env.HELM_CHARTS_ROOT_PATH }} | awk '{ n=split($0, a, " "); print a[n] }'
           echo
           git diff --stat ${{ env.GIT_REMOTE }}/${{ env.GIT_REMOTE_TARGET_BRANCH }} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo
