@@ -33,9 +33,12 @@ jobs:
       - name: Set up additional variables
         run: |
           echo CHART_TESTING_CHART_DIRS=$(find ${{ env.HELM_CHARTS_ROOT_PATH }} -mindepth 1 -maxdepth 1 -type d | tr '\n' ',' | sed 's/.$//') >> $GITHUB_ENV
-          echo ""
-          find /opt/hostedtoolcache/ct -name "lintconf.yaml"
-          exit 1
+          echo YAML_LINT_CONFIG_PATH=$(find /opt/hostedtoolcache/ct -name "lintconf.yaml") >> $GITHUB_ENV
+
+      - name: Update YAML Lint config
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq eval -i '.rules.empty-lines.max = 5' ${{ env.YAML_LINT_CONFIG_PATH }}
 
       - name: Run chart-testing (list-changed)
         id: list-changed
