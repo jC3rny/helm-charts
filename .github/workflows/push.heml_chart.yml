@@ -2,11 +2,12 @@ name: Push helm charts
 
 on:
   push:
-  #   branches: [ master ]
-  #   paths:
-  #     - 'charts/**'
-  # pull_request:
-  #   branches: [ master ]
+    branches: [ master ]
+    paths:
+      - 'charts/**'
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
   
 
 env:
