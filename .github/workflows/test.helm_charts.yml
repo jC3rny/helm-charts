@@ -34,6 +34,9 @@ jobs:
           echo ":: git status"
           git status
           echo
+          echo ":: git branch"
+          git branch -a
+          echo
           echo ":: git diff --stat"
           git diff --stat ${{ env.GIT_REMOTE }}/${PR_MERGE_INTO_ID} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo
