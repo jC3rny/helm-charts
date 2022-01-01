@@ -1,9 +1,22 @@
 name: Sync Rancher helm charts
+  
+on:
+  # push:
+  #   branches: [ master ]
+  # pull_request:
+  #   branches: [ master ]
+  schedule:
+    # - cron:  "30 */12 * * *"
+    - cron:  "0 6 * * *"
+  workflow_dispatch:
 
+  
 env:
-  CHART_OWNER: Rancher
   CHART_NAME: local-path-provisioner
-  REMOTE_CHART_COMMIT_SHA1: d45bdcf6112a55c2cbaa03ea9cad4d65f4f20e54
+  # v0.0.19
+  # REMOTE_CHART_COMMIT_SHA1: d45bdcf6112a55c2cbaa03ea9cad4d65f4f20e54
+  # v0.0.18
+  REMOTE_CHART_COMMIT_SHA1: 31496fdb80290f4b1425ffc3dc39b070d68a712c
   REMOTE_CHART_REPO_URL: https://github.com/rancher/local-path-provisioner.git
   REMOTE_CHART_REPO_NAME: local-path-provisioner
   REMOTE_CHART_ROOT_PATH: deploy/chart
@@ -13,15 +26,6 @@ env:
   LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
   # PR_COMMITER: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
   PR_BASE_BRANCH: main
-  
-on:
-  # push:
-  #   branches: [ master ]
-  # pull_request:
-  #   branches: [ master ]
-  schedule:
-    - cron:  "30 */6 * * *"
-  workflow_dispatch:
 
 jobs:
   check_version:
@@ -53,14 +57,11 @@ jobs:
     if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
     
     runs-on: ubuntu-latest
-    
-    outputs:
-      PR_NUMBER: ${{ steps.createPullRequest.outputs.pull-request-number }}
-      PR_OPERATION: ${{ steps.createPullRequest.outputs.pull-request-operation }}
 
     steps:
       - uses: actions/checkout@v2
 
+      # Clone remote repository
       - name: Clone remote repository
         run: |
           git clone ${{ env.REMOTE_CHART_REPO_URL }} ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
@@ -71,10 +72,10 @@ jobs:
               git reset --hard ${{ env.REMOTE_CHART_COMMIT_SHA1 }}
           fi
 
-          echo ""
+          echo
           git log --stat --pretty=format: -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}
 
-          echo ""
+          echo
           echo ORIGINAL_COMMIT_ID=$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo ORIGINAL_COMMIT_AUTHOR_NAME=$(git log --pretty=format:"%aN" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo ORIGINAL_COMMIT_AUTHOR_EMAIL=$(git log --pretty=format:"%aE" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
@@ -82,13 +83,14 @@ jobs:
           echo ORIGINAL_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo ORIGINAL_COMMIT_URL=$(sed -r "s/\.git$/\/commit\/$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }})/" <<< ${{ env.REMOTE_CHART_REPO_URL }}) >> $GITHUB_ENV
 
+      # Setup local path
       - name: Setup local path
         run: |
           if [ ! -d "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}" ]; then
               mkdir -p ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
               cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}/
 
-              echo ""
+              echo
               echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
               echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
           else
@@ -123,6 +125,7 @@ jobs:
       #     echo ""
       #     echo "PR_COMMIT_PATH: ${{ env.PR_COMMIT_PATH }}"
 
+      # Create Pull Request
       - name: Create Pull Request
         id: createPullRequest
         uses: peter-evans/create-pull-request@v3
@@ -158,19 +161,12 @@ jobs:
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
           delete-branch: true
-
-  update_pr:
-    needs: [ sync_chart ]
-    
-    # if: needs.sync_chart.steps.createPullRequest.outputs.pull-request-operation == 'created'
-    if: needs.sync_chart.outputs.PR_OPERATION == 'created'
-
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Enable Pull Request Automerge
+      
+      # Enable Automerge
+      - name: Enable Automerge
+        if: steps.createPullRequest.outputs.pull-request-operation == 'created'
         uses: peter-evans/enable-pull-request-automerge@v1
         with:
           token: ${{ secrets.PAT_PUBLIC_MGR }}
-          pull-request-number: ${{ needs.sync_chart.outputs.PR_NUMBER }}
+          pull-request-number: ${{ steps.createPullRequest.outputs.pull-request-number }}
           merge-method: squash
