@@ -25,28 +25,16 @@ jobs:
       #     echo ""
       #     git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
 
+      - name: Set up ENV
+        run: |
+          PR_MERGE_INTO_ID=$(git log --pretty=format:"%B" -n 1 ${{ env.HELM_CHARTS_ROOT_PATH }} | awk '{ n=split($0, a, " "); print a[n] }') >> ${GITHUB_ENV}
+
       - name: Lint changed charts
         run: |
           echo ":: git status"
           git status
           echo
-          echo ":: git branch -a"
-          git branch -a
+          echo ":: git diff --stat"
+          git diff --stat ${PR_MERGE_INTO_ID} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo
-          echo ":: git log"
-          git log -n 1
-          echo
-          echo "git reflog"
-          git reflog
-          echo
-          echo "git rev-list --max-parents=0 HEAD"
-          git rev-list --max-parents=0 HEAD
-          echo
-          echo "Merge into"
-          git log --pretty=format:"%B" -n 1 ${{ env.HELM_CHARTS_ROOT_PATH }} | awk '{ n=split($0, a, " "); print a[n] }'
-          echo
-          git diff --stat ${{ env.GIT_REMOTE }}/${{ env.GIT_REMOTE_TARGET_BRANCH }} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
-          echo
-          git diff --name-only ${{ env.GIT_REMOTE }}/${{ env.GIT_REMOTE_TARGET_BRANCH }} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
-
-    
+          git diff --name-only ${{ env.PR_MERGE_INTO_ID }} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
