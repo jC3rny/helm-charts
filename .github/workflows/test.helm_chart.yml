@@ -35,6 +35,7 @@ jobs:
           echo CHART_TESTING_CHART_DIRS=$(find ${{ env.HELM_CHARTS_ROOT_PATH }} -mindepth 1 -maxdepth 1 -type d | tr '\n' ',' | sed 's/.$//') >> $GITHUB_ENV
           echo ""
           find /opt/hostedtoolcache/ct -name "lintconf.yaml"
+          exit 1
 
       - name: Run chart-testing (list-changed)
         id: list-changed
