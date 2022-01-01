@@ -31,6 +31,8 @@ jobs:
           echo ""
           git branch -a
           echo ""
+          git log
+          echo ""
           git diff --stat ${{ env.GIT_REMOTE }}/${{ env.GIT_REMOTE_TARGET_BRANCH }} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo ""
           git diff --name-only ${{ env.GIT_REMOTE }}/${{ env.GIT_REMOTE_TARGET_BRANCH }} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
