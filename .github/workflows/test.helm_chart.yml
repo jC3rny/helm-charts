@@ -34,14 +34,19 @@ jobs:
         run: |
           echo CHART_TESTING_CHART_DIRS=$(find ${{ env.HELM_CHARTS_ROOT_PATH }} -mindepth 1 -maxdepth 1 -type d | tr '\n' ',' | sed 's/.$//') >> $GITHUB_ENV
           echo YAML_LINT_CONFIG_PATH=$(find /opt/hostedtoolcache/ct -name "lintconf.yaml") >> $GITHUB_ENV
-          echo ""
-          echo "RUNNER_TOOL_CACHE: ${RUNNER_TOOL_CACHE}"
-          echo "$(ls -alh /home/runner/work/_temp/_github_home)"
+          
+      - name: Update YAML Lint config (prepare lintconf.yaml)
+        run: |
+          mkdir -p /home/runner/work/_temp/_github_home
+          cp -fv ${{ env.YAML_LINT_CONFIG_PATH }} /home/runner/work/_temp/_github_home/
 
-      - name: Update YAML Lint config
+      - name: Update YAML Lint config (update lintconf.yaml)
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval -i '.rules.empty-lines.max = 5' ${{ env.YAML_LINT_CONFIG_PATH }}
+          cmd: yq eval -i '.rules.empty-lines.max = 5' '/github/home/lintconf.yaml'
+
+      - name: Update YAML Lint config (prepare lintconf.yaml)
+        run: cp -fv /home/runner/work/_temp/_github_home/lintconf.yaml $(dirname ${{ env.YAML_LINT_CONFIG_PATH }})
 
       - name: Run chart-testing (list-changed)
         id: list-changed
