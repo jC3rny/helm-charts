@@ -15,6 +15,7 @@ env:
   PUBLISH_REPO_NAME: c3rny.ninja
   PUBLISH_TARGET_BRANCH: gh-pages
   PUBLISH_PACKAGES_ROOT_PATH: packages
+  HELM_CHARTS_ROOT_PATH: charts
 
 jobs:
   check_version:
@@ -38,6 +39,11 @@ jobs:
           echo
           yq --help
           echo
+          echo "pwd"
+          pwd
+          echo
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          echo
           helm repo add c3rny.ninja https://charts.c3rny.ninja
           echo
           helm repo update
@@ -45,3 +51,5 @@ jobs:
           helm repo list
           echo
           helm search repo -r c3rny.ninja -o json --devel
+          echo 
+          git log --name-only --pretty=format: -n 1 ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname
