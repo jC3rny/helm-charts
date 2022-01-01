@@ -29,21 +29,24 @@ jobs:
         run: |
           echo ":: git status"
           git status
-          echo ""
+          echo
           echo ":: git branch -a"
           git branch -a
-          echo ""
+          echo
           echo ":: git log"
           git log
-          echo ""
+          echo
           echo "git reflog"
           git reflog
-          echo ""
+          echo
           echo "git rev-list --max-parents=0 HEAD"
           git rev-list --max-parents=0 HEAD
-          echo ""
+          echo
+          echo "Merge into"
+          git log --pretty=format:"%H" -n 1 ${{ env.HELM_CHARTS_ROOT_PATH }} | awk '{ n=split($0, a, " "); print a[n] }'
+          echo
           git diff --stat ${{ env.GIT_REMOTE }}/${{ env.GIT_REMOTE_TARGET_BRANCH }} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
-          echo ""
+          echo
           git diff --name-only ${{ env.GIT_REMOTE }}/${{ env.GIT_REMOTE_TARGET_BRANCH }} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
 
     
