@@ -36,18 +36,17 @@ jobs:
           mkdir -p ${{ env.SOURCE_REPO_CLONE_PATH }}
           
           git clone ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
-          
+
           echo
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}
           pwd
           echo "git reset --hard ${GITHUB_SHA}"
-          git reset --hard ${GITHUB_SHA}
           echo
-          echo "git diff --stat"
-          git diff --stat
+          echo "git diff --stat ${GITHUB_SHA}"
+          git diff --stat ${GITHUB_SHA}
           echo
-          echo "git diff --name-only -- ${{ env.SOURCE_REPO_ROOT_PATH }}"
-          git diff --name-only -- ${{ env.SOURCE_REPO_ROOT_PATH }}
+          echo "git diff --name-only ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}"
+          git diff --name-only ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}
           
 
       - name: Set up Helm
