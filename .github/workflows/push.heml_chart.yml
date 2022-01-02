@@ -43,31 +43,33 @@ jobs:
           echo "git status"
           git status
           echo
-          echo "git diff --stat ${GITHUB_SHA}"
-          git diff --stat origin/main ${GITHUB_SHA}
+          echo "git diff-tree --no-commit-id --stat -r ${GITHUB_SHA}"
+          git git diff-tree --no-commit-id --stat -r ${GITHUB_SHA}
           echo
-          echo "git diff --name-only ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}"
-          git diff --name-only ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}
+          echo "git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}"
+          git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}
+          echo
+          find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }} | xargs dirname) -name "Chart.yaml" | uniq
           
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v1
-
-
-      - name: Set up YQ
-        uses: chrisdickinson/setup-yq@latest
-
-
-      - name: Set up ENV
-        run: |
-          echo HELM_CHARTS_REPO_NAME=$(basename ${{ env.HELM_CHARTS_REPO_URL }} | sed -r 's|charts\.||') >> $GITHUB_ENV
-      
-
-      - name: Set up Helm repository
-        run: |
-          helm repo add ${{ env.HELM_CHARTS_REPO_NAME }} ${{ env.HELM_CHARTS_REPO_URL }}
-          echo
-          helm repo update
+      # - name: Set up Helm
+      #   uses: azure/setup-helm@v1
+# 
+# 
+      # - name: Set up YQ
+      #   uses: chrisdickinson/setup-yq@latest
+# 
+# 
+      # - name: Set up ENV
+      #   run: |
+      #     echo HELM_CHARTS_REPO_NAME=$(basename ${{ env.HELM_CHARTS_REPO_URL }} | sed -r 's|charts\.||') >> $GITHUB_ENV
+      # 
+# 
+      # - name: Set up Helm repository
+      #   run: |
+      #     helm repo add ${{ env.HELM_CHARTS_REPO_NAME }} ${{ env.HELM_CHARTS_REPO_URL }}
+      #     echo
+      #     helm repo update
       
 
       - name: Publish packages
