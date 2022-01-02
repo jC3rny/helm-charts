@@ -40,7 +40,8 @@ jobs:
           echo
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}
           pwd
-          echo "git reset --hard ${GITHUB_SHA}"
+          echo "git status"
+          git status
           echo
           echo "git diff --stat ${GITHUB_SHA}"
           git diff --stat ${GITHUB_SHA}
