@@ -12,7 +12,10 @@ jobs:
   test_helm_charts:
 
     runs-on: ubuntu-latest
+
+    outputs: {}
     
+    name: Test charts
     steps:
       - uses: actions/checkout@v2
 

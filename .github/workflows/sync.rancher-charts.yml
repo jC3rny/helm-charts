@@ -57,6 +57,8 @@ jobs:
     if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
     
     runs-on: ubuntu-latest
+    
+    outputs: {}
 
     steps:
       - uses: actions/checkout@v2

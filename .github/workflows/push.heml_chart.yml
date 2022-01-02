@@ -8,15 +8,29 @@ on:
   # pull_request:
   #   branches: [ master ]
   workflow_dispatch:
-  
 
 env:
+  HELM_CHARTS_REPO_URL: https://charts.c3rny.ninja
   PUBLISH_TARGET_BRANCH: gh-pages
   PUBLISH_PACKAGES_ROOT_PATH: packages
-  HELM_CHARTS_REPO_URL: https://charts.c3rny.ninja
-  HELM_CHARTS_ROOT_PATH: charts
+  SOURCE_REPO_URL: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}
+  SOURCE_REPO_CLONE_PATH: ${RUNNER_TEMP}/${GITHUB_REPOSITORY}
+  SOURCE_REPO_ROOT_PATH: charts
 
 jobs:
+  clone_source_repository:
+    runs-on: ubuntu-latest
+    
+    outputs: {}
+    
+    name: Clone source repository
+    steps:
+      - name: Checkout
+        run: |
+          mkdir -p ${{ env.SOURCE_REPO_CLONE_PATH }}
+          git clone --depth 1 ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
+  
+  
   check_version:
     runs-on: ubuntu-latest
     
@@ -42,15 +56,12 @@ jobs:
           echo "pwd"
           pwd
           echo
-          echo "ls -alh"
-          ls -alh
+          echo "ls -alh ${{ env.SOURCE_REPO_CLONE_PATH }}"
+          ls -alh ${{ env.SOURCE_REPO_CLONE_PATH }}
           echo
           echo "HELM_CHARTS_REPO_NAME: ${{ env.HELM_CHARTS_REPO_NAME }}"
           echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
           echo "github.repository: ${{ github.repository }}"
-          echo
-          echo "ls -alh ${GITHUB_WORKSPACE}/../${{ github.repository }}_${{ env.PUBLISH_TARGET_BRANCH }}"
-          ls -alh "${GITHUB_WORKSPACE}/../${{ github.repository }}_${{ env.PUBLISH_TARGET_BRANCH }}"
           echo
           helm repo add ${{ env.HELM_CHARTS_REPO_NAME }} ${{ env.HELM_CHARTS_REPO_URL }}
           echo
