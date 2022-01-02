@@ -35,7 +35,7 @@ jobs:
         run: |
           mkdir -p ${{ env.SOURCE_REPO_CLONE_PATH }}
           
-          git clone --depth 0 ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
+          git clone ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
 
           echo
           echo "git diff --stat"
