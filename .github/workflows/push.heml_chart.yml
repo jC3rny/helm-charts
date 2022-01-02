@@ -61,12 +61,14 @@ jobs:
       - name: Set up YQ
         uses: chrisdickinson/setup-yq@latest
       
-      
-      - name: Set up Helm repository
+      - name: Set up ENV
         run: |
           echo HELM_REPO_NAME=$(basename ${{ env.HELM_REPO_URL }} | sed -r 's|charts\.||') >> $GITHUB_ENV
 
-          helm repo add ${HELM_REPO_NAME} ${{ env.HELM_REPO_URL }}
+
+      - name: Set up Helm repository
+        run: |
+          helm repo add ${{ env.HELM_REPO_NAME }} ${{ env.HELM_REPO_URL }}
           echo
           helm repo update
       
