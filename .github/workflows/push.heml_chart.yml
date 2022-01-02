@@ -37,6 +37,7 @@ jobs:
           
           git clone ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
 
+          cd ${{ env.SOURCE_REPO_CLONE_PATH }}
           echo
           echo "git diff --stat"
           git diff --stat
