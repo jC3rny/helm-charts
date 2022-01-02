@@ -27,11 +27,14 @@ jobs:
           echo ":: git status"
           git status
           echo
-          echo ":: git log"
-          git log --name-status -n 1
+          echo ":: git diff-tree stats"
+          git diff-tree --no-commit-id --stat -r ${GITHUB_SHA}
           echo
           echo ":: helm lint"
-          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
+          find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname) -name "Chart.yaml" | uniq | xargs helm lint
+        # git log --name-status -n 1
+        # git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
+
 
       # - name: Set up ENV
       #   run: |
