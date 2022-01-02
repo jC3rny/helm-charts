@@ -50,6 +50,8 @@ jobs:
           echo "git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}"
           git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}
           echo
+          echo  "GITHUB_REF_NAME: ${GITHUB_REF_NAME}"
+          echo  "GITHUB_SHA: ${GITHUB_SHA}"
           
 
       - name: Set up Helm
@@ -60,51 +62,63 @@ jobs:
         uses: chrisdickinson/setup-yq@latest
       
       
-      - name: Set up ENV
-        run: |
-          echo HELM_REPO_NAME=$(basename ${{ env.HELM_REPO_URL }} | sed -r 's|charts\.||') >> $GITHUB_ENV
-      
-      
       - name: Set up Helm repository
         run: |
-          helm repo add ${{ env.HELM_REPO_NAME }} ${{ env.HELM_REPO_URL }}
+          echo HELM_REPO_NAME=$(basename ${{ env.HELM_REPO_URL }} | sed -r 's|charts\.||') >> $GITHUB_ENV
+
+          helm repo add ${HELM_REPO_NAME} ${{ env.HELM_REPO_URL }}
           echo
           helm repo update
       
 
       - name: Publish packages
         run: |
-          echo ${GITHUB_WORKSPACE}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}
-
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}
 
-          # CHART_PATH
-          for CHART_FILE in $(find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }} | xargs dirname) -name "Chart.yaml" | uniq); do
-            if [ -d "$(${CHART_FILE} | dirname)" ]; then
-              
-              if [ "${GITHUB_REF_NAME}" != "${{ env.SOURCE_REPO_DEFAULT_BRANCH }}" ]; then
-                yq e '.version = .version + "-alpha"' -i ${CHART_FILE}
+          for CHART_FILE in $(find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }} | xargs dirname) -name "Chart.yaml" 2> /dev/null | uniq); do
+              if [ -d "$(${CHART_FILE} | dirname)" ]; then
+                
+                  if [ "${GITHUB_REF_NAME}" != "${{ env.SOURCE_REPO_DEFAULT_BRANCH }}" ]; then
+                      yq e '.version = .version + "-alpha"' -i ${CHART_FILE}
+                  fi
+
+                  CHART_NAME="$(yq e '.name' ${CHART_FILE})"
+                  CHART_VERSION="$(yq e '.version' ${CHART_FILE})"
+
+                  HELM_REPO_CHART_VERSION=$(helm search repo -r "${HELM_REPO_NAME}/${CHART_NAME}[^-]" -o json | jq -r '.[] | select(.version == "'${CHART_VERSION}'").version')
+
+                  echo "****************************************"
+                  echo ":: Chart ( ${CHART_NAME} )"
+                  
+                  helm lint $(${CHART_FILE} | dirname)
+
+                  if [ $? -eq 0 ] && [ -z "$HELM_REPO_CHART_VERSION" ]; then
+                      echo "---"
+                      PUBLISH_PACKAGE_DIRECTORY=""
+                      
+                      # jC3rny
+                      if [ ! -z "$(sed -r "s|^charts/_bitnami/||") <<< ${CHART_FILE}" ]; then PUBLISH_PACKAGE_DIRECTORY="_bitnami"; fi
+                      if [ ! -z "$(sed -r "s|^charts/_rancher/||") <<< ${CHART_FILE}" ]; then PUBLISH_PACKAGE_DIRECTORY="_rancher"; fi
+                      if [ ! -z "$(sed -r "s|^charts/jC3rny/||") <<< ${CHART_FILE}" ]; then PUBLISH_PACKAGE_DIRECTORY="jC3rny"; fi
+
+                      if [ ! -z "${PUBLISH_PACKAGE_DIRECTORY}" ]; then
+                          PUBLISH_PACKAGE_DIR_PATH=${GITHUB_WORKSPACE}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY}
+                          
+                          mkdir -p ${PUBLISH_PACKAGE_DIR_PATH}
+                          mv -fv $(helm package $(${CHART_FILE} | dirname) | awk '{ n=split($0, a, /[\/]/); print a[n] }') ${PUBLISH_PACKAGE_DIR_PATH}
+
+                          helm repo index ${PUBLISH_PACKAGE_DIR_PATH} --url ${{ env.HELM_REPO_URL }}/${PUBLISH_PACKAGE_DIRECTORY} --merge ${GITHUB_WORKSPACE}/index.yaml
+                          mv -fv ./index.yaml ${GITHUB_WORKSPACE}/index.yaml
+                      fi
+                  fi
+
+                  echo "****************************************"
               fi
-
-              CHART_NAME="$(yq e '.name' ${CHART_FILE})"
-              CHART_VERSION="$(yq e '.version' ${CHART_FILE})"
-
-              HELM_REPO_CHART_VERSION=$(helm search repo -r "${HELM_REPO_NAME}/${CHART_NAME}[^-]" -o json | jq -r '.[] | select(.version == "'$CHART_VERSION'").version')
-
-              echo "****************************************"
-              echo ":: Chart ( $CHART_NAME )"
-              
-              helm lint $(${CHART_FILE} | dirname)
-
-              # if [ $? -eq 0 ] && [ -z $HELM_REPO_CHART_VERSION ]; then
-              #   echo "---"
-              #   curl \
-              #     -sLu ${HELM_REPO_MANAGER_USERNAME}:${HELM_REPO_MANAGER_PASSWORD} $HELM_REPOSITORY_URL \
-              #     --upload-file $(helm package $(${CHART_FILE} | dirname) | awk '{ n=split($0,a,/[\/]/); print a[n] }') \
-              #     --verbose
-              # fi
-
-              echo "****************************************"
-            fi
           done
 
+          cd ${GITHUB_WORKSPACE}
+          pwd
+          echo
+          git diff --stat -- ${{ env.PUBLISH_PACKAGES_ROOT_PATH }}
+          echo
+          git diff --name-only -- ${{ env.PUBLISH_PACKAGES_ROOT_PATH }}
