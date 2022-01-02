@@ -44,7 +44,7 @@ jobs:
           git status
           echo
           echo "git diff --stat ${GITHUB_SHA}"
-          git diff --stat ${GITHUB_SHA}
+          git diff --stat origin/main ${GITHUB_SHA}
           echo
           echo "git diff --name-only ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}"
           git diff --name-only ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}
