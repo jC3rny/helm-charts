@@ -36,6 +36,7 @@ jobs:
           mkdir -p ${{ env.SOURCE_REPO_CLONE_PATH }}
           
           git clone ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
+          git reset --hard ${GITHUB_SHA}
 
           echo
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}
@@ -82,7 +83,7 @@ jobs:
 
 
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}
-          git reset --hard ${GITHUB_SHA}
+          # git reset --hard ${GITHUB_SHA}
 
           for CHART_PATH in $(git diff --name-only -- ${{ env.SOURCE_REPO_ROOT_PATH }}); do
             if [ -d "$CHART_PATH" ]; then
