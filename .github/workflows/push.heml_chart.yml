@@ -1,4 +1,4 @@
-name: Push helm charts
+name: Push Helm chart
 
 on:
   push:
@@ -11,64 +11,102 @@ on:
 
 env:
   HELM_CHARTS_REPO_URL: https://charts.c3rny.ninja
-  PUBLISH_TARGET_BRANCH: gh-pages
+  PUBLISH_REPO_TARGET_BRANCH: gh-pages
   PUBLISH_PACKAGES_ROOT_PATH: packages
   SOURCE_REPO_URL: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}
   SOURCE_REPO_CLONE_PATH: ${RUNNER_TEMP}/${GITHUB_REPOSITORY}
   SOURCE_REPO_ROOT_PATH: charts
 
 jobs:
-  clone_source_repository:
+  push_helm_chart:
     runs-on: ubuntu-latest
     
     outputs: {}
     
-    name: Clone source repository
+    name: Push Helm chart
     steps:
-      - name: Checkout
+      - name: Checkout GitHub Pages
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ env.PUBLISH_REPO_TARGET_BRANCH }}
+
+
+      - name: Checkout source repository
         run: |
           mkdir -p ${{ env.SOURCE_REPO_CLONE_PATH }}
-          git clone --depth 1 ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
-  
-  
-  check_version:
-    runs-on: ubuntu-latest
-    
-    outputs: {}
-    
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ env.PUBLISH_TARGET_BRANCH }}
+          
+          git clone --depth 0 ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
+
+          echo
+          echo "git diff --stat"
+          git diff --stat
+          echo
+          echo "git diff --name-only -- ${{ env.HELM_CHARTS_ROOT_PATH }}"
+          git diff --name-only -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          
 
       - name: Set up Helm
         uses: azure/setup-helm@v1
 
+
       - name: Set up YQ
         uses: chrisdickinson/setup-yq@latest
+
 
       - name: Set up ENV
         run: |
           echo HELM_CHARTS_REPO_NAME=$(basename ${{ env.HELM_CHARTS_REPO_URL }} | sed -r 's|charts\.||') >> $GITHUB_ENV
-        # echo PUBLISH_REPO_NAME=$(basename $(git rev-parse --show-toplevel)) >> $GITHUB_ENV
       
-      - run: |
-          echo "pwd"
-          pwd
-          echo
-          echo "ls -alh ${{ env.SOURCE_REPO_CLONE_PATH }}"
-          ls -alh ${{ env.SOURCE_REPO_CLONE_PATH }}
-          echo
-          echo "HELM_CHARTS_REPO_NAME: ${{ env.HELM_CHARTS_REPO_NAME }}"
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-          echo "github.repository: ${{ github.repository }}"
-          echo
+
+      - name: Set up Helm repository
+        run: |
           helm repo add ${{ env.HELM_CHARTS_REPO_NAME }} ${{ env.HELM_CHARTS_REPO_URL }}
           echo
           helm repo update
+      
+
+      - name: Publish packages
+        run: |
+          echo $(git name-rev --name-only ${GITHUB_SHA})
           echo
-          helm repo list
-          echo
+          echo ${GITHUB_WORKSPACE}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}
+
           helm search repo -r ${{ env.HELM_CHARTS_REPO_NAME }} -o json --devel
-          echo 
           git log --name-only --pretty=format: -n 1 ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname
+
+
+          exit 1
+
+
+          cd ${{ env.SOURCE_REPO_CLONE_PATH }}
+          git reset --hard ${GITHUB_SHA}
+
+          for CHART_PATH in $(git diff --name-only -- ${{ env.HELM_CHARTS_ROOT_PATH }}); do
+            if [ -d "$CHART_PATH" ]; then
+              
+              if [ "${GITHUB_REF_NAME}" != "master" ]; then
+                yq e '.version = .version + "-alpha"' -i $CHART_PATH/Chart.yaml
+              fi
+
+              CHART_NAME="`yq e '.name' $CHART_PATH/Chart.yaml`"
+              CHART_VERSION="`yq e '.version' $CHART_PATH/Chart.yaml`"
+
+              HELM_REPO_CHART_VERSION=$(helm search repo -r "${HELM_REPOSITORY_NAME}/${CHART_NAME}[^-]" -o json | jq -r '.[] | select(.version == "'$CHART_VERSION'").version')
+
+              echo "****************************************"
+              echo ":: Chart ( $CHART_NAME )"
+              
+              helm lint $CHART_PATH
+
+              if [ $? -eq 0 ] && [ -z $HELM_REPO_CHART_VERSION ]; then
+                echo "---"
+                curl \
+                  -sLu ${HELM_REPO_MANAGER_USERNAME}:${HELM_REPO_MANAGER_PASSWORD} $HELM_REPOSITORY_URL \
+                  --upload-file $(helm package $CHART_PATH | awk '{ n=split($0,a,/[\/]/); print a[n] }') \
+                  --verbose
+              fi
+
+              echo "****************************************"
+            fi
+          done
+
