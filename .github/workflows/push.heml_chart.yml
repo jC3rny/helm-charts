@@ -60,6 +60,8 @@ jobs:
       
       - name: Set up YQ
         uses: chrisdickinson/setup-yq@latest
+        with:
+          yq-version: v4.16.2
       
       - name: Set up ENV
         run: |
