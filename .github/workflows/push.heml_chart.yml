@@ -78,7 +78,7 @@ jobs:
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}
 
           for CHART_FILE in $(find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }} | xargs dirname) -name "Chart.yaml" 2> /dev/null | uniq); do
-              if [ -d "$(${CHART_FILE} | dirname)" ]; then
+              if [ -d "$(dirname ${CHART_FILE})" ]; then
                 
                   if [ "${GITHUB_REF_NAME}" != "${{ env.SOURCE_REPO_DEFAULT_BRANCH }}" ]; then
                       yq e '.version = .version + "-alpha"' -i ${CHART_FILE}
@@ -92,7 +92,7 @@ jobs:
                   echo "****************************************"
                   echo ":: Chart ( ${CHART_NAME} )"
                   
-                  helm lint $(${CHART_FILE} | dirname)
+                  helm lint $(dirname ${CHART_FILE})
 
                   if [ $? -eq 0 ] && [ -z "$HELM_REPO_CHART_VERSION" ]; then
                       echo "---"
@@ -107,7 +107,7 @@ jobs:
                           PUBLISH_PACKAGE_DIR_PATH=${GITHUB_WORKSPACE}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY}
                           
                           mkdir -p ${PUBLISH_PACKAGE_DIR_PATH}
-                          mv -fv $(helm package $(${CHART_FILE} | dirname) | awk '{ n=split($0, a, /[\/]/); print a[n] }') ${PUBLISH_PACKAGE_DIR_PATH}
+                          mv -fv $(helm package $(dirname ${CHART_FILE}) | awk '{ n=split($0, a, /[\/]/); print a[n] }') ${PUBLISH_PACKAGE_DIR_PATH}
 
                           helm repo index ${PUBLISH_PACKAGE_DIR_PATH} --url ${{ env.HELM_REPO_URL }}/${PUBLISH_PACKAGE_DIRECTORY} --merge ${GITHUB_WORKSPACE}/index.yaml
                           mv -fv ./index.yaml ${GITHUB_WORKSPACE}/index.yaml
