@@ -25,14 +25,9 @@ jobs:
           echo ":: git status"
           git status
           echo
-          echo ":: git diff-tree stats"
-          git diff-tree --no-commit-id --stat -r ${GITHUB_SHA} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
-          echo "name-only"
-          git diff-tree --no-commit-id --name-only -r $(git rev-list --max-parents=0 HEAD) -- ${{ env.HELM_CHARTS_ROOT_PATH }}
-          echo "find"
-          find $(git diff-tree --no-commit-id --name-only -r $(git rev-list --max-parents=0 HEAD) -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname)
+          echo ":: git log stats"
+          git log --stat --pretty=format: -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo
           echo ":: helm lint"
-          find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname) -name "Chart.yaml" | \
-          uniq | \
-          xargs helm lint
+          exit 1
+          find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}) -name "Chart.yaml" | xargs dirname | xargs helm lint
