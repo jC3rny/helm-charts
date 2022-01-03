@@ -86,6 +86,7 @@ jobs:
                   fi
 
                   yq --help
+                  yq -V
                   CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
                   CHART_VERSION="$(yq eval '.version' ${CHART_FILE})"
 
