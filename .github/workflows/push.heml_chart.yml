@@ -75,17 +75,18 @@ jobs:
 
       - name: Publish packages
         run: |
-          cd ${{ env.SOURCE_REPO_CLONE_PATH }}
+          cd ${{ env.SOURCE_REPO_CLONE_PATH }}; pwd
+          echo
 
           for CHART_FILE in $(find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }} | xargs dirname) -name "Chart.yaml" 2> /dev/null | uniq); do
               if [ -d "$(dirname ${CHART_FILE})" ]; then
                 
                   if [ "${GITHUB_REF_NAME}" != "${{ env.SOURCE_REPO_DEFAULT_BRANCH }}" ]; then
-                      yq e '.version = .version + "-alpha"' -i ${CHART_FILE}
+                      yq eval -i '.version = .version + "-alpha"' ${CHART_FILE}
                   fi
 
-                  CHART_NAME="$(yq e '.name' ${CHART_FILE})"
-                  CHART_VERSION="$(yq e '.version' ${CHART_FILE})"
+                  CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
+                  CHART_VERSION="$(yq eval '.version' ${CHART_FILE})"
 
                   HELM_REPO_CHART_VERSION=$(helm search repo -r "${HELM_REPO_NAME}/${CHART_NAME}[^-]" -o json | jq -r '.[] | select(.version == "'${CHART_VERSION}'").version')
 
