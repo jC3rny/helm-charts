@@ -85,6 +85,7 @@ jobs:
                       yq eval -i '.version = .version + "-alpha"' ${CHART_FILE}
                   fi
 
+                  yq --help
                   CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
                   CHART_VERSION="$(yq eval '.version' ${CHART_FILE})"
 
