@@ -27,6 +27,10 @@ jobs:
           echo
           echo ":: git diff-tree stats"
           git diff-tree --no-commit-id --stat -r ${GITHUB_SHA} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          echo "name-only"
+          git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          echo "find"
+          find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname)
           echo
           echo ":: helm lint"
           find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname) -name "Chart.yaml" | \
