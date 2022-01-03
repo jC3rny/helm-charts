@@ -1,21 +1,19 @@
-name: Test Helm charts
+name: Test Helm chart
   
 on: pull_request
 
 env:
-  GIT_REMOTE: origin
-  GIT_REMOTE_TARGET_BRANCH: main
   HELM_CHARTS_ROOT_PATH: charts
   
 
 jobs:
-  test_helm_charts:
+  test_helm_chart:
 
     runs-on: ubuntu-latest
 
     outputs: {}
     
-    name: Test charts
+    name: Test Helm chart
     steps:
       - uses: actions/checkout@v2
 
@@ -28,27 +26,9 @@ jobs:
           git status
           echo
           echo ":: git diff-tree stats"
-          git diff-tree --no-commit-id --stat -r ${GITHUB_SHA}
+          git diff-tree --no-commit-id --stat -r ${GITHUB_SHA} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo
           echo ":: helm lint"
-          find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname) -name "Chart.yaml" | uniq | xargs helm lint
-        # git log --name-status -n 1
-        # git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
-
-
-      # - name: Set up ENV
-      #   run: |
-      #     PR_MERGE_INTO_ID=$(git log --pretty=format:"%B" -n 1 ${{ env.HELM_CHARTS_ROOT_PATH }} | awk '{ n=split($0, a, " "); print a[n] }') >> ${GITHUB_ENV}
-
-      # - name: Lint changed charts
-      #   run: |
-      #     echo ":: git status"
-      #     git status
-      #     echo
-      #     echo ":: git branch"
-      #     git branch -a
-      #     echo
-      #     echo ":: git diff --stat"
-      #     git diff --stat ${{ env.GIT_REMOTE }}/${PR_MERGE_INTO_ID} -- ${{ env.HELM_CHARTS_ROOT_PATH }}
-      #     echo
-      #     git diff --name-only ${{ env.GIT_REMOTE }}/${{ env.PR_MERGE_INTO_ID }} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | find -name "Chart.yaml" | xargs dirname | xargs helm lint
+          find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.HELM_CHARTS_ROOT_PATH }} | xargs dirname) -name "Chart.yaml" | \
+          uniq | \
+          xargs helm lint
