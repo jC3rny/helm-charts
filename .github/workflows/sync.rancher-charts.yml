@@ -115,7 +115,7 @@ jobs:
 
               # Create patch
               PATCH_VERSION=$(yq eval '.version' ${{ env.REMOTE_CHART_ROOT_PATH }}/Chart.yaml)
-              PATCH_FILE_PATH=$(${RUNNER_TEMP}/${{ env.CHART_NAME }}_patch-${PATCH_VERSION}.diff)
+              PATCH_FILE_PATH=${RUNNER_TEMP}/${{ env.CHART_NAME }}_patch-${PATCH_VERSION}.diff
               
               echo
               echo "git diff --output ${PATCH_FILE_PATH} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}"
