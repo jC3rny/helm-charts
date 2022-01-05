@@ -131,6 +131,9 @@ jobs:
               pwd
 
               echo
+              echo "Leading path components: $(awk -F '/' '{print NF-1}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }}))"
+              
+              echo
               git apply \
                 -p $(awk -F '/' '{print NF-1}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
                 --index --check --stat --apply --verbose \
