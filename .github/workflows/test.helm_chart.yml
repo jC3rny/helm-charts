@@ -26,7 +26,10 @@ jobs:
           git status
           echo
           echo ":: git log stats"
-          git log --stat --pretty=format: -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          git log --stat --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          echo
+          echo ":: git diff"
+          git diff --stat HEAD^ -- ${{ env.HELM_CHARTS_ROOT_PATH }}
           echo
           echo ":: helm lint"
-          find $(git log --name-only --pretty=format: -- ${{ env.HELM_CHARTS_ROOT_PATH }}) -name "Chart.yaml" | xargs dirname | xargs helm lint
+          find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}) -name "Chart.yaml" | xargs dirname | xargs helm lint

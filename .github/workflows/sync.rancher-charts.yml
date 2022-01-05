@@ -192,7 +192,7 @@ jobs:
             sync
             ${{ env.CHART_NAME }}
           # commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
-          commit-message: Sync version ${{ needs.check_version.outputs.REMOTE_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
+          commit-message: Sync version ${{ needs.check_version.outputs.REMOTE_VERSION }}
           # committer: ${{ env.PR_COMMITER }}
           author: ${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>
           signoff: false
