@@ -118,8 +118,8 @@ jobs:
               PATCH_FILE_PATH=${RUNNER_TEMP}/${{ env.CHART_NAME }}_patch-${PATCH_VERSION}.diff
               
               echo
-              echo "git diff --output ${PATCH_FILE_PATH} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}"
-              git diff --output ${PATCH_FILE_PATH} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}
+              echo "git diff --no-prefix --output ${PATCH_FILE_PATH} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}"
+              git diff --no-prefix --output ${PATCH_FILE_PATH} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}
               
               echo
               echo "ls -alh ${PATCH_FILE_PATH}"
@@ -131,11 +131,11 @@ jobs:
               pwd
 
               echo
-              echo "Leading path components: $(awk -F '/' '{print NF-1}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }}))"
-              
+              echo "Leading path components to remove: $(awk -F '/' '{print NF-0}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }}))"
+
               echo
               git apply \
-                -p $(awk -F '/' '{print NF-1}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
+                -p $(awk -F '/' '{print NF-0}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
                 --index --check --stat --apply --verbose \
                 --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
                 ${PATCH_FILE_PATH}
