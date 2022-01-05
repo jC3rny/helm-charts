@@ -63,6 +63,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+
+      # Set up YQ
+      - name: Set up YQ
+        uses: chrisdickinson/setup-yq@latest
+        with:
+          yq-version: v4.16.2
+      
+
       # Clone remote repository
       - name: Clone remote repository
         run: |
@@ -85,6 +93,7 @@ jobs:
           echo ORIGINAL_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo ORIGINAL_COMMIT_URL=$(sed -r "s/\.git$/\/commit\/$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }})/" <<< ${{ env.REMOTE_CHART_REPO_URL }}) >> $GITHUB_ENV
 
+
       # Setup local path
       - name: Setup local path
         run: |
@@ -96,18 +105,27 @@ jobs:
               echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
               echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
           else
-              echo "TODO: NEED FILES SYNC"
-              git log --pretty=format:"%H" -n 1 ${{ env.LOCAL_CHARTS_ROOT_PATH }}/${{ env.CHART_NAME }}
-              echo
-              echo "git diff-tree --no-commit-id --stat -r $(git rev-parse HEAD)"
-              git diff-tree --no-commit-id --stat -r $(git rev-parse HEAD)
-              
-
-
               cd ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
-              git log --name-status --pretty=format: -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }}
+              
+              if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
+                  git reset --hard ${{ env.REMOTE_CHART_COMMIT_SHA1 }}
+              fi
 
-              exit 1
+              # Create patch
+              PATCH_VERSION=$(yq eval '.version' ${{ env.REMOTE_CHART_ROOT_PATH }}/Chart.yaml)
+              PATCH_FILE_PATH=$(${RUNNER_TEMP}/${{ env.CHART_NAME }}_patch-${PATCH_VERSION}.diff)
+              
+              git diff --output ${PATCH_FILE_PATH} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}
+
+
+              # Apply patch
+              cd ${GITHUB_WORKSPACE}
+
+              git apply \
+                -p $(awk -F '/' '{print NF-1}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
+                --index --check --stat --apply --verbose \
+                --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
+                ${PATCH_FILE_PATH}
           fi
       
       # - name: Print variables
@@ -133,6 +151,7 @@ jobs:
       #     echo "ORIGINAL_COMMIT_URL: ${{ env.ORIGINAL_COMMIT_URL }}"
       #     echo ""
       #     echo "PR_COMMIT_PATH: ${{ env.PR_COMMIT_PATH }}"
+
 
       # Create Pull Request
       - name: Create Pull Request
@@ -170,6 +189,7 @@ jobs:
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash
           delete-branch: true
+      
       
       # Enable Automerge
       - name: Enable Automerge
