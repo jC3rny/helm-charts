@@ -14,7 +14,7 @@ on:
 env:
   CHART_NAME: local-path-provisioner
   # v0.0.19
-  REMOTE_CHART_COMMIT_SHA1: d45bdcf6112a55c2cbaa03ea9cad4d65f4f20e54
+  # REMOTE_CHART_COMMIT_SHA1: d45bdcf6112a55c2cbaa03ea9cad4d65f4f20e54
   # v0.0.18
   # REMOTE_CHART_COMMIT_SHA1: 31496fdb80290f4b1425ffc3dc39b070d68a712c
   REMOTE_CHART_REPO_URL: https://github.com/rancher/local-path-provisioner.git
