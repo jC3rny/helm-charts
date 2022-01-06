@@ -36,6 +36,7 @@ jobs:
       LOCAL_VERSION: ${{ steps.localPathProvisionerVersion.outputs.LOCAL_VERSION }}
     
     # check if is opened PR with label automated,sync,${{ env.CHART_NAME }}
+    name: Check version
     steps:
       - uses: actions/checkout@v2
       
@@ -60,6 +61,7 @@ jobs:
     
     outputs: {}
 
+    name: Sync chart
     steps:
       - uses: actions/checkout@v2
 
@@ -94,8 +96,8 @@ jobs:
           echo ORIGINAL_COMMIT_URL=$(sed -r "s/\.git$/\/commit\/$(git log --pretty=format:"%H" -n 1 ${{ env.REMOTE_CHART_ROOT_PATH }})/" <<< ${{ env.REMOTE_CHART_REPO_URL }}) >> $GITHUB_ENV
 
 
-      # Setup local path
-      - name: Setup local path
+      # Import new chart or update existing
+      - name: Import new chart or update existing
         run: |
           if [ ! -d "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}" ]; then
               mkdir -p ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
@@ -121,17 +123,12 @@ jobs:
               echo "git diff --no-prefix --output ${PATCH_FILE_PATH} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}"
               git diff --no-prefix --output ${PATCH_FILE_PATH} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}
               
-              echo
-              echo "ls -alh ${PATCH_FILE_PATH}"
               ls -alh ${PATCH_FILE_PATH}
 
               # Apply patch
               echo
               cd ${GITHUB_WORKSPACE}
               pwd
-
-              echo
-              echo "Leading path components to remove: $(awk -F '/' '{print NF-0}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }}))"
 
               echo
               git apply \
