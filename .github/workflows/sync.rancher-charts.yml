@@ -107,35 +107,51 @@ jobs:
               echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
               echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
           else
+              pwd
+              
+              echo
+              LOCAL_CHART_REMOTE_COMMIT_ID=$(git log --pretty=format:"%B" -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }} | awk -F '[][]' '{print $2}')
+              echo "LOCAL_CHART_REMOTE_COMMIT_ID: ${LOCAL_CHART_REMOTE_COMMIT_ID}"
+
               cd ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
               pwd
               
+              echo
               if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
-                  echo
                   git reset --hard ${{ env.REMOTE_CHART_COMMIT_SHA1 }}
+              else
+                  git reset --hard ${{ env.ORIGINAL_COMMIT_ID }}
               fi
 
-              # Create patch
-              PATCH_VERSION=$(yq eval '.version' ${{ env.REMOTE_CHART_ROOT_PATH }}/Chart.yaml)
-              PATCH_FILE_PATH=${RUNNER_TEMP}/${{ env.CHART_NAME }}_patch-${PATCH_VERSION}.diff
-              
-              echo
-              echo "git diff --no-prefix --output ${PATCH_FILE_PATH} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}"
-              git diff --no-prefix --output ${PATCH_FILE_PATH} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}
-              
-              ls -alh ${PATCH_FILE_PATH}
+              if [ ! -z "${LOCAL_CHART_REMOTE_COMMIT_ID}" ]; then
+                  # Create patch
+                  PATCH_VERSION=$(yq eval '.version' ${{ env.REMOTE_CHART_ROOT_PATH }}/Chart.yaml)
+                  PATCH_FILE_PATH=${RUNNER_TEMP}/${{ env.CHART_NAME }}_patch-${PATCH_VERSION}.diff
+                  
+                  
+                  # cd ${GITHUB_WORKSPACE}
+                  # LOCAL_CHART_REMOTE_COMMIT_ID=$(git log --pretty=format:"%B" -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}) | grep [.*]
+                  # git diff HEAD^ ${LOCAL_CHART_REMOTE_COMMIT_ID} -- deploy/chart # commit from previous sync
 
-              # Apply patch
-              echo
-              cd ${GITHUB_WORKSPACE}
-              pwd
+                  echo
+                  echo "git diff --no-prefix --output ${PATCH_FILE_PATH} HEAD^ ${LOCAL_CHART_REMOTE_COMMIT_ID} -- ${{ env.REMOTE_CHART_ROOT_PATH }}"
+                  git diff --no-prefix --output ${PATCH_FILE_PATH} HEAD^ ${LOCAL_CHART_REMOTE_COMMIT_ID} -- ${{ env.REMOTE_CHART_ROOT_PATH }}
+                  
+                  ls -alh ${PATCH_FILE_PATH}
 
-              echo
-              git apply \
-                -p $(awk -F '/' '{print NF-0}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
-                --index --check --stat --apply --verbose \
-                --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
-                ${PATCH_FILE_PATH}
+                  # Apply patch
+                  echo
+                  cd ${GITHUB_WORKSPACE}
+                  pwd
+
+                  echo
+                  git apply \
+                    -p $(awk -F '/' '{print NF-0}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
+                    --index --check --stat --apply --verbose \
+                    --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
+                    ${PATCH_FILE_PATH}
+              fi
+              
           fi
       
       # - name: Print variables
@@ -189,7 +205,7 @@ jobs:
             sync
             ${{ env.CHART_NAME }}
           # commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
-          commit-message: Sync version ${{ needs.check_version.outputs.REMOTE_VERSION }}
+          commit-message: Sync version ${{ needs.check_version.outputs.REMOTE_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
           # committer: ${{ env.PR_COMMITER }}
           author: ${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>
           signoff: false
