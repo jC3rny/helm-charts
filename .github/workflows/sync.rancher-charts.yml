@@ -112,8 +112,8 @@ jobs:
               echo
               git status
               echo
-              echo "git log -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}"
-              git log -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}
+              echo "git log -n 1 -- ${{ env.LOCAL_CHART_ROOT_PATH }}"
+              git log -n 1 -- ${{ env.LOCAL_CHART_ROOT_PATH }}
 
               echo
               git log --pretty=format:"%B" -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}
