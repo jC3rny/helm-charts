@@ -108,7 +108,11 @@ jobs:
               echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
           else
               pwd
-              
+              echo
+              git log -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}
+
+              echo
+              git log --pretty=format:"%B" -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}
               echo
               LOCAL_CHART_REMOTE_COMMIT_ID=$(git log --pretty=format:"%B" -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }} | awk -F '[][]' '{print $2}')
               echo "LOCAL_CHART_REMOTE_COMMIT_ID: ${LOCAL_CHART_REMOTE_COMMIT_ID}"
