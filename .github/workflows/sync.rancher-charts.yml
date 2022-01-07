@@ -116,9 +116,9 @@ jobs:
               git log -n 1 -- ${{ env.LOCAL_CHART_ROOT_PATH }}
 
               echo
-              git log --pretty=format:"%B" -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}
+              git log --pretty=format:"%B" -n 1 -- ${{ env.LOCAL_CHART_ROOT_PATH }}
               echo
-              LOCAL_CHART_REMOTE_COMMIT_ID=$(git log --pretty=format:"%B" -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }} | awk -F '[][]' '{print $2}')
+              LOCAL_CHART_REMOTE_COMMIT_ID=$(git log --pretty=format:"%B" -n 1 -- ${{ env.LOCAL_CHART_ROOT_PATH }} | awk -F '[][]' '{print $2}')
               echo "LOCAL_CHART_REMOTE_COMMIT_ID: ${LOCAL_CHART_REMOTE_COMMIT_ID}"
 
               cd ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
