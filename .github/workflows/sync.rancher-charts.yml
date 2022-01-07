@@ -108,6 +108,9 @@ jobs:
               echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
           else
               pwd
+              ls -alh
+              echo
+              git status
               echo
               echo "git log -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}"
               git log -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}
