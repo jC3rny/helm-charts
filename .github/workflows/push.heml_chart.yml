@@ -57,6 +57,8 @@ jobs:
           echo
           echo  "GITHUB_REF_NAME: ${GITHUB_REF_NAME}"
           echo  "GITHUB_SHA: ${GITHUB_SHA}"
+
+          echo PR_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 -- ${{ env.SOURCE_REPO_ROOT_PATH }}) >> $GITHUB_ENV
           
 
       - name: Set up Helm
@@ -107,13 +109,13 @@ jobs:
                       PUBLISH_PACKAGE_DIRECTORY=""
                       
                       #
-                      echo "_bitnami: $(sed -r "s|^charts/_bitnami/||") <<< ${CHART_FILE}"
-                      echo "_rancher: $(sed -r "s|^charts/_rancher/||") <<< ${CHART_FILE}"
-                      echo "jC3rny:   $(sed -r "s|^charts/jC3rny/||") <<< ${CHART_FILE}"
+                      echo "_bitnami: $(sed -r 's|^charts/_bitnami/||' <<< ${CHART_FILE})"
+                      echo "_rancher: $(sed -r 's|^charts/_rancher/||' <<< ${CHART_FILE})"
+                      echo "jC3rny:   $(sed -r 's|^charts/jC3rny/||' <<< ${CHART_FILE})"
 
-                      if [ ! -z "$(sed -r "s|^charts/_bitnami/||") <<< ${CHART_FILE}" ]; then PUBLISH_PACKAGE_DIRECTORY="_bitnami"; fi
-                      if [ ! -z "$(sed -r "s|^charts/_rancher/||") <<< ${CHART_FILE}" ]; then PUBLISH_PACKAGE_DIRECTORY="_rancher"; fi
-                      if [ ! -z "$(sed -r "s|^charts/jC3rny/||") <<< ${CHART_FILE}" ]; then PUBLISH_PACKAGE_DIRECTORY="jC3rny"; fi
+                      if [ ! -z "$(sed -r 's|^charts/_bitnami/||' <<< ${CHART_FILE})" ]; then PUBLISH_PACKAGE_DIRECTORY="_bitnami"; fi
+                      if [ ! -z "$(sed -r 's|^charts/_rancher/||' <<< ${CHART_FILE})" ]; then PUBLISH_PACKAGE_DIRECTORY="_rancher"; fi
+                      if [ ! -z "$(sed -r 's|^charts/jC3rny/||' <<< ${CHART_FILE})" ]; then PUBLISH_PACKAGE_DIRECTORY="jC3rny"; fi
 
                       if [ ! -z "${PUBLISH_PACKAGE_DIRECTORY}" ]; then
                           PUBLISH_PACKAGE_DIR_PATH=${GITHUB_WORKSPACE}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY}
@@ -149,12 +151,15 @@ jobs:
           
           echo
           git add .
-          git commit -am "Publish chart"
+          echo "git commit -am '${{ env.PR_COMMIT_MESSAGE }}'"
+          git commit -am "${{ env.PR_COMMIT_MESSAGE }}"
 
           echo
           echo "diff-tree"
           git diff-tree --no-commit-id --name-only -r $(git rev-parse HEAD)
 
+          echo
+          git log -n 1
           # git push origin ${{ env.PUBLISH_REPO_TARGET_BRANCH }}
           
           
