@@ -151,7 +151,9 @@ jobs:
           
           echo
           git add .
-          echo "git commit -am '${{ env.PR_COMMIT_MESSAGE }}'"
+
+          echo "PR_COMMIT_MESSAGE:"
+          echo "${{ env.PR_COMMIT_MESSAGE }}"
           git commit -am "${{ env.PR_COMMIT_MESSAGE }}"
 
           echo
