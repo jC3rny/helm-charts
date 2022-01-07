@@ -109,6 +109,7 @@ jobs:
           else
               pwd
               echo
+              echo "git log -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}"
               git log -n 1 ${{ env.LOCAL_CHART_ROOT_PATH }}
 
               echo
