@@ -58,7 +58,7 @@ jobs:
           echo  "GITHUB_REF_NAME: ${GITHUB_REF_NAME}"
           echo  "GITHUB_SHA: ${GITHUB_SHA}"
 
-          echo PR_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 -- ${{ env.SOURCE_REPO_ROOT_PATH }}) >> $GITHUB_ENV
+          echo PR_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 -- ${{ env.SOURCE_REPO_ROOT_PATH }} | grep -E "\(#[0-9]+\)$") >> $GITHUB_ENV
           
 
       - name: Set up Helm
@@ -109,9 +109,9 @@ jobs:
                       PUBLISH_PACKAGE_DIRECTORY=""
                       
                       #
-                      echo "_bitnami: $(sed -r 's|^charts/_bitnami/||' <<< ${CHART_FILE})"
-                      echo "_rancher: $(sed -r 's|^charts/_rancher/||' <<< ${CHART_FILE})"
-                      echo "jC3rny:   $(sed -r 's|^charts/jC3rny/||' <<< ${CHART_FILE})"
+                      echo "_bitnami: $(sed -r 's|^./${{ env.SOURCE_REPO_ROOT_PATH }}/_bitnami/||' <<< ${CHART_FILE})"
+                      echo "_rancher: $(sed -r 's|^./${{ env.SOURCE_REPO_ROOT_PATH }}/_rancher/||' <<< ${CHART_FILE})"
+                      echo "jC3rny:   $(sed -r 's|^./${{ env.SOURCE_REPO_ROOT_PATH }}/jC3rny/||' <<< ${CHART_FILE})"
 
                       if [ ! -z "$(sed -r 's|^charts/_bitnami/||' <<< ${CHART_FILE})" ]; then PUBLISH_PACKAGE_DIRECTORY="_bitnami"; fi
                       if [ ! -z "$(sed -r 's|^charts/_rancher/||' <<< ${CHART_FILE})" ]; then PUBLISH_PACKAGE_DIRECTORY="_rancher"; fi
@@ -133,35 +133,27 @@ jobs:
           done
 
           cd ${GITHUB_WORKSPACE}
-          pwd
-          echo
+          pwd; echo
+
           git remote set-url origin "https://x-access-token:${{ secrets.PAT_PUBLIC_MGR }}@github.com/${GITHUB_REPOSITORY}"
           git remote get-url origin
-          echo
-          git status
-          echo
-          ls -lah
-          echo
           
+          echo
           git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git config --local user.name "${GITHUB_ACTOR}"
           
-          echo "log"
-          git log -n 1 -- ${{ env.PUBLISH_PACKAGES_ROOT_PATH }}
-          
           echo
           git add .
-
-          echo "PR_COMMIT_MESSAGE:"
-          echo "${{ env.PR_COMMIT_MESSAGE }}"
           git commit -am "${{ env.PR_COMMIT_MESSAGE }}"
 
           echo
-          echo "diff-tree"
+          echo ":: git diff-tree"
           git diff-tree --no-commit-id --name-only -r $(git rev-parse HEAD)
 
           echo
           git log -n 1
+
+          echo
           # git push origin ${{ env.PUBLISH_REPO_TARGET_BRANCH }}
           
           
