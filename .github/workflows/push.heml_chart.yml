@@ -108,15 +108,10 @@ jobs:
                       echo "---"
                       PUBLISH_PACKAGE_DIRECTORY=""
                       
-                      #
-                      echo "_bitnami: $(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/_bitnami$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))"
-                      echo "_rancher: $(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/_rancher$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))"
-                      echo "jC3rny:   $(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/jC3rny$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))"
-                      
-
-                      if [ ! -z "$(sed -r 's|^charts/_bitnami/||' <<< ${CHART_FILE})" ]; then PUBLISH_PACKAGE_DIRECTORY="_bitnami"; fi
-                      if [ ! -z "$(sed -r 's|^charts/_rancher/||' <<< ${CHART_FILE})" ]; then PUBLISH_PACKAGE_DIRECTORY="_rancher"; fi
-                      if [ ! -z "$(sed -r 's|^charts/jC3rny/||' <<< ${CHART_FILE})" ]; then PUBLISH_PACKAGE_DIRECTORY="jC3rny"; fi
+                      # Package directory
+                      if [ ! -z "$(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/_bitnami$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="_bitnami"; fi
+                      if [ ! -z "$(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/_rancher$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="_rancher"; fi
+                      if [ ! -z "$(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/jC3rny$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="jC3rny"; fi
 
                       if [ ! -z "${PUBLISH_PACKAGE_DIRECTORY}" ]; then
                           PUBLISH_PACKAGE_DIR_PATH=${GITHUB_WORKSPACE}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY}
