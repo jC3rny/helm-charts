@@ -109,9 +109,10 @@ jobs:
                       PUBLISH_PACKAGE_DIRECTORY=""
                       
                       #
-                      echo "_bitnami: $(sed -r 's|^./${{ env.SOURCE_REPO_ROOT_PATH }}/_bitnami/||' <<< ${CHART_FILE})"
-                      echo "_rancher: $(sed -r 's|^./${{ env.SOURCE_REPO_ROOT_PATH }}/_rancher/||' <<< ${CHART_FILE})"
-                      echo "jC3rny:   $(sed -r 's|^./${{ env.SOURCE_REPO_ROOT_PATH }}/jC3rny/||' <<< ${CHART_FILE})"
+                      echo "_bitnami: $(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/_bitnami$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))"
+                      echo "_rancher: $(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/_rancher$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))"
+                      echo "jC3rny:   $(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/jC3rny$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))"
+                      
 
                       if [ ! -z "$(sed -r 's|^charts/_bitnami/||' <<< ${CHART_FILE})" ]; then PUBLISH_PACKAGE_DIRECTORY="_bitnami"; fi
                       if [ ! -z "$(sed -r 's|^charts/_rancher/||' <<< ${CHART_FILE})" ]; then PUBLISH_PACKAGE_DIRECTORY="_rancher"; fi
