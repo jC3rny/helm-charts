@@ -2,9 +2,9 @@ name: Sync Rancher helm charts
   
 on:
   # push:
-  #   branches: [ master ]
+  #   branches: [ main ]
   # pull_request:
-  #   branches: [ master ]
+  #   branches: [ main ]
   schedule:
     # - cron:  "30 */12 * * *"
     - cron:  "0 6 * * *"
@@ -18,9 +18,10 @@ env:
   # v0.0.18
   # REMOTE_CHART_COMMIT_SHA1: 31496fdb80290f4b1425ffc3dc39b070d68a712c
   REMOTE_CHART_REPO_URL: https://github.com/rancher/local-path-provisioner.git
-  REMOTE_CHART_REPO_NAME: local-path-provisioner
+  # REMOTE_CHART_REPO_NAME: local-path-provisioner
+  REMOTE_CHART_REPO_BRANCH: master
   REMOTE_CHART_ROOT_PATH: deploy/chart
-  REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
+  # REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
   LOCAL_CHARTS_ROOT_PATH: charts
   LOCAL_CHART_PATH_PREFIX: _rancher
   LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
@@ -32,16 +33,51 @@ jobs:
     runs-on: ubuntu-latest
     
     outputs:
-      REMOTE_VERSION: ${{ steps.localPathProvisionerVersion.outputs.REMOTE_VERSION }}
-      LOCAL_VERSION: ${{ steps.localPathProvisionerVersion.outputs.LOCAL_VERSION }}
+      REMOTE_CHART_REPO_ORG: ${{ steps.setEnv.outputs.REMOTE_CHART_REPO_ORG }}
+      REMOTE_CHART_REPO_NAME: ${{ steps.setEnv.outputs.REMOTE_CHART_REPO_NAME }}
+      REMOTE_CHART_FILE_URL: ${{ steps.setEnv.outputs.REMOTE_CHART_FILE_URL }}
+      REMOTE_VERSION: ${{ steps.getChartVersion.outputs.REMOTE_VERSION }}
+      LOCAL_VERSION: ${{ steps.getChartVersion.outputs.LOCAL_VERSION }}
     
     # check if is opened PR with label automated,sync,${{ env.CHART_NAME }}
     name: Check version
     steps:
+      # checkout
       - uses: actions/checkout@v2
       
+
+      # Set ENV
+      - name: Set ENV
+        id: setEnv
+        run: |
+          REMOTE_CHART_REPO_ORG=$(awk '{ n=split($0, a, /[\/]/); print a[4] }' <<<  ${{ env.REMOTE_CHART_REPO_URL }})
+
+          if [ -z "${{ env.REMOTE_CHART_REPO_NAME }}" ]; then
+              echo "REMOTE_CHART_REPO_NAME: $(awk '{ n=split($0, a, /[\/]/); print a[n] }' <<< ${{ env.REMOTE_CHART_REPO_URL }} | cut -d '.' -f 1)"
+
+              echo REMOTE_CHART_REPO_NAME=${REMOTE_CHART_REPO_NAME} >> $GITHUB_ENV
+          else
+              REMOTE_CHART_REPO_NAME=${{ env.REMOTE_CHART_REPO_NAME }}
+          fi
+
+          if [ -z "${{ env.REMOTE_CHART_FILE_URL }}" ]; then
+              REMOTE_CHART_FILE_URL="https://raw.githubusercontent.com/${REMOTE_CHART_REPO_ORG}/${REMOTE_CHART_REPO_NAME}/${{ env.REMOTE_CHART_REPO_BRANCH }}/$(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})/Chart.yaml"
+    
+              echo REMOTE_CHART_FILE_URL=${REMOTE_CHART_FILE_URL} >> $GITHUB_ENV
+          else
+              REMOTE_CHART_FILE_URL=${{ env.REMOTE_CHART_FILE_URL }}
+          fi
+
+          echo REMOTE_CHART_REPO_ORG=${REMOTE_CHART_REPO_ORG} >> $GITHUB_ENV
+
+          echo ::set-output name=REMOTE_CHART_REPO_ORG::${REMOTE_CHART_REPO_ORG}
+          echo ::set-output name=REMOTE_CHART_REPO_NAME::${REMOTE_CHART_REPO_NAME}
+          echo ::set-output name=REMOTE_CHART_FILE_URL::${REMOTE_CHART_FILE_URL}
+
+
+      # Get version
       - name: Get version
-        id: localPathProvisionerVersion
+        id: getChartVersion
         run: |
           if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
               REMOTE_CHART_FILE_URL=$(sed -r "s|/${{ env.REMOTE_CHART_REPO_NAME }}/master/|/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_COMMIT_SHA1 }}/|" <<< ${{ env.REMOTE_CHART_FILE_URL }})
@@ -51,6 +87,7 @@ jobs:
           fi
           
           echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)
+
 
   sync_chart:
     needs: [ check_version ]
@@ -63,6 +100,7 @@ jobs:
 
     name: Sync chart
     steps:
+      # checkout
       - uses: actions/checkout@v2
         with:
           fetch-depth: '0'
@@ -176,7 +214,6 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.PAT_PUBLIC_MGR }}
-          # [Sync] Update local-path-provisioner (version 0.0.19)
           title: "[Sync] Update ${{ env.CHART_NAME }} (version ${{ needs.check_version.outputs.REMOTE_VERSION }})"
           body: |
             ## Original commit log
