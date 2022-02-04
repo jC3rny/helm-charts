@@ -1,0 +1,16 @@
+{
+  "charts": [
+    {
+      "name": "local-path-provisioner",
+      "remote": {
+        "url": "https://github.com/rancher/local-path-provisioner.git",
+        "branch": "master",
+        "basePath": "deploy/chart"
+      },
+      "local": {
+        "basePath": "charts",
+        "pathPrefix": "_rancher"
+      }
+    }
+  ]
+}

@@ -29,6 +29,41 @@ env:
   PR_BASE_BRANCH: main
 
 jobs:
+  set_matrix:
+    runs-on: ubuntu-latest
+
+    outputs:
+      SYNC_SETTINGS: ${{ steps.setMatrix.outputs.SYNC_SETTINGS }}
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - id: setMatrix
+        run: echo ::set-output name=SYNC_SETTINGS::$(cat ${GITHUB_WORKSPACE}/.github/workflows/sync.settings.json)
+  
+
+  check_matrix:
+    needs: set_matrix
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Install json2yaml
+        run: sudo npm install -g json2yaml
+      
+      - name: Check matrix definition
+        run: |
+          matrix='${{ needs.set_matrix.outputs.SYNC_SETTINGS }}'
+          
+          echo $matrix
+          echo; echo
+          echo $matrix | jq -M .
+          echo; echo
+          echo $matrix | json2yaml
+
+
   check_version:
     runs-on: ubuntu-latest
     
