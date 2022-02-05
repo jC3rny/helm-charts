@@ -11,6 +11,30 @@
         "basePath": "charts",
         "pathPrefix": "_rancher"
       }
+    },
+    {
+      "name": "cassandra",
+      "remote": {
+        "url": "https://github.com/bitnami/charts.git",
+        "branch": "master",
+        "basePath": "bitnami"
+      },
+      "local": {
+        "basePath": "charts",
+        "pathPrefix": "_bitnami"
+      }
+    },
+    {
+      "name": "redis",
+      "remote": {
+        "url": "https://github.com/bitnami/charts.git",
+        "branch": "master",
+        "basePath": "bitnami"
+      },
+      "local": {
+        "basePath": "charts",
+        "pathPrefix": "_bitnami"
+      }
     }
   ]
 }

@@ -133,16 +133,17 @@ jobs:
 
     name: Sync chart
     steps:
+      # TEST
+      - exit: success()
+        if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
+        
+      - exit: failure()
+        if: needs.check_version.outputs.REMOTE_VERSION == needs.check_version.outputs.LOCAL_VERSION
+
       # checkout
       - uses: actions/checkout@v2
         with:
           fetch-depth: '0'
-
-
-      - name: Versions
-        run: |
-          echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
-          echo "LOCAL_VERSION:  ${{ needs.check_version.outputs.LOCAL_VERSION }}"
 
 
       # Set up YQ
