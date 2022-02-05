@@ -1,4 +1,4 @@
-name: Sync Rancher helm charts
+name: Sync Helm chart
   
 on:
   # push:
