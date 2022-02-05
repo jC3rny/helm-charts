@@ -88,7 +88,7 @@ jobs:
           REMOTE_CHART_REPO_ORG=$(awk '{ n=split($0, a, /[\/]/); print a[4] }' <<<  ${{ env.REMOTE_CHART_REPO_URL }})
 
           if [ -z "${{ env.REMOTE_CHART_REPO_NAME }}" ]; then
-              echo "REMOTE_CHART_REPO_NAME: $(awk '{ n=split($0, a, /[\/]/); print a[n] }' <<< ${{ env.REMOTE_CHART_REPO_URL }} | cut -d '.' -f 1)"
+              REMOTE_CHART_REPO_NAME=$(awk '{ n=split($0, t, /[\/]/); split(t[n], a, /\./); print a[1] }' <<< ${{ env.REMOTE_CHART_REPO_URL }})
 
               echo REMOTE_CHART_REPO_NAME=${REMOTE_CHART_REPO_NAME} >> $GITHUB_ENV
           else
