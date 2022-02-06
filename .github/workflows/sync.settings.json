@@ -1,5 +1,5 @@
 {
-  "charts": [
+  "chart": [
     {
       "name": "local-path-provisioner",
       "remote": {

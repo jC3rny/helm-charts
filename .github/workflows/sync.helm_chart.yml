@@ -12,20 +12,20 @@ on:
 
   
 env:
-  CHART_NAME: local-path-provisioner
-  # v0.0.19
-  # REMOTE_CHART_COMMIT_SHA1: d45bdcf6112a55c2cbaa03ea9cad4d65f4f20e54
-  # v0.0.18
-  # REMOTE_CHART_COMMIT_SHA1: 31496fdb80290f4b1425ffc3dc39b070d68a712c
-  REMOTE_CHART_REPO_URL: https://github.com/rancher/local-path-provisioner.git
-  # REMOTE_CHART_REPO_NAME: local-path-provisioner
-  REMOTE_CHART_REPO_BRANCH: master
-  REMOTE_CHART_ROOT_PATH: deploy/chart
-  # REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
-  LOCAL_CHARTS_ROOT_PATH: charts
-  LOCAL_CHART_PATH_PREFIX: _rancher
-  LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
-  # PR_COMMITER: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+  # CHART_NAME: local-path-provisioner
+  ## v0.0.19
+  ## REMOTE_CHART_COMMIT_SHA1: d45bdcf6112a55c2cbaa03ea9cad4d65f4f20e54
+  ## v0.0.18
+  ## REMOTE_CHART_COMMIT_SHA1: 31496fdb80290f4b1425ffc3dc39b070d68a712c
+  # REMOTE_CHART_REPO_URL: https://github.com/rancher/local-path-provisioner.git
+  ## REMOTE_CHART_REPO_NAME: local-path-provisioner
+  # REMOTE_CHART_REPO_BRANCH: master
+  # REMOTE_CHART_ROOT_PATH: deploy/chart
+  ## REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
+  # LOCAL_CHARTS_ROOT_PATH: charts
+  # LOCAL_CHART_PATH_PREFIX: _rancher
+  # LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
+  ## PR_COMMITER: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
   PR_BASE_BRANCH: main
 
 jobs:
@@ -65,7 +65,22 @@ jobs:
 
 
   check_version:
+    needs: [ set_matrix ]
+
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.set_matrix.outputs.SYNC_SETTINGS) }}
+
+    env:
+      CHART_NAME: ${{ matrix.chart.name }}
+      REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
+      REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
+      REMOTE_CHART_ROOT_PATH: ${{ matrix.chart.remote.basePath }}
+      LOCAL_CHARTS_ROOT_PATH: ${{ matrix.chart.local.basePath }}
+      LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
+      LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
     
     outputs:
       REMOTE_CHART_REPO_ORG: ${{ steps.setEnv.outputs.REMOTE_CHART_REPO_ORG }}
@@ -134,11 +149,11 @@ jobs:
     name: Sync chart
     steps:
       # TEST
-      - exit: success()
-        if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
+      # - exit: success()
+      #   if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
         
-      - exit: failure()
-        if: needs.check_version.outputs.REMOTE_VERSION == needs.check_version.outputs.LOCAL_VERSION
+      # - exit: failure()
+      #   if: needs.check_version.outputs.REMOTE_VERSION == needs.check_version.outputs.LOCAL_VERSION
 
       # checkout
       - uses: actions/checkout@v2
