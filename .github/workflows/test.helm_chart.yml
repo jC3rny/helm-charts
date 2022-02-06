@@ -36,9 +36,7 @@ jobs:
           git branch -a
 
           echo
-          git log --name-only --pretty=format:"%B" -- ${{ env.HELM_CHARTS_ROOT_PATH }}
-          echo
-          git log --name-only --pretty=format:"%H" -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          git log --name-only --pretty=format:"%B" -n 3 -- ${{ env.HELM_CHARTS_ROOT_PATH }}
 
 
           exit 1
