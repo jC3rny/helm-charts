@@ -45,23 +45,11 @@ jobs:
           
           for HELM_CHART_FILE_PATH in $(find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}) -name "Chart.yaml"); do
               if [ "$(yq eval '.dependencies' ${HELM_CHART_FILE_PATH})" != "null" ]; then
-                  HELM_CHART_DEPENDENCIES=""
-                  I=0
-
-                  while [ "${HELM_CHART_DEPENDENCIES}" != "null" ]; do
-                      echo "                      I: '${I}'"
-                      echo "HELM_CHART_DEPENDENCIES: '${HELM_CHART_DEPENDENCIES}'"
-                      
-                      HELM_CHART_DEPENDENCY_REPOSITORY="$(yq eval '.dependencies[$I].repository' ${HELM_CHART_FILE_PATH})"
-                      echo
-                      echo "HELM_CHART_DEPENDENCY_REPOSITORY: '${HELM_CHART_DEPENDENCY_REPOSITORY}'"
-                      echo "HELM_CHART_DEPENDENCY_REPO_NAME: '${HELM_CHART_DEPENDENCY_REPOSITORY}'"
-
-                      helm repo add "$(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ${HELM_CHART_DEPENDENCY_REPOSITORY}
-                      helm repo list
-
-                      ((I=I+1))
-                      HELM_CHART_DEPENDENCIES="$(yq eval '.dependencies[$I]' ${HELM_CHART_FILE_PATH})"
+                  for HELM_CHART_DEPENDENCY_REPOSITORY in "$(yq eval '.dependencies[].repository' ${HELM_CHART_FILE_PATH})"; do
+                      if [ -z "$(grep -E '^file://' <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ]; then
+                          helm repo add "$(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY} | cut -d '.' -f 2-)" ${HELM_CHART_DEPENDENCY_REPOSITORY}
+                          helm repo list
+                      fi
                   done
               fi
           done
