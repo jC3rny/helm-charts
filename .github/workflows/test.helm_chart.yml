@@ -3,7 +3,7 @@ name: Test Helm chart
 on: pull_request
 
 env:
-  HELM_CHARTS_ROOT_PATH: charts
+  HELM_CHART_BASE_PATH: charts
   
 
 jobs:
@@ -17,29 +17,60 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: '5'
+          fetch-depth: '0'
+      
 
       - name: Set up Helm
         uses: azure/setup-helm@v1
+
+
+      - name: Set up YQ
+        uses: chrisdickinson/setup-yq@latest
+        with:
+          yq-version: v4.16.2
       
+
       - name: Lint changed charts
         run: |
           echo ":: git log"
-          git log --stat --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          git log --stat --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}
           echo
-          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}
           
           echo
           echo ":: helm lint"
-          # find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}) -name "Chart.yaml" | xargs dirname | xargs helm lint
-          echo
-          echo "dir name"
-          find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}) -name "Chart.yaml" | xargs dirname
+          # find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}) -name "Chart.yaml" | xargs dirname | xargs helm lint
+          
+          echo "FOR"
+          
+          for HELM_CHART_FILE_PATH in $(find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}) -name "Chart.yaml"); do
+              if [ "$(yq eval '.dependencies' ${HELM_CHART_FILE_PATH})" != "null" ]; then
+                  HELM_CHART_DEPENDENCIES=""
+                  I=0
+
+                  while [ "${HELM_CHART_DEPENDENCIES}" != "null" ]; do
+                      echo "                      I: '${I}'"
+                      echo "HELM_CHART_DEPENDENCIES: '${HELM_CHART_DEPENDENCIES}'"
+                      
+                      HELM_CHART_DEPENDENCY_REPOSITORY="$(yq eval '.dependencies[$I].repository' ${HELM_CHART_FILE_PATH})"
+                      echo
+                      echo "HELM_CHART_DEPENDENCY_REPOSITORY: '${HELM_CHART_DEPENDENCY_REPOSITORY}'"
+                      echo "HELM_CHART_DEPENDENCY_REPO_NAME: '${HELM_CHART_DEPENDENCY_REPOSITORY}'"
+
+                      helm repo add "$(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ${HELM_CHART_DEPENDENCY_REPOSITORY}
+                      helm repo list
+
+                      ((I=I+1))
+                      HELM_CHART_DEPENDENCIES="$(yq eval '.dependencies[$I]' ${HELM_CHART_FILE_PATH})"
+                  done
+              fi
+          done
+          
           echo
           git branch -a
 
           echo
-          git log --name-only --pretty=format:"%B" -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+          git log --name-only --pretty=format:"%B" -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}
 
 
           exit 1
