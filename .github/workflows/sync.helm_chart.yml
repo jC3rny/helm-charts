@@ -129,6 +129,10 @@ jobs:
     if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
     
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.set_matrix.outputs.SYNC_SETTINGS) }}
     
     env:
       CHART_NAME: ${{ matrix.chart.name }}
