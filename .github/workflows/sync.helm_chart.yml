@@ -12,6 +12,14 @@ on:
 
   
 env:
+  - &global_env
+    CHART_NAME: ${{ matrix.chart.name }}
+    REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
+    REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
+    REMOTE_CHART_ROOT_PATH: ${{ matrix.chart.remote.basePath }}
+    LOCAL_CHARTS_ROOT_PATH: ${{ matrix.chart.local.basePath }}
+    LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
+    LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
   # CHART_NAME: local-path-provisioner
   ## v0.0.19
   ## REMOTE_CHART_COMMIT_SHA1: d45bdcf6112a55c2cbaa03ea9cad4d65f4f20e54
@@ -74,13 +82,14 @@ jobs:
       matrix: ${{ fromJson(needs.set_matrix.outputs.SYNC_SETTINGS) }}
 
     env:
-      CHART_NAME: ${{ matrix.chart.name }}
-      REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
-      REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
-      REMOTE_CHART_ROOT_PATH: ${{ matrix.chart.remote.basePath }}
-      LOCAL_CHARTS_ROOT_PATH: ${{ matrix.chart.local.basePath }}
-      LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
-      LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
+      <<: *global_env
+      # CHART_NAME: ${{ matrix.chart.name }}
+      # REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
+      # REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
+      # REMOTE_CHART_ROOT_PATH: ${{ matrix.chart.remote.basePath }}
+      # LOCAL_CHARTS_ROOT_PATH: ${{ matrix.chart.local.basePath }}
+      # LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
+      # LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_ROOT_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
     
     outputs:
       REMOTE_CHART_REPO_ORG: ${{ steps.setEnv.outputs.REMOTE_CHART_REPO_ORG }}
