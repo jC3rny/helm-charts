@@ -42,17 +42,17 @@ jobs:
           # find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}) -name "Chart.yaml" | xargs dirname | xargs helm lint
           
           for HELM_CHART_FILE_PATH in $(find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}) -name "Chart.yaml"); do
-              echo
-              cd $(${HELM_CHART_FILE_PATH} | dirname)
+              cd $(dirname ${HELM_CHART_FILE_PATH})
               pwd
 
-              if [ "$(yq eval '.dependencies' ${HELM_CHART_FILE_PATH})" != "null" ]; then
-                  for HELM_CHART_DEPENDENCY_REPOSITORY in "$(yq eval '.dependencies[].repository' ${HELM_CHART_FILE_PATH})"; do
+              if [ "$(yq eval '.dependencies' ./Chart.yaml)" != "null" ]; then
+                  for HELM_CHART_DEPENDENCY_REPOSITORY in "$(yq eval '.dependencies[].repository' ./Chart.yaml)"; do
                       if [ -z "$(grep -E '^file://' <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ]; then
                           helm repo add "$(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ${HELM_CHART_DEPENDENCY_REPOSITORY}
                           echo
                       fi
                   done
+
 
                   echo
                   helm repo update
@@ -62,6 +62,9 @@ jobs:
               fi
 
               helm lint .
+
+              cd ${GITHUB_WORKSPACE}
+              echo
           done
 
           exit 1
