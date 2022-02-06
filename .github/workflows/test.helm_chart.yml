@@ -32,7 +32,10 @@ jobs:
           echo
           echo ":: helm lint"
           # find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}) -name "Chart.yaml" | xargs dirname | xargs helm lint
-          
+          echo
+          echo "dir name"
+          find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHARTS_ROOT_PATH }}) -name "Chart.yaml" | xargs dirname
+          echo
           git branch -a
 
           echo
