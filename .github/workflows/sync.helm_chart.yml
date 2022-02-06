@@ -210,12 +210,12 @@ jobs:
 
       # TEST
       - if: env.REMOTE_VERSION != env.LOCAL_VERSION
-        run: echo "Exiting ..."
-        exit: success()
+        run: echo "Exiting ..." ; exit 0
+        # exit: success()
       
       - if: env.REMOTE_VERSION == env.LOCAL_VERSION
-        run: echo "Exiting ..."
-        exit: failure()
+        run: echo "Exiting ..." ; exit 0
+        # exit: failure()
 
       
       # Set up YQ
