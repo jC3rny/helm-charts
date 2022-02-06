@@ -6,7 +6,7 @@
         "url": "https://github.com/rancher/local-path-provisioner.git",
         "branch": "master",
         "commitSHA1": "",
-        "basePath": "deploy/chart"
+        "rootPath": "deploy/chart"
       },
       "local": {
         "basePath": "charts",
@@ -19,7 +19,7 @@
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
         "commitSHA1": "a8c0efc78f51022b6fef376ceb9c0657387182c0",
-        "basePath": "bitnami"
+        "rootPath": "bitnami/cassandra"
       },
       "local": {
         "basePath": "charts",
@@ -32,7 +32,7 @@
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
         "commitSHA1": "d42a1d565df67e1ff83532a6dc9329cbc8437760",
-        "basePath": "bitnami"
+        "rootPath": "bitnami/redis"
       },
       "local": {
         "basePath": "charts",
