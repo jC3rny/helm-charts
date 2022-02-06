@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: '0'
+          fetch-depth: '10'
 
       - name: Set up Helm
         uses: azure/setup-helm@v1
@@ -40,6 +40,9 @@ jobs:
 
           echo
           git log --name-only --pretty=format:"%B" -n 3 -- ${{ env.HELM_CHARTS_ROOT_PATH }}
+
+          echo
+          git log --name-only --pretty=format:"%H" -- ${{ env.HELM_CHARTS_ROOT_PATH }}
 
 
           exit 1
