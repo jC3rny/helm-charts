@@ -12,7 +12,7 @@ on:
 
   
 env:
-  - &global_env
+  &global_env
     CHART_NAME: ${{ matrix.chart.name }}
     REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
     REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
