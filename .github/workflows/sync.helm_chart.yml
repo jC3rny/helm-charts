@@ -137,174 +137,174 @@ jobs:
           echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)
 
 
-  sync_chart:
-    needs: [ check_version ]
-
-    if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
-    
-    runs-on: ubuntu-latest
-    
-    outputs: {}
-
-    name: Sync chart
-    steps:
-      # TEST
-      # - exit: success()
-      #   if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
-        
-      # - exit: failure()
-      #   if: needs.check_version.outputs.REMOTE_VERSION == needs.check_version.outputs.LOCAL_VERSION
-
-      # checkout
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: '0'
-
-
-      # Set up YQ
-      - name: Set up YQ
-        uses: chrisdickinson/setup-yq@latest
-        with:
-          yq-version: v4.16.2
-      
-
-      # Clone remote repository
-      - name: Clone remote repository
-        run: |
-          git clone ${{ env.REMOTE_CHART_REPO_URL }} ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
-          
-          cd ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
-          
-          if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
-              git reset --hard ${{ env.REMOTE_CHART_COMMIT_SHA1 }}
-          fi
-
-          echo
-          git log --stat --pretty=format: -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}
-
-          echo
-          echo ORIGINAL_COMMIT_ID=$(git log --pretty=format:"%H" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
-          echo ORIGINAL_COMMIT_AUTHOR_NAME=$(git log --pretty=format:"%aN" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
-          echo ORIGINAL_COMMIT_AUTHOR_EMAIL=$(git log --pretty=format:"%aE" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
-          echo ORIGINAL_COMMIT_DATE=$(git log --pretty=format:"%aD" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
-          echo ORIGINAL_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
-          echo ORIGINAL_COMMIT_URL=$(sed -r "s/\.git$/\/commit\/$(git log --pretty=format:"%H" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }})/" <<< ${{ env.REMOTE_CHART_REPO_URL }}) >> $GITHUB_ENV
-
-
-      # Import new or update existing chart
-      - name: Import new or update existing chart
-        run: |
-          if [ ! -d "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}" ]; then
-              mkdir -p ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
-              cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}/
-
-              echo
-              echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
-              echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
-          else
-              pwd; echo
-
-              LOCAL_CHART_REMOTE_COMMIT_ID=$(git log --pretty=format:"%B" -n 1 -- ${{ env.LOCAL_CHART_ROOT_PATH }} | awk -F '[][]' '{print $2}')
-              
-              cd ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
-              pwd; echo
-
-              if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
-                  git reset --hard ${{ env.REMOTE_CHART_COMMIT_SHA1 }}
-              else
-                  git reset --hard ${{ env.ORIGINAL_COMMIT_ID }}
-              fi
-
-              if [ ! -z "${LOCAL_CHART_REMOTE_COMMIT_ID}" ]; then
-                  echo
-
-                  # Create patch
-                  PATCH_VERSION=$(yq eval '.version' ${{ env.REMOTE_CHART_ROOT_PATH }}/Chart.yaml)
-                  PATCH_FILE_PATH=${RUNNER_TEMP}/${{ env.CHART_NAME }}_patch-${PATCH_VERSION}.diff
-
-                  echo "git diff --no-prefix --output ${PATCH_FILE_PATH} ${LOCAL_CHART_REMOTE_COMMIT_ID} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}"
-                  git diff --no-prefix --output ${PATCH_FILE_PATH} ${LOCAL_CHART_REMOTE_COMMIT_ID} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}
-                  echo
-                  
-                  # Apply patch
-                  cd ${GITHUB_WORKSPACE}
-                  pwd; echo
-
-                  git apply \
-                    -p $(awk -F '/' '{print NF-0}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
-                    --index --check --stat --apply --verbose \
-                    --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
-                    ${PATCH_FILE_PATH}
-              fi
-          fi
-      
-      # - name: Print variables
-      #   run: |
-      #     echo "CHART_OWNER: ${{ env.CHART_OWNER }}"
-      #     echo "CHART_NAME: ${{ env.CHART_NAME }}"
-      #     echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
-      #     echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
-      #     echo "LOCAL_CHART_ROOT_PATH: ${{ env.LOCAL_CHART_ROOT_PATH }}"
-      #     echo ""
-      #     echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
-      #     echo "$(ls -alh ${GITHUB_WORKSPACE})"
-      #     echo ""
-      #     echo "RUNNER_TEMP: ${RUNNER_TEMP}"
-      #     echo "$(ls -alh ${RUNNER_TEMP})"
-      #     echo ""
-      #     echo "$(git status)"
-      #     echo ""
-      #     echo "ORIGINAL_COMMIT_ID: ${{ env.ORIGINAL_COMMIT_ID }}"
-      #     echo "ORIGINAL_COMMIT_AUTHOR: ${{ env.ORIGINAL_COMMIT_AUTHOR }}"
-      #     echo "ORIGINAL_COMMIT_DATE: ${{ env.ORIGINAL_COMMIT_DATE }}"
-      #     echo "ORIGINAL_COMMIT_MESSAGE: ${{ env.ORIGINAL_COMMIT_MESSAGE }}"
-      #     echo "ORIGINAL_COMMIT_URL: ${{ env.ORIGINAL_COMMIT_URL }}"
-      #     echo ""
-      #     echo "PR_COMMIT_PATH: ${{ env.PR_COMMIT_PATH }}"
-
-
-      # Create Pull Request
-      - name: Create Pull Request
-        id: createPullRequest
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ secrets.PAT_PUBLIC_MGR }}
-          title: "[Sync] Update ${{ env.CHART_NAME }} (version ${{ needs.check_version.outputs.REMOTE_VERSION }})"
-          body: |
-            ## Original commit log
-            <br/>
-
-            > commit [${{ env.ORIGINAL_COMMIT_ID }}][1]
-            >
-            > Author: [${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }}](mailto:${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }})
-            >
-            > Date: &nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_DATE }}
-            >
-            > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_MESSAGE }}
-            
-            [1]: ${{ env.ORIGINAL_COMMIT_URL }}
-          labels: |
-            automated
-            sync
-            ${{ env.CHART_NAME }}
-          # commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
-          commit-message: Sync version ${{ needs.check_version.outputs.REMOTE_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
-          # committer: ${{ env.PR_COMMITER }}
-          author: ${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>
-          signoff: false
-          assignees: ${{ github.actor }}
-          # reviewers: ${{ github.actor }}
-          base: ${{ env.PR_BASE_BRANCH }}
-          branch: ${{ env.CHART_NAME }}/patch
-          branch-suffix: short-commit-hash
-          delete-branch: true
-      
-
-      # Enable Automerge
-      - name: Enable Automerge
-        if: steps.createPullRequest.outputs.pull-request-operation == 'created'
-        uses: peter-evans/enable-pull-request-automerge@v1
-        with:
-          token: ${{ secrets.PAT_PUBLIC_MGR }}
-          pull-request-number: ${{ steps.createPullRequest.outputs.pull-request-number }}
-          merge-method: squash
+#  sync_chart:
+#    needs: [ check_version ]
+#
+#    if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
+#    
+#    runs-on: ubuntu-latest
+#    
+#    outputs: {}
+#
+#    name: Sync chart
+#    steps:
+#      # TEST
+#      # - exit: success()
+#      #   if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
+#        
+#      # - exit: failure()
+#      #   if: needs.check_version.outputs.REMOTE_VERSION == needs.check_version.outputs.LOCAL_VERSION
+#
+#      # checkout
+#      - uses: actions/checkout@v2
+#        with:
+#          fetch-depth: '0'
+#
+#
+#      # Set up YQ
+#      - name: Set up YQ
+#        uses: chrisdickinson/setup-yq@latest
+#        with:
+#          yq-version: v4.16.2
+#      
+#
+#      # Clone remote repository
+#      - name: Clone remote repository
+#        run: |
+#          git clone ${{ env.REMOTE_CHART_REPO_URL }} ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
+#          
+#          cd ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
+#          
+#          if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
+#              git reset --hard ${{ env.REMOTE_CHART_COMMIT_SHA1 }}
+#          fi
+#
+#          echo
+#          git log --stat --pretty=format: -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}
+#
+#          echo
+#          echo ORIGINAL_COMMIT_ID=$(git log --pretty=format:"%H" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+#          echo ORIGINAL_COMMIT_AUTHOR_NAME=$(git log --pretty=format:"%aN" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+#          echo ORIGINAL_COMMIT_AUTHOR_EMAIL=$(git log --pretty=format:"%aE" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+#          echo ORIGINAL_COMMIT_DATE=$(git log --pretty=format:"%aD" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+#          echo ORIGINAL_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
+#          echo ORIGINAL_COMMIT_URL=$(sed -r "s/\.git$/\/commit\/$(git log --pretty=format:"%H" -n 1 -- ${{ env.REMOTE_CHART_ROOT_PATH }})/" <<< ${{ env.REMOTE_CHART_REPO_URL }}) >> $GITHUB_ENV
+#
+#
+#      # Import new or update existing chart
+#      - name: Import new or update existing chart
+#        run: |
+#          if [ ! -d "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}" ]; then
+#              mkdir -p ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
+#              cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}/
+#
+#              echo
+#              echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
+#              echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
+#          else
+#              pwd; echo
+#
+#              LOCAL_CHART_REMOTE_COMMIT_ID=$(git log --pretty=format:"%B" -n 1 -- ${{ env.LOCAL_CHART_ROOT_PATH }} | awk -F '[][]' '{print $2}')
+#              
+#              cd ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
+#              pwd; echo
+#
+#              if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
+#                  git reset --hard ${{ env.REMOTE_CHART_COMMIT_SHA1 }}
+#              else
+#                  git reset --hard ${{ env.ORIGINAL_COMMIT_ID }}
+#              fi
+#
+#              if [ ! -z "${LOCAL_CHART_REMOTE_COMMIT_ID}" ]; then
+#                  echo
+#
+#                  # Create patch
+#                  PATCH_VERSION=$(yq eval '.version' ${{ env.REMOTE_CHART_ROOT_PATH }}/Chart.yaml)
+#                  PATCH_FILE_PATH=${RUNNER_TEMP}/${{ env.CHART_NAME }}_patch-${PATCH_VERSION}.diff
+#
+#                  echo "git diff --no-prefix --output ${PATCH_FILE_PATH} ${LOCAL_CHART_REMOTE_COMMIT_ID} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}"
+#                  git diff --no-prefix --output ${PATCH_FILE_PATH} ${LOCAL_CHART_REMOTE_COMMIT_ID} HEAD^ -- ${{ env.REMOTE_CHART_ROOT_PATH }}
+#                  echo
+#                  
+#                  # Apply patch
+#                  cd ${GITHUB_WORKSPACE}
+#                  pwd; echo
+#
+#                  git apply \
+#                    -p $(awk -F '/' '{print NF-0}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
+#                    --index --check --stat --apply --verbose \
+#                    --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
+#                    ${PATCH_FILE_PATH}
+#              fi
+#          fi
+#      
+#      # - name: Print variables
+#      #   run: |
+#      #     echo "CHART_OWNER: ${{ env.CHART_OWNER }}"
+#      #     echo "CHART_NAME: ${{ env.CHART_NAME }}"
+#      #     echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
+#      #     echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
+#      #     echo "LOCAL_CHART_ROOT_PATH: ${{ env.LOCAL_CHART_ROOT_PATH }}"
+#      #     echo ""
+#      #     echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
+#      #     echo "$(ls -alh ${GITHUB_WORKSPACE})"
+#      #     echo ""
+#      #     echo "RUNNER_TEMP: ${RUNNER_TEMP}"
+#      #     echo "$(ls -alh ${RUNNER_TEMP})"
+#      #     echo ""
+#      #     echo "$(git status)"
+#      #     echo ""
+#      #     echo "ORIGINAL_COMMIT_ID: ${{ env.ORIGINAL_COMMIT_ID }}"
+#      #     echo "ORIGINAL_COMMIT_AUTHOR: ${{ env.ORIGINAL_COMMIT_AUTHOR }}"
+#      #     echo "ORIGINAL_COMMIT_DATE: ${{ env.ORIGINAL_COMMIT_DATE }}"
+#      #     echo "ORIGINAL_COMMIT_MESSAGE: ${{ env.ORIGINAL_COMMIT_MESSAGE }}"
+#      #     echo "ORIGINAL_COMMIT_URL: ${{ env.ORIGINAL_COMMIT_URL }}"
+#      #     echo ""
+#      #     echo "PR_COMMIT_PATH: ${{ env.PR_COMMIT_PATH }}"
+#
+#
+#      # Create Pull Request
+#      - name: Create Pull Request
+#        id: createPullRequest
+#        uses: peter-evans/create-pull-request@v3
+#        with:
+#          token: ${{ secrets.PAT_PUBLIC_MGR }}
+#          title: "[Sync] Update ${{ env.CHART_NAME }} (version ${{ needs.check_version.outputs.REMOTE_VERSION }})"
+#          body: |
+#            ## Original commit log
+#            <br/>
+#
+#            > commit [${{ env.ORIGINAL_COMMIT_ID }}][1]
+#            >
+#            > Author: [${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }}](mailto:${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }})
+#            >
+#            > Date: &nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_DATE }}
+#            >
+#            > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_MESSAGE }}
+#            
+#            [1]: ${{ env.ORIGINAL_COMMIT_URL }}
+#          labels: |
+#            automated
+#            sync
+#            ${{ env.CHART_NAME }}
+#          # commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
+#          commit-message: Sync version ${{ needs.check_version.outputs.REMOTE_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
+#          # committer: ${{ env.PR_COMMITER }}
+#          author: ${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>
+#          signoff: false
+#          assignees: ${{ github.actor }}
+#          # reviewers: ${{ github.actor }}
+#          base: ${{ env.PR_BASE_BRANCH }}
+#          branch: ${{ env.CHART_NAME }}/patch
+#          branch-suffix: short-commit-hash
+#          delete-branch: true
+#      
+#
+#      # Enable Automerge
+#      - name: Enable Automerge
+#        if: steps.createPullRequest.outputs.pull-request-operation == 'created'
+#        uses: peter-evans/enable-pull-request-automerge@v1
+#        with:
+#          token: ${{ secrets.PAT_PUBLIC_MGR }}
+#          pull-request-number: ${{ steps.createPullRequest.outputs.pull-request-number }}
+#          merge-method: squash
