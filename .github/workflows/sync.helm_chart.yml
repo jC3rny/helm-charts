@@ -49,38 +49,120 @@ jobs:
         run: echo ::set-output name=SYNC_SETTINGS::$(cat ${GITHUB_WORKSPACE}/.github/workflows/sync.settings.json)
 
 
-  check_version:
+#  check_version:
+#    needs: [ set_matrix ]
+#
+#    runs-on: ubuntu-latest
+#
+#    strategy:
+#      fail-fast: false
+#      matrix: ${{ fromJson(needs.set_matrix.outputs.SYNC_SETTINGS) }}
+#
+#    env:
+#      CHART_NAME: ${{ matrix.chart.name }}
+#      REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
+#      REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
+#      REMOTE_CHART_COMMIT_SHA1: ${{ matrix.chart.remote.commitSHA1 }}
+#      REMOTE_CHART_BASE_PATH: ${{ matrix.chart.remote.basePath }}
+#      LOCAL_CHARTS_BASE_PATH: ${{ matrix.chart.local.basePath }}
+#      LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
+#      LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_BASE_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
+#    
+#    outputs:
+#      REMOTE_CHART_REPO_ORG: ${{ steps.setEnv.outputs.REMOTE_CHART_REPO_ORG }}
+#      REMOTE_CHART_REPO_NAME: ${{ steps.setEnv.outputs.REMOTE_CHART_REPO_NAME }}
+#      REMOTE_CHART_FILE_URL: ${{ steps.setEnv.outputs.REMOTE_CHART_FILE_URL }}
+#      REMOTE_VERSION: ${{ steps.getChartVersion.outputs.REMOTE_VERSION }}
+#      LOCAL_VERSION: ${{ steps.getChartVersion.outputs.LOCAL_VERSION }}
+#    
+#    # check if is opened PR with label automated,sync,${{ env.CHART_NAME }}
+#    name: Check version
+#    steps:
+#      # checkout
+#      - uses: actions/checkout@v2
+#      
+#
+#      # Set ENV
+#      - name: Set ENV
+#        id: setEnv
+#        run: |
+#          REMOTE_CHART_REPO_ORG=$(awk '{ n=split($0, a, /[\/]/); print a[4] }' <<<  ${{ env.REMOTE_CHART_REPO_URL }})
+#
+#          if [ -z "${{ env.REMOTE_CHART_REPO_NAME }}" ]; then
+#              REMOTE_CHART_REPO_NAME=$(awk '{ n=split($0, t, /[\/]/); split(t[n], a, /\./); print a[1] }' <<< ${{ env.REMOTE_CHART_REPO_URL }})
+#
+#              echo REMOTE_CHART_REPO_NAME=${REMOTE_CHART_REPO_NAME} >> $GITHUB_ENV
+#          else
+#              REMOTE_CHART_REPO_NAME=${{ env.REMOTE_CHART_REPO_NAME }}
+#          fi
+#
+#          if [ -z "${{ env.REMOTE_CHART_FILE_URL }}" ]; then
+#              if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
+#                  REMOTE_CHART_FILE_URL="https://raw.githubusercontent.com/${REMOTE_CHART_REPO_ORG}/${REMOTE_CHART_REPO_NAME}/${{ env.REMOTE_CHART_COMMIT_SHA1 }}/$(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_BASE_PATH }})/Chart.yaml"
+#              else
+#                  REMOTE_CHART_FILE_URL="https://raw.githubusercontent.com/${REMOTE_CHART_REPO_ORG}/${REMOTE_CHART_REPO_NAME}/${{ env.REMOTE_CHART_REPO_BRANCH }}/$(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_BASE_PATH }})/Chart.yaml"
+#              fi
+#
+#              echo REMOTE_CHART_FILE_URL=${REMOTE_CHART_FILE_URL} >> $GITHUB_ENV
+#          else
+#              REMOTE_CHART_FILE_URL=${{ env.REMOTE_CHART_FILE_URL }}
+#          fi
+#
+#          echo REMOTE_CHART_REPO_ORG=${REMOTE_CHART_REPO_ORG} >> $GITHUB_ENV
+#
+#          echo ::set-output name=REMOTE_CHART_REPO_ORG::${REMOTE_CHART_REPO_ORG}
+#          echo ::set-output name=REMOTE_CHART_REPO_NAME::${REMOTE_CHART_REPO_NAME}
+#          echo ::set-output name=REMOTE_CHART_FILE_URL::${REMOTE_CHART_FILE_URL}
+#
+#
+#      # Get version
+#      - name: Get version
+#        id: getChartVersion
+#        run: |
+#          echo ::set-output name=REMOTE_VERSION::$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*')
+#          echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)
+#
+#          echo REMOTE_VERSION=$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*') >> $GITHUB_ENV
+#          echo LOCAL_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
+
+
+  sync_chart:
     needs: [ set_matrix ]
 
+    # if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
+    
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.set_matrix.outputs.SYNC_SETTINGS) }}
-
+    
     env:
       CHART_NAME: ${{ matrix.chart.name }}
       REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
+      # REMOTE_CHART_REPO_ORG: ${{ needs.check_version.outputs.REMOTE_CHART_REPO_ORG }}
+      # REMOTE_CHART_REPO_NAME: ${{ needs.check_version.outputs.REMOTE_CHART_REPO_NAME }}
+      # REMOTE_CHART_FILE_URL: ${{ needs.check_version.outputs.REMOTE_CHART_FILE_URL }}
       REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
       REMOTE_CHART_COMMIT_SHA1: ${{ matrix.chart.remote.commitSHA1 }}
       REMOTE_CHART_BASE_PATH: ${{ matrix.chart.remote.basePath }}
       LOCAL_CHARTS_BASE_PATH: ${{ matrix.chart.local.basePath }}
       LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
       LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_BASE_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
-    
-    outputs:
-      REMOTE_CHART_REPO_ORG: ${{ steps.setEnv.outputs.REMOTE_CHART_REPO_ORG }}
-      REMOTE_CHART_REPO_NAME: ${{ steps.setEnv.outputs.REMOTE_CHART_REPO_NAME }}
-      REMOTE_CHART_FILE_URL: ${{ steps.setEnv.outputs.REMOTE_CHART_FILE_URL }}
-      REMOTE_VERSION: ${{ steps.getChartVersion.outputs.REMOTE_VERSION }}
-      LOCAL_VERSION: ${{ steps.getChartVersion.outputs.LOCAL_VERSION }}
-    
-    # check if is opened PR with label automated,sync,${{ env.CHART_NAME }}
-    name: Check version
+      # REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}
+      # LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}
+      
+
+    outputs: {}
+
+    name: Sync chart
     steps:
+
       # checkout
       - uses: actions/checkout@v2
-      
+        with:
+          fetch-depth: '0'
+
 
       # Set ENV
       - name: Set ENV
@@ -126,44 +208,16 @@ jobs:
           echo LOCAL_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
 
 
-  sync_chart:
-    needs: [ check_version ]
-
-    if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
-    
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.set_matrix.outputs.SYNC_SETTINGS) }}
-    
-    env:
-      CHART_NAME: ${{ matrix.chart.name }}
-      REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
-      REMOTE_CHART_REPO_ORG: ${{ needs.check_version.outputs.REMOTE_CHART_REPO_ORG }}
-      REMOTE_CHART_REPO_NAME: ${{ needs.check_version.outputs.REMOTE_CHART_REPO_NAME }}
-      REMOTE_CHART_FILE_URL: ${{ needs.check_version.outputs.REMOTE_CHART_FILE_URL }}
-      REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
-      REMOTE_CHART_COMMIT_SHA1: ${{ matrix.chart.remote.commitSHA1 }}
-      REMOTE_CHART_BASE_PATH: ${{ matrix.chart.remote.basePath }}
-      LOCAL_CHARTS_BASE_PATH: ${{ matrix.chart.local.basePath }}
-      LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
-      LOCAL_CHART_ROOT_PATH: ${LOCAL_CHARTS_BASE_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
-      REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}
-      LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}
+      # TEST
+      - if: env.REMOTE_VERSION != env.LOCAL_VERSION
+        run: echo "Exiting ..."
+        exit: success()
       
+      - if: env.REMOTE_VERSION == env.LOCAL_VERSION
+        run: echo "Exiting ..."
+        exit: failure()
 
-    outputs: {}
-
-    name: Sync chart
-    steps:
-
-      # checkout
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: '0'
-
-
+      
       # Set up YQ
       - name: Set up YQ
         uses: chrisdickinson/setup-yq@latest
