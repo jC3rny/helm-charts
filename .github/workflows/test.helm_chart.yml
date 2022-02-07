@@ -56,12 +56,11 @@ jobs:
                   echo
                   helm dependency update
                   
-                  echo
                   cd ${GITHUB_WORKSPACE}
               fi
 
               echo
-              helm lint ${HELM_CHART_FILE_PATH}
+              helm lint $(dirname ${HELM_CHART_FILE_PATH})
 
               
           done
