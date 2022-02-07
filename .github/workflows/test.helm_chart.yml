@@ -30,7 +30,7 @@ jobs:
           yq-version: v4.16.2
       
 
-      - name: Lint changed charts
+      - name: Lint helm chart
         run: |
           echo ":: git log"
           git log --stat --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}
