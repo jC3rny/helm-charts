@@ -34,13 +34,9 @@ jobs:
         run: |
           echo ":: git log"
           git log --stat --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}
-          echo
-          git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}
           
           echo
           echo ":: helm lint"
-          # find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}) -name "Chart.yaml" | xargs dirname | xargs helm lint
-          
           for HELM_CHART_FILE_PATH in $(find $(git log --name-only --pretty=format: -n 1 -- ${{ env.HELM_CHART_BASE_PATH }}) -name "Chart.yaml"); do
               if [ "$(yq eval '.dependencies' ${HELM_CHART_FILE_PATH})" != "null" ]; then
                   for HELM_CHART_DEPENDENCY_REPOSITORY in "$(yq eval '.dependencies[].repository' ${HELM_CHART_FILE_PATH})"; do
@@ -61,8 +57,6 @@ jobs:
 
               echo
               helm lint $(dirname ${HELM_CHART_FILE_PATH})
-
-              
           done
 
           exit 1
