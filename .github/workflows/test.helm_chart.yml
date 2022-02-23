@@ -58,5 +58,3 @@ jobs:
               echo
               helm lint $(dirname ${HELM_CHART_FILE_PATH})
           done
-
-          exit 1
