@@ -88,23 +88,22 @@ jobs:
 
                   HELM_REPO_CHART_VERSION=$(helm search repo -r "${HELM_REPO_NAME}/${CHART_NAME}[^-]" -o json | jq -r '.[] | select(.version == "'${CHART_VERSION}'").version')
 
+                  echo
                   echo "****************************************"
                   echo ":: Chart ( ${CHART_NAME} )"
                   
                   helm lint $(dirname ${CHART_FILE})
 
                   if [ $? -eq 0 ] && [ -z "$HELM_REPO_CHART_VERSION" ]; then
-                      echo "---"
                       PUBLISH_PACKAGE_DIRECTORY=""
                       
                       # Package directory
-                      if [ ! -z "$(grep -Eo '^${{ env.SOURCE_REPO_ROOT_PATH }}/_bitnami$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="_bitnami"; fi
-                      if [ ! -z "$(grep -Eo '^${{ env.SOURCE_REPO_ROOT_PATH }}/_rancher$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="_rancher"; fi
-                      if [ ! -z "$(grep -Eo '^${{ env.SOURCE_REPO_ROOT_PATH }}/jC3rny$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="jC3rny"; fi
+                      PUBLISH_PACKAGE_DIRECTORY="$(cut --delimiter='/' --fields=3  <<< ${CHART_FILE})"
 
                       if [ ! -z "${PUBLISH_PACKAGE_DIRECTORY}" ]; then
                           PUBLISH_PACKAGE_DIR_PATH=${GITHUB_WORKSPACE}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY}
                           
+                          echo; echo "==> Publishing ${PUBLISH_PACKAGE_DIR_PATH}"
                           mkdir -p ${PUBLISH_PACKAGE_DIR_PATH}
                           mv -fv $(helm package $(dirname ${CHART_FILE}) | awk '{ n=split($0, a, /[\/]/); print a[n] }') ${PUBLISH_PACKAGE_DIR_PATH}
 
