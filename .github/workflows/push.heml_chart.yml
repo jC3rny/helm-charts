@@ -107,7 +107,7 @@ jobs:
                           mkdir -p ${PUBLISH_PACKAGE_DIR_PATH}
                           mv -fv $(helm package $(dirname ${CHART_FILE}) | awk '{ n=split($0, a, /[\/]/); print a[n] }') ${PUBLISH_PACKAGE_DIR_PATH}
 
-                          helm repo index ${PUBLISH_PACKAGE_DIR_PATH} --url ${{ env.HELM_REPO_URL }}/${PUBLISH_PACKAGE_DIRECTORY} --merge ${GITHUB_WORKSPACE}/index.yaml
+                          helm repo index ${PUBLISH_PACKAGE_DIR_PATH} --url ${{ env.HELM_REPO_URL }}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY} --merge ${GITHUB_WORKSPACE}/index.yaml
                           mv -fv ${PUBLISH_PACKAGE_DIR_PATH}/index.yaml ${GITHUB_WORKSPACE}/index.yaml
                       fi
                   fi
