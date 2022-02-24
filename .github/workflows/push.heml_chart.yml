@@ -98,9 +98,9 @@ jobs:
                       PUBLISH_PACKAGE_DIRECTORY=""
                       
                       # Package directory
-                      if [ ! -z "$(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/_bitnami$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="_bitnami"; fi
-                      if [ ! -z "$(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/_rancher$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="_rancher"; fi
-                      if [ ! -z "$(grep -Eo '^./${{ env.SOURCE_REPO_ROOT_PATH }}/jC3rny$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="jC3rny"; fi
+                      if [ ! -z "$(grep -Eo '^${{ env.SOURCE_REPO_ROOT_PATH }}/_bitnami$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="_bitnami"; fi
+                      if [ ! -z "$(grep -Eo '^${{ env.SOURCE_REPO_ROOT_PATH }}/_rancher$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="_rancher"; fi
+                      if [ ! -z "$(grep -Eo '^${{ env.SOURCE_REPO_ROOT_PATH }}/jC3rny$' <<< $(cut -d '/' -f-3  <<< ${CHART_FILE}))" ]; then PUBLISH_PACKAGE_DIRECTORY="jC3rny"; fi
 
                       if [ ! -z "${PUBLISH_PACKAGE_DIRECTORY}" ]; then
                           PUBLISH_PACKAGE_DIR_PATH=${GITHUB_WORKSPACE}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY}
@@ -117,6 +117,7 @@ jobs:
               fi
           done
 
+          echo; echo ":: git config"
           cd ${GITHUB_WORKSPACE}
           pwd; echo
 
@@ -125,9 +126,9 @@ jobs:
           git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git config --local user.name "${GITHUB_ACTOR}"
           
-          echo
+          echo; echo ":: git add"
           git add .
           git commit -am "${{ env.PR_COMMIT_MESSAGE }}"
 
-          echo
+          echo; echo ":: git push"
           git push origin ${{ env.PUBLISH_REPO_TARGET_BRANCH }}
