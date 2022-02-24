@@ -253,9 +253,6 @@ jobs:
               mkdir -p ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
               cp -rfv ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}/${{ env.REMOTE_CHART_ROOT_PATH }}/* ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}/
 
-              echo
-              echo "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}"
-              echo "$(ls -alh ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }})"
           else
               pwd; echo
 
@@ -301,10 +298,7 @@ jobs:
                       helm repo add "$(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ${HELM_CHART_DEPENDENCY_REPOSITORY}
                   fi
               done
-
-              echo
-              cd ${{ env.LOCAL_CHART_ROOT_PATH }}; pwd
-
+              
               echo
               helm dependency update
           fi
