@@ -5,34 +5,13 @@ on:
   #   branches: [ main ]
   # pull_request:
   #   branches: [ main ]
-  # schedule:
+  schedule:
     # - cron:  "30 */12 * * *"
-    # - cron:  "0 6 * * *"
+    - cron:  "0 6 * * *"
   workflow_dispatch:
 
   
 env:
-  # CHART_NAME: ${{ matrix.chart.name }}
-  # REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
-  # REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
-  # REMOTE_CHART_ROOT_PATH: ${{ matrix.chart.remote.basePath }}
-  # LOCAL_CHART_BASE_PATH: ${{ matrix.chart.local.basePath }}
-  # LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
-  # LOCAL_CHART_ROOT_PATH: ${LOCAL_CHART_BASE_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
-  # CHART_NAME: local-path-provisioner
-  ## v0.0.19
-  ## REMOTE_CHART_COMMIT_SHA1: d45bdcf6112a55c2cbaa03ea9cad4d65f4f20e54
-  ## v0.0.18
-  ## REMOTE_CHART_COMMIT_SHA1: 31496fdb80290f4b1425ffc3dc39b070d68a712c
-  # REMOTE_CHART_REPO_URL: https://github.com/rancher/local-path-provisioner.git
-  ## REMOTE_CHART_REPO_NAME: local-path-provisioner
-  # REMOTE_CHART_REPO_BRANCH: master
-  # REMOTE_CHART_ROOT_PATH: deploy/chart
-  ## REMOTE_CHART_FILE_URL: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/chart/Chart.yaml
-  # LOCAL_CHART_BASE_PATH: charts
-  # LOCAL_CHART_PATH_PREFIX: _rancher
-  # LOCAL_CHART_ROOT_PATH: ${LOCAL_CHART_BASE_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
-  ## PR_COMMITER: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
   PR_BASE_BRANCH: main
 
 jobs:
@@ -49,87 +28,8 @@ jobs:
         run: echo ::set-output name=SYNC_SETTINGS::$(cat ${GITHUB_WORKSPACE}/.github/workflows/sync.settings.json)
 
 
-#  check_version:
-#    needs: [ set_matrix ]
-#
-#    runs-on: ubuntu-latest
-#
-#    strategy:
-#      fail-fast: false
-#      matrix: ${{ fromJson(needs.set_matrix.outputs.SYNC_SETTINGS) }}
-#
-#    env:
-#      CHART_NAME: ${{ matrix.chart.name }}
-#      REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
-#      REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
-#      REMOTE_CHART_COMMIT_SHA1: ${{ matrix.chart.remote.commitSHA1 }}
-#      REMOTE_CHART_ROOT_PATH: ${{ matrix.chart.remote.basePath }}
-#      LOCAL_CHART_BASE_PATH: ${{ matrix.chart.local.basePath }}
-#      LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
-#      LOCAL_CHART_ROOT_PATH: ${LOCAL_CHART_BASE_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
-#    
-#    outputs:
-#      REMOTE_CHART_REPO_ORG: ${{ steps.setEnv.outputs.REMOTE_CHART_REPO_ORG }}
-#      REMOTE_CHART_REPO_NAME: ${{ steps.setEnv.outputs.REMOTE_CHART_REPO_NAME }}
-#      REMOTE_CHART_FILE_URL: ${{ steps.setEnv.outputs.REMOTE_CHART_FILE_URL }}
-#      REMOTE_VERSION: ${{ steps.getChartVersion.outputs.REMOTE_VERSION }}
-#      LOCAL_VERSION: ${{ steps.getChartVersion.outputs.LOCAL_VERSION }}
-#    
-#    # check if is opened PR with label automated,sync,${{ env.CHART_NAME }}
-#    name: Check version
-#    steps:
-#      # checkout
-#      - uses: actions/checkout@v2
-#      
-#
-#      # Set ENV
-#      - name: Set ENV
-#        id: setEnv
-#        run: |
-#          REMOTE_CHART_REPO_ORG=$(awk '{ n=split($0, a, /[\/]/); print a[4] }' <<<  ${{ env.REMOTE_CHART_REPO_URL }})
-#
-#          if [ -z "${{ env.REMOTE_CHART_REPO_NAME }}" ]; then
-#              REMOTE_CHART_REPO_NAME=$(awk '{ n=split($0, t, /[\/]/); split(t[n], a, /\./); print a[1] }' <<< ${{ env.REMOTE_CHART_REPO_URL }})
-#
-#              echo REMOTE_CHART_REPO_NAME=${REMOTE_CHART_REPO_NAME} >> $GITHUB_ENV
-#          else
-#              REMOTE_CHART_REPO_NAME=${{ env.REMOTE_CHART_REPO_NAME }}
-#          fi
-#
-#          if [ -z "${{ env.REMOTE_CHART_FILE_URL }}" ]; then
-#              if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
-#                  REMOTE_CHART_FILE_URL="https://raw.githubusercontent.com/${REMOTE_CHART_REPO_ORG}/${REMOTE_CHART_REPO_NAME}/${{ env.REMOTE_CHART_COMMIT_SHA1 }}/$(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})/Chart.yaml"
-#              else
-#                  REMOTE_CHART_FILE_URL="https://raw.githubusercontent.com/${REMOTE_CHART_REPO_ORG}/${REMOTE_CHART_REPO_NAME}/${{ env.REMOTE_CHART_REPO_BRANCH }}/$(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})/Chart.yaml"
-#              fi
-#
-#              echo REMOTE_CHART_FILE_URL=${REMOTE_CHART_FILE_URL} >> $GITHUB_ENV
-#          else
-#              REMOTE_CHART_FILE_URL=${{ env.REMOTE_CHART_FILE_URL }}
-#          fi
-#
-#          echo REMOTE_CHART_REPO_ORG=${REMOTE_CHART_REPO_ORG} >> $GITHUB_ENV
-#
-#          echo ::set-output name=REMOTE_CHART_REPO_ORG::${REMOTE_CHART_REPO_ORG}
-#          echo ::set-output name=REMOTE_CHART_REPO_NAME::${REMOTE_CHART_REPO_NAME}
-#          echo ::set-output name=REMOTE_CHART_FILE_URL::${REMOTE_CHART_FILE_URL}
-#
-#
-#      # Get version
-#      - name: Get version
-#        id: getChartVersion
-#        run: |
-#          echo ::set-output name=REMOTE_VERSION::$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*')
-#          echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)
-#
-#          echo REMOTE_VERSION=$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*') >> $GITHUB_ENV
-#          echo LOCAL_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
-
-
   sync_chart:
     needs: [ set_matrix ]
-
-    # if: needs.check_version.outputs.REMOTE_VERSION != needs.check_version.outputs.LOCAL_VERSION
     
     runs-on: ubuntu-latest
 
@@ -140,19 +40,13 @@ jobs:
     env:
       CHART_NAME: ${{ matrix.chart.name }}
       REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
-      # REMOTE_CHART_REPO_ORG: ${{ needs.check_version.outputs.REMOTE_CHART_REPO_ORG }}
-      # REMOTE_CHART_REPO_NAME: ${{ needs.check_version.outputs.REMOTE_CHART_REPO_NAME }}
-      # REMOTE_CHART_FILE_URL: ${{ needs.check_version.outputs.REMOTE_CHART_FILE_URL }}
       REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
       REMOTE_CHART_COMMIT_SHA1: ${{ matrix.chart.remote.commitSHA1 }}
       REMOTE_CHART_ROOT_PATH: ${{ matrix.chart.remote.rootPath }}
       LOCAL_CHART_BASE_PATH: ${{ matrix.chart.local.basePath }}
       LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
       LOCAL_CHART_ROOT_PATH: ${LOCAL_CHART_BASE_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
-      # REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}
-      # LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}
-      
-
+    
     outputs: {}
 
     name: Sync chart
@@ -192,24 +86,18 @@ jobs:
 
           echo REMOTE_CHART_REPO_ORG=${REMOTE_CHART_REPO_ORG} >> $GITHUB_ENV
 
-          echo ::set-output name=REMOTE_CHART_REPO_ORG::${REMOTE_CHART_REPO_ORG}
-          echo ::set-output name=REMOTE_CHART_REPO_NAME::${REMOTE_CHART_REPO_NAME}
-          echo ::set-output name=REMOTE_CHART_FILE_URL::${REMOTE_CHART_FILE_URL}
-
 
       # Get version
       - name: Get version
         id: getChartVersion
         run: |
-          echo ::set-output name=REMOTE_VERSION::$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*')
-          echo ::set-output name=LOCAL_VERSION::$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)
-          
           echo REMOTE_VERSION=$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*') >> $GITHUB_ENV
           echo LOCAL_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
 
       
       # Set up Helm
       - name: Set up Helm
+        if: env.REMOTE_VERSION != env.LOCAL_VERSION
         uses: azure/setup-helm@v1
 
 
@@ -298,34 +186,10 @@ jobs:
                       helm repo add "$(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ${HELM_CHART_DEPENDENCY_REPOSITORY}
                   fi
               done
-              
+
               echo
               helm dependency update
           fi
-      
-      # - name: Print variables
-      #   run: |
-      #     echo "CHART_OWNER: ${{ env.CHART_OWNER }}"
-      #     echo "CHART_NAME: ${{ env.CHART_NAME }}"
-      #     echo "REMOTE_VERSION: ${{ needs.check_version.outputs.REMOTE_VERSION }}"
-      #     echo "LOCAL_VERSION: ${{ needs.check_version.outputs.LOCAL_VERSION }}"
-      #     echo "LOCAL_CHART_ROOT_PATH: ${{ env.LOCAL_CHART_ROOT_PATH }}"
-      #     echo ""
-      #     echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
-      #     echo "$(ls -alh ${GITHUB_WORKSPACE})"
-      #     echo ""
-      #     echo "RUNNER_TEMP: ${RUNNER_TEMP}"
-      #     echo "$(ls -alh ${RUNNER_TEMP})"
-      #     echo ""
-      #     echo "$(git status)"
-      #     echo ""
-      #     echo "ORIGINAL_COMMIT_ID: ${{ env.ORIGINAL_COMMIT_ID }}"
-      #     echo "ORIGINAL_COMMIT_AUTHOR: ${{ env.ORIGINAL_COMMIT_AUTHOR }}"
-      #     echo "ORIGINAL_COMMIT_DATE: ${{ env.ORIGINAL_COMMIT_DATE }}"
-      #     echo "ORIGINAL_COMMIT_MESSAGE: ${{ env.ORIGINAL_COMMIT_MESSAGE }}"
-      #     echo "ORIGINAL_COMMIT_URL: ${{ env.ORIGINAL_COMMIT_URL }}"
-      #     echo ""
-      #     echo "PR_COMMIT_PATH: ${{ env.PR_COMMIT_PATH }}"
 
 
       # Create Pull Request
