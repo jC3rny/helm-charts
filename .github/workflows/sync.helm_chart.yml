@@ -188,6 +188,9 @@ jobs:
               done
 
               echo
+              cd ${{ env.LOCAL_CHART_ROOT_PATH }}; pwd
+
+              echo
               helm dependency update
           fi
 
