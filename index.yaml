@@ -51,4 +51,38 @@ entries:
     urls:
     - https://charts.c3rny.ninja/_rancher/local-path-provisioner-0.0.21.tgz
     version: 0.0.21
-generated: "2022-02-24T22:55:47.382489059Z"
+  redis:
+  - annotations:
+      category: Database
+    apiVersion: v2
+    appVersion: 6.2.6
+    created: "2022-02-25T06:24:48.747731065Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 1.x.x
+    description: Open source, advanced key-value store. It is often referred to as
+      a data structure server since keys can contain strings, hashes, lists, sets
+      and sorted sets.
+    digest: 82e482643e3458953b2d45c81897374a77c9a0f4572a151af25468c80077dd6b
+    home: https://github.com/bitnami/charts/tree/master/bitnami/redis
+    icon: https://bitnami.com/assets/stacks/redis/img/redis-stack-220x234.png
+    keywords:
+    - redis
+    - keyvalue
+    - database
+    maintainers:
+    - email: containers@bitnami.com
+      name: Bitnami
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: redis
+    sources:
+    - https://github.com/bitnami/bitnami-docker-redis
+    - http://redis.io/
+    urls:
+    - https://charts.c3rny.ninja/packages/redis/redis-16.0.0.tgz
+    version: 16.0.0
+generated: "2022-02-25T06:24:48.738871689Z"
