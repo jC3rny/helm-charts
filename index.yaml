@@ -5,6 +5,39 @@ entries:
       category: Database
     apiVersion: v2
     appVersion: 4.0.1
+    created: "2022-02-26T21:26:40.551080854Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 1.x.x
+    description: Apache Cassandra is a free and open-source distributed database management
+      system designed to handle large amounts of data across many commodity servers,
+      providing high availability with no single point of failure. Cassandra offers
+      robust support for clusters spanning multiple datacenters, with asynchronous
+      masterless replication allowing low latency operations for all clients.
+    digest: 0f4d37180c7aa544f00c1ade73e7f3abe69d4671fb540f55b8f2cb7ee78e64ed
+    home: https://github.com/bitnami/charts/tree/master/bitnami/cassandra
+    icon: https://bitnami.com/assets/stacks/cassandra/img/cassandra-stack-220x234.png
+    keywords:
+    - cassandra
+    - database
+    - nosql
+    maintainers:
+    - email: containers@bitnami.com
+      name: Bitnami
+    name: cassandra
+    sources:
+    - https://github.com/bitnami/bitnami-docker-cassandra
+    - http://cassandra.apache.org
+    urls:
+    - https://charts.c3rny.ninja/packages/cassandra/cassandra-9.1.3.tgz
+    version: 9.1.3
+  - annotations:
+      category: Database
+    apiVersion: v2
+    appVersion: 4.0.1
     created: "2022-02-24T22:55:47.386166502Z"
     dependencies:
     - name: common
@@ -85,4 +118,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/redis/redis-16.0.0.tgz
     version: 16.0.0
-generated: "2022-02-25T06:24:48.738871689Z"
+generated: "2022-02-26T21:26:40.547648652Z"
