@@ -171,8 +171,8 @@ jobs:
                   pwd; echo
 
                   git apply \
-                    -p $(awk -F '/' '{print NF-0}' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
-                    --index --check --stat --apply --verbose \
+                    -p $(awk -F '/' '{ print NF-0 }' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
+                    --index --check --stat --apply --allow-empty --verbose \
                     --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
                     ${PATCH_FILE_PATH}
               fi
