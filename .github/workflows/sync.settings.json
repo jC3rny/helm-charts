@@ -18,7 +18,7 @@
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "24003f46af0da7a491d37eb5f3480cd3d272eba2",
+        "commitSHA1": "20801d928ccc7da343bf4b29309c6271c5187d1a",
         "rootPath": "bitnami/cassandra"
       },
       "local": {
