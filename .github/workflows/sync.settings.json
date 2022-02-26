@@ -31,7 +31,7 @@
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "d42a1d565df67e1ff83532a6dc9329cbc8437760",
+        "commitSHA1": "69feea91e6e79851ed8d092bd9f23d0537414c86",
         "rootPath": "bitnami/redis"
       },
       "local": {
