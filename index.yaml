@@ -38,7 +38,7 @@ entries:
       category: Database
     apiVersion: v2
     appVersion: 4.0.1
-    created: "2022-02-24T22:55:47.386166502Z"
+    created: "2022-02-26T22:09:45.872462626Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -65,7 +65,7 @@ entries:
     - https://github.com/bitnami/bitnami-docker-cassandra
     - http://cassandra.apache.org
     urls:
-    - https://charts.c3rny.ninja/_bitnami/cassandra-9.0.12.tgz
+    - https://charts.c3rny.ninja/packages/_bitnami/cassandra-9.0.12.tgz
     version: 9.0.12
   local-path-provisioner:
   - apiVersion: v1
@@ -85,6 +85,39 @@ entries:
     - https://charts.c3rny.ninja/_rancher/local-path-provisioner-0.0.21.tgz
     version: 0.0.21
   redis:
+  - annotations:
+      category: Database
+    apiVersion: v2
+    appVersion: 6.2.6
+    created: "2022-02-26T22:09:45.877059132Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 1.x.x
+    description: Open source, advanced key-value store. It is often referred to as
+      a data structure server since keys can contain strings, hashes, lists, sets
+      and sorted sets.
+    digest: a7382c4fc12fbd043115d608dc958bc34167f245c716ec540a310e59a21dd498
+    home: https://github.com/bitnami/charts/tree/master/bitnami/redis
+    icon: https://bitnami.com/assets/stacks/redis/img/redis-stack-220x234.png
+    keywords:
+    - redis
+    - keyvalue
+    - database
+    maintainers:
+    - email: containers@bitnami.com
+      name: Bitnami
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: redis
+    sources:
+    - https://github.com/bitnami/bitnami-docker-redis
+    - http://redis.io/
+    urls:
+    - https://charts.c3rny.ninja/packages/_bitnami/redis-16.0.1.tgz
+    version: 16.0.1
   - annotations:
       category: Database
     apiVersion: v2
@@ -118,4 +151,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/redis/redis-16.0.0.tgz
     version: 16.0.0
-generated: "2022-02-26T21:26:40.547648652Z"
+generated: "2022-02-26T22:09:45.869059021Z"
