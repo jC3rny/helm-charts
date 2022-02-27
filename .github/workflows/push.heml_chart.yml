@@ -59,6 +59,7 @@ jobs:
         with:
           yq-version: v4.16.2
       
+
       - name: Set up ENV
         run: |
           echo HELM_REPO_NAME=$(basename ${{ env.HELM_REPO_URL }} | sed -r 's|charts\.||') >> $GITHUB_ENV
@@ -86,7 +87,7 @@ jobs:
                   CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
                   CHART_VERSION="$(yq eval '.version' ${CHART_FILE})"
 
-                  HELM_REPO_CHART_VERSION=$(helm search repo -r "${HELM_REPO_NAME}/${CHART_NAME}[^-]" -o json | jq -r '.[] | select(.version == "'${CHART_VERSION}'").version')
+                  HELM_REPO_CHART_VERSION="$(helm search repo -r "${HELM_REPO_NAME}/${CHART_NAME}[^-]" --devel --version "${CHART_VERSION}" -o json 2> /dev/null | jq -r '.[].version')"
 
                   echo
                   echo "****************************************"
@@ -94,42 +95,41 @@ jobs:
                   
                   helm lint $(dirname ${CHART_FILE})
 
-                  if [ $? -eq 0 ] && [ -z "$HELM_REPO_CHART_VERSION" ]; then
+                  if [ $? -eq 0 ] && [ -z "$HELM_REPO_CHART_VERSION" || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" ]; then
                       PUBLISH_PACKAGE_DIRECTORY=""
                       
                       # Package directory
                       PUBLISH_PACKAGE_DIRECTORY="$(cut --delimiter='/' --fields=2  <<< ${CHART_FILE})"
+                      PUBLISH_PACKAGE_DIR_PATH=${GITHUB_WORKSPACE}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY}
+                      
+                      echo; echo "==> Publishing ${PUBLISH_PACKAGE_DIR_PATH}"
+                      mkdir -p ${PUBLISH_PACKAGE_DIR_PATH}
+                      mv -fv $(helm package $(dirname ${CHART_FILE}) | awk '{ n=split($0, a, /[\/]/); print a[n] }') ${PUBLISH_PACKAGE_DIR_PATH}
 
-                      if [ ! -z "${PUBLISH_PACKAGE_DIRECTORY}" ]; then
-                          PUBLISH_PACKAGE_DIR_PATH=${GITHUB_WORKSPACE}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY}
-                          
-                          echo; echo "==> Publishing ${PUBLISH_PACKAGE_DIR_PATH}"
-                          mkdir -p ${PUBLISH_PACKAGE_DIR_PATH}
-                          mv -fv $(helm package $(dirname ${CHART_FILE}) | awk '{ n=split($0, a, /[\/]/); print a[n] }') ${PUBLISH_PACKAGE_DIR_PATH}
-
-                          helm repo index ${PUBLISH_PACKAGE_DIR_PATH} --url ${{ env.HELM_REPO_URL }}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY} --merge ${GITHUB_WORKSPACE}/index.yaml
-                          mv -fv ${PUBLISH_PACKAGE_DIR_PATH}/index.yaml ${GITHUB_WORKSPACE}/index.yaml
-                      fi
+                      helm repo index ${PUBLISH_PACKAGE_DIR_PATH} --url ${{ env.HELM_REPO_URL }}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY} --merge ${GITHUB_WORKSPACE}/index.yaml
+                      mv -fv ${PUBLISH_PACKAGE_DIR_PATH}/index.yaml ${GITHUB_WORKSPACE}/index.yaml
                   else
-                      echo; echo "==> Skipping publish. Chart is up to date..."
+                      echo; echo "==> Skipping publish, already up-to-date..."
                   fi
 
                   echo "****************************************"
               fi
           done
 
-          echo; echo ":: git config"
-          cd ${GITHUB_WORKSPACE}
-          pwd; echo
+          if [ -z "${HELM_REPO_CHART_VERSION}" || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" ]; then
+              echo; echo ":: git config"
+              cd ${GITHUB_WORKSPACE}
+              pwd; echo
 
-          git remote set-url origin "https://x-access-token:${{ secrets.PAT_PUBLIC_MGR }}@github.com/${GITHUB_REPOSITORY}"
-          
-          git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git config --local user.name "${GITHUB_ACTOR}"
-          
-          echo ":: git add"
-          git add .
-          git commit -am "${{ env.PR_COMMIT_MESSAGE }}"
+              git remote set-url origin "https://x-access-token:${{ secrets.PAT_PUBLIC_MGR }}@github.com/${GITHUB_REPOSITORY}"
+              
+              git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+              git config --local user.name "${GITHUB_ACTOR}"
+              
+              echo ":: git add"
+              git add .
+              git commit -am "${{ env.PR_COMMIT_MESSAGE }}" --allow-empty
 
-          echo; echo ":: git push"
-          git push origin ${{ env.PUBLISH_REPO_TARGET_BRANCH }}
+              echo; echo ":: git push"
+              git push origin ${{ env.PUBLISH_REPO_TARGET_BRANCH }}
+          fi
