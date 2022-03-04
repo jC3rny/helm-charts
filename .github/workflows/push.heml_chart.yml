@@ -3,8 +3,8 @@ name: Push Helm chart
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'charts/**'
+  #   paths:
+  #     - 'charts/**'
   # pull_request:
   #   branches: [ main ]
   workflow_dispatch:
@@ -95,7 +95,8 @@ jobs:
                   
                   helm lint $(dirname ${CHART_FILE})
 
-                  if [ $? -eq 0 ] && [ -z "$HELM_REPO_CHART_VERSION" || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" ]; then
+                  # || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" 
+                  if [ $? -eq 0 ] && [ -z "$HELM_REPO_CHART_VERSION" ]; then
                       PUBLISH_PACKAGE_DIRECTORY=""
                       
                       # Package directory
