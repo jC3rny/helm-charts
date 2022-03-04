@@ -117,7 +117,8 @@ jobs:
               fi
           done
 
-          if [ -z "${HELM_REPO_CHART_VERSION}" || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" ]; then
+          # || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" 
+          if [ -z "${HELM_REPO_CHART_VERSION}" ]; then
               echo; echo ":: git config"
               cd ${GITHUB_WORKSPACE}
               pwd; echo
