@@ -9,6 +9,7 @@
 ## @param global.storageClass Global StorageClass for Persistent Volume(s)
 ## @param global.redis.password Global Redis&trade; password (overrides `auth.password`)
 ##
+
 global:
   imageRegistry: ""
   ## E.g.
