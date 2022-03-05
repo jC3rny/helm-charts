@@ -17,6 +17,7 @@ env:
   SOURCE_REPO_DEFAULT_BRANCH: main
   SOURCE_REPO_CLONE_PATH: ${RUNNER_TEMP}/${GITHUB_REPOSITORY}
   SOURCE_REPO_ROOT_PATH: charts
+  RUN_CUSTOM: 'false'
 
 jobs:
   push_helm_chart:
@@ -66,6 +67,7 @@ jobs:
 
 
       - name: Set up Helm repository
+        if: env.RUN_CUSTOM == 'true'
         run: |
           helm repo add ${{ env.HELM_REPO_NAME }} ${{ env.HELM_REPO_URL }}
           echo
@@ -73,6 +75,7 @@ jobs:
       
 
       - name: Publish packages
+        if: env.RUN_CUSTOM == 'true'
         run: |
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}; pwd
           echo
