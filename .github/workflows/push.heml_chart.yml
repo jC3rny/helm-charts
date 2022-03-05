@@ -138,3 +138,11 @@ jobs:
               echo; echo ":: git push"
               git push origin ${{ env.PUBLISH_REPO_TARGET_BRANCH }}
           fi
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.3.0
+        with:
+          charts_dir: charts/_bitnami
+          charts_repo_url: https://charts.c3rny.ninja/_bitnami
+        env:
+          CR_TOKEN: "${{ secrets.PAT_PUBLIC_MGR }}"
