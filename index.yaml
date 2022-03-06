@@ -3,7 +3,7 @@ entries:
   local-path-provisioner:
   - apiVersion: v1
     appVersion: v0.0.21
-    created: "2022-03-06T23:27:25.023418492+01:00"
+    created: "2022-03-06T23:30:55.791773964+01:00"
     description: Use HostPath for persistent local storage with Kubernetes
     digest: e5deb86a691e1cf15c28b035d7efd9374b9903460b1c3645b4f12af7bd5ca4f0
     home: https://github.com/rancher/local-path-provisioner
@@ -15,6 +15,6 @@ entries:
     sources:
     - https://github.com/rancher/local-path-provisioner.git
     urls:
-    - https://charts.c3rny.ninja/rancher__local-path-provisioner-0.0.21-r01.tgz
+    - https://charts.c3rny.ninja/packages/rancher/local-path-provisioner-0.0.21-r01.tgz
     version: 0.0.21-r01
-generated: "2022-03-06T23:27:25.022511874+01:00"
+generated: "2022-03-06T23:30:55.790635132+01:00"
