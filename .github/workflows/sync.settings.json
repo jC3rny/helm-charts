@@ -10,7 +10,7 @@
       },
       "local": {
         "basePath": "charts",
-        "pathPrefix": "_rancher"
+        "pathPrefix": "rancher"
       }
     },
     {
@@ -23,7 +23,7 @@
       },
       "local": {
         "basePath": "charts",
-        "pathPrefix": "_bitnami"
+        "pathPrefix": "bitnami"
       }
     },
     {
@@ -36,7 +36,7 @@
       },
       "local": {
         "basePath": "charts",
-        "pathPrefix": "_bitnami"
+        "pathPrefix": "bitnami"
       }
     }
   ]

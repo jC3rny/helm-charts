@@ -48,7 +48,7 @@ jobs:
           echo ":: git log"
           git log -n 1 -- ${{ env.SOURCE_REPO_ROOT_PATH }}
 
-          echo PR_COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 -- ${{ env.SOURCE_REPO_ROOT_PATH }} | grep -E "\(#[0-9]+\)$") >> $GITHUB_ENV
+          echo COMMIT_MESSAGE=$(git log --pretty=format:"%B" -n 1 -- ${{ env.SOURCE_REPO_ROOT_PATH }} | grep -E "\(#[0-9]+\)$") >> $GITHUB_ENV
       
 
       - name: Set up Helm
@@ -67,7 +67,7 @@ jobs:
 
 
       - name: Set up Helm repository
-        if: env.RUN_CUSTOM == 'true'
+        # if: env.RUN_CUSTOM == 'true'
         run: |
           helm repo add ${{ env.HELM_REPO_NAME }} ${{ env.HELM_REPO_URL }}
           echo
@@ -75,7 +75,7 @@ jobs:
       
 
       - name: Publish packages
-        if: env.RUN_CUSTOM == 'true'
+        # if: env.RUN_CUSTOM == 'true'
         run: |
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}; pwd
           echo
@@ -98,8 +98,8 @@ jobs:
                   
                   helm lint $(dirname ${CHART_FILE})
 
-                  # || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" 
-                  if [ $? -eq 0 ] && [ -z "$HELM_REPO_CHART_VERSION" ]; then
+                  # 
+                  if [ $? -eq 0 ] && [[ -z "$HELM_REPO_CHART_VERSION" || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" ]]; then
                       PUBLISH_PACKAGE_DIRECTORY=""
                       
                       # Package directory
@@ -120,8 +120,8 @@ jobs:
               fi
           done
 
-          # || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" 
-          if [ -z "${HELM_REPO_CHART_VERSION}" ]; then
+          # 
+          if [ -z "${HELM_REPO_CHART_VERSION}" ] || [ ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" ]; then
               echo; echo ":: git config"
               cd ${GITHUB_WORKSPACE}
               pwd; echo
@@ -133,16 +133,8 @@ jobs:
               
               echo ":: git add"
               git add .
-              git commit -am "${{ env.PR_COMMIT_MESSAGE }}" --allow-empty
+              git commit -am "${{ env.COMMIT_MESSAGE }}" --allow-empty
 
               echo; echo ":: git push"
               git push origin ${{ env.PUBLISH_REPO_TARGET_BRANCH }}
           fi
-
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.3.0
-        with:
-          charts_dir: charts/_rancher
-          charts_repo_url: https://charts.c3rny.ninja/_rancher
-        env:
-          CR_TOKEN: "${{ secrets.PAT_PUBLIC_MGR }}"
