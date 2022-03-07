@@ -99,7 +99,7 @@ jobs:
                   helm lint $(dirname ${CHART_FILE})
 
                   # 
-                  if [ $? -eq 0 ] && [[ -z "$HELM_REPO_CHART_VERSION" || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" ]]; then
+                  if [ $? -eq 0 ] && [[ -z "${HELM_REPO_CHART_VERSION}" || ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" ]]; then
                       PUBLISH_PACKAGE_DIRECTORY=""
                       
                       # Package directory
@@ -113,7 +113,7 @@ jobs:
                       helm repo index ${PUBLISH_PACKAGE_DIR_PATH} --url ${{ env.HELM_REPO_URL }}/${{ env.PUBLISH_PACKAGES_ROOT_PATH }}/${PUBLISH_PACKAGE_DIRECTORY} --merge ${GITHUB_WORKSPACE}/index.yaml
                       mv -fv ${PUBLISH_PACKAGE_DIR_PATH}/index.yaml ${GITHUB_WORKSPACE}/index.yaml
                   else
-                      echo; echo "==> Skipping publish, already up-to-date..."
+                      echo; echo "==> Skipping publish, version ${HELM_REPO_CHART_VERSION} is already published..."
                   fi
 
                   echo "****************************************"
