@@ -1,0 +1,10 @@
+# Default values for redis-ha.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+redis: {}
+  ## Redis(TM) Authentication parameters
+  # auth:
+  #   enabled: yes
+  #   existingSecret: "redis-ha-password"
+  #   existingSecretPasswordValue: AgCn1U3ZX1HzDpGV33ZG0WApjIGGk4iSSrnYowgqG9C1SRadBcO/I8c9A3iEAJenjkSRVxoWjB6t6qhTrhuVRGQpkKjVeyc4MzwtVEg04+lDe+LqD8icAPCDG9PrACwE61b96GNqDUj1U2RWcC71/GLw1qUIAUrb7oaq+QcBz7PvVE89tQc4GAOpBFbp6dtj/zPUShBZPEhAZOkpUd8V6RNT0n1C+pj/VSpZmxV/piksMbReK4K+sOexbbkMYHAJSBuGRMnG44nQHuQkO+sb6fRg2Oa3kFKNtEGHJ+m0ut0f1Vs1i1o67VvmyzUnH5yHzX92+evX64tKT8lpS0MDjg0MExlgEEZeqEDa4IQS4jLD8C/TKbJkuBaRxCNYs72ZlE24vffTUmCailXoeK0ELqOrJPoOq68HIhAW5d2rMFwcjBjwr/Rve7P8w91ZfueXhHyQCgcNTVCir9wYbKnV9dyRWxsyignMkgMcqlkX7t3SzGiCUnINupIoNXBBLpzdS7S4kCPztep1JPUzWMUMj6NLGLiLNE+91NsrU9VQOFZOvPaQQqA6jyz+DR1VlOPE1LC//VX8NmJq9Ti7BkfbpmdlmwAasQ==
