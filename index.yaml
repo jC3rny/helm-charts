@@ -1,5 +1,22 @@
 apiVersion: v1
 entries:
+  local-path-provisioner:
+  - apiVersion: v1
+    appVersion: v0.0.21
+    created: "2022-03-08T00:43:28.33746186Z"
+    description: Use HostPath for persistent local storage with Kubernetes
+    digest: 6af33f7d4d6f70b998b6b5cdc02dd6fc8003d5734e264073decdb8a70cda540c
+    home: https://github.com/rancher/local-path-provisioner
+    keywords:
+    - storage
+    - hostpath
+    kubeVersion: '>=1.12.0-r0'
+    name: local-path-provisioner
+    sources:
+    - https://github.com/rancher/local-path-provisioner.git
+    urls:
+    - https://charts.c3rny.ninja/packages/charts/local-path-provisioner-0.0.21.tgz
+    version: 0.0.21
   redis-ha:
   - apiVersion: v2
     created: "2022-03-08T00:24:51.735948498Z"
@@ -21,4 +38,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/bitnami/redis-ha-0.1.0-16.4.5.tgz
     version: 0.1.0-16.4.5
-generated: "2022-03-08T00:24:51.727789096Z"
+generated: "2022-03-08T00:43:28.336644354Z"
