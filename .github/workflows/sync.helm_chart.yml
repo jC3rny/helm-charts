@@ -256,7 +256,7 @@ jobs:
           signoff: false
           assignees: ${GITHUB_ACTOR}
           base: ${{ env.PR_BASE_BRANCH }}
-          branch: ${{ env.CHART_NAME }}/patch
+          branch: sync-pr/${{ env.CHART_NAME }}
           branch-suffix: short-commit-hash
           delete-branch: true
       

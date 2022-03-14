@@ -2,7 +2,7 @@ name: Push Helm chart
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "!sync-pr/*" ]
     paths:
       - 'charts/**'
   # pull_request:
