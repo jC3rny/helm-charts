@@ -185,7 +185,7 @@ jobs:
           echo PR_AUTHOR="${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>" >> $GITHUB_ENV
 
 
-      # Update chart dependency
+      # Update chart dependency version
       - name: Update chart dependency
         if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CHART_SYNC_TYPE == 'dependency'
         run: |
@@ -199,7 +199,7 @@ jobs:
           fi
 
 
-      # Update Helm chart dependency
+      # Update chart dependencies
       - name: Update Helm chart dependency
         if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.PR_CREATE_PULL_REQUEST == 'true'
         run: |
@@ -207,7 +207,11 @@ jobs:
               for HELM_CHART_DEPENDENCY_REPOSITORY in "$(yq eval '.dependencies[].repository' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)"; do
                   if [ -z "$(grep -E '^file://' <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ]; then
                       echo
-                      helm repo add "$(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ${HELM_CHART_DEPENDENCY_REPOSITORY}
+                      echo "repositoryName: $(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})"
+                      echo "repositoryUrl:  ${HELM_CHART_DEPENDENCY_REPOSITORY}"
+
+                      echo
+                      helm repo add "$(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ${HELM_CHART_DEPENDENCY_REPOSITORY} --debug
                   fi
               done
 
@@ -215,7 +219,7 @@ jobs:
               cd ${{ env.LOCAL_CHART_ROOT_PATH }}; pwd
 
               echo
-              helm dependency update
+              helm dependency update --debug
           fi
 
 
