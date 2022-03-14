@@ -17,6 +17,7 @@ env:
   SOURCE_REPO_DEFAULT_BRANCH: main
   SOURCE_REPO_CLONE_PATH: ${RUNNER_TEMP}/${GITHUB_REPOSITORY}
   SOURCE_REPO_ROOT_PATH: charts
+  SYNC_SETTINGS_FILE_PATH: ${SOURCE_REPO_CLONE_PATH}/.github/workflows/sync.settings.json
   RUN_CUSTOM: 'false'
 
 jobs:
@@ -91,12 +92,19 @@ jobs:
 
           for CHART_FILE in $(find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}) -name "Chart.yaml" 2> /dev/null | uniq); do
               if [ -d "$(dirname ${CHART_FILE})" ]; then
-                
+                  CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
+
+                  if [ "$(yq eval '.dependencies' ${CHART_FILE})" != "null" ]; then
+                      CHART_DEPENDENCY_NAME=$(jq -r '.chart[] | select(.name == "'${CHART_NAME}'") .remote.rootPath' "${{ env.SYNC_SETTINGS_FILE_PATH }}" | awk -F '/' '{ print $NF }')
+                      CHART_DEPENDENCY_VERSION=$(yq eval '.dependencies.[] | select(.name == "'${CHART_NAME}'").version' ${CHART_FILE})
+
+                      yq eval -i '.version = "'${CHART_DEPENDENCY_VERSION}'-" + .version' ${CHART_FILE}
+                  fi
+
                   if [ "${GITHUB_REF_NAME}" != "${{ env.SOURCE_REPO_DEFAULT_BRANCH }}" ]; then
                       yq eval -i '.version = .version + "-alpha"' ${CHART_FILE}
                   fi
 
-                  CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
                   CHART_VERSION="$(yq eval '.version' ${CHART_FILE})"
 
                   # yq '.dependencies.[] | select(.repository == "https://charts.bitnami.com/bitnami" and .name != "common") | .version' Chart.yaml | head -n 1
