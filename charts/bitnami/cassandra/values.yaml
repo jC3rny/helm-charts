@@ -1,0 +1,46 @@
+## Default values for cassandra.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+# cassandra:
+#   ## @param image.debug Enable image debug mode
+#   image:
+#     debug: yes
+#   ## Database credentials
+#   ## @param dbUser.user Cassandra admin user
+#   ## @param dbUser.forcePassword Force the user to provide a non
+#   ## @param dbUser.password Password for `dbUser.user`. Randomly generated if empty
+#   ## @param dbUser.existingSecret Use an existing secret object for `dbUser.user` password (will ignore `dbUser.password`)
+#   ##
+#   dbUser:
+#     user: admin
+#     ## existingSecret:
+#     ##   ## Name of the existing secret
+#     ##   ##
+#     ##   name: mySecret
+#     ##   ## Sealed password
+#     ##   ##
+#     ##   sealedPassword: 
+#     ##   ## Key mapping where <key> is the value which the deployment is expecting and
+#     ##   ## <value> is the name of the key in the existing secret.
+#     ##   ##
+#     ##   keyMapping:
+#     ##     cassandra-password: myCassandraPasswordKey
+#     existingSecret:
+#       name: cassandra-admin-password
+#       sealedPassword: "AgBiTnGSv+KddUsErtdfNYUls0mCqQWzvhv9YvlG349lTEPb64nni/u0+3lKprFadtg9luNT07hMpVBaOzPUcPxVDFKSFr4KVIoZq/k/G6VTf0mPkCEFSiBbsolMnFyYv5seQJI6UOuB6xjedO/S+ERF5KaX0duc15V85dlSJuguwc76HXmZVhlJkR+kRzU9PsD+XsYeW4VI2F48mptjgF6d2N252wD2d/bR9PHZ23IXffeEoQJiMPfESWdbdf5Lfocl8Dvug/S6FZV9wHmdtrZmFcW80OdhJ6hMGfEWZFL/HEVmxPpAk0+QBodw39h0zYcG5vlUvtYr8wdnIns3XE6ZGQ+5XGOZgS9HmDxcep2+g+rZMMNaHvvVh9BUiizAPN7qhVDuivdTgCJ2CrNXcSQFuuiQcpxba6MeYLkq+QCzqCzdWpHb/5B8hyMWi92WlVGY4mCzIm0W64QV9ZxkV6l984IFcLDdwN/S7XuwJHQh/fogsClvlksOEJ8sDT6z0FDAnNh0VytESCSrYR3vCbJXlGjpAcPUwUaYAespZai+FcIHSNSlYLM/+QacMFlzj8dgY3CyVk8bpLl/b85xctTl/o6D5ydXguCJjKNa50FY9og60l8f413wVTtWQAPY5B0zo5gxaWDoU2VKBxnJRqHs0pfZsIxwZ"
+#       keyMapping:
+#         cassandra-password: password
+#   ## ConfigMap with cql scripts. Useful for creating a keyspace
+#   ## and pre-populating data
+#   ##
+#   initDBConfigMap: cassandra-init-script
+#   initDBConfigMapData: |
+#     01-init.cql: |
+#       ALTER KEYSPACE system_auth WITH REPLICATION = {'class' : 'NetworkTopologyStrategy', 'dc1' : 3};
+#   ## Cassandra Prometheus exporter configuration
+#   ##
+#   metrics:
+#     ## @param metrics.enabled Start a side-car prometheus exporter
+#     ##
+#     enabled: true
