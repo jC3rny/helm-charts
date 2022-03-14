@@ -20,7 +20,7 @@
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "20801d928ccc7da343bf4b29309c6271c5187d1a",
+        "commitSHA1": "a7a7850ea0d58ce498a61a932330cc9a760cd7bd",
         "rootPath": "bitnami/cassandra"
       },
       "local": {
@@ -34,7 +34,7 @@
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "e9c79398b93cba7d69cdd5672bfc8d011e8dbfd2",
+        "commitSHA1": "cb786a868c793d2fffbfab457a4a3c32384f5b41",
         "rootPath": "bitnami/postgresql-ha"
       },
       "local": {
