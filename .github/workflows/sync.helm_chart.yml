@@ -85,6 +85,7 @@ jobs:
               REMOTE_CHART_FILE_URL=${{ env.REMOTE_CHART_FILE_URL }}
           fi
 
+          echo REMOTE_CHART_NAME=$(awk -F '/' '{ print $NF }' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})
           echo REMOTE_CHART_REPO_ORG=${REMOTE_CHART_REPO_ORG} >> $GITHUB_ENV
 
 
@@ -93,8 +94,7 @@ jobs:
         id: getChartVersion
         run: |
           if [ "${{ env.CHART_SYNC_TYPE }}" == "dependency" ]; then
-              REMOTE_CHART_NAME=$(awk -F '/' '{ print $NF }' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})
-              echo LOCAL_CHART_VERSION=$(yq '.dependencies.[] | select(.name == "'${REMOTE_CHART_NAME}'") | .version' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
+              echo LOCAL_CHART_VERSION=$(yq '.dependencies.[] | select(.name == "${{ env.REMOTE_CHART_NAME }}") | .version' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
           else
               echo LOCAL_CHART_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
           fi
@@ -192,11 +192,11 @@ jobs:
 
 
       # Update chart dependency version
-      - name: Update chart dependency
+      - name: Update chart dependency version
         if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CHART_SYNC_TYPE == 'dependency'
         run: |
           if [ -d "${{ env.LOCAL_CHART_ROOT_PATH }}" ]; then
-              yq eval -i '.dependencies |= map(select(.name == "${{ env.CHART_NAME }}").version = "${{ env.REMOTE_CHART_VERSION }}")' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+              yq eval -i '.dependencies |= map(select(.name == "${{ env.REMOTE_CHART_NAME }}").version = "${{ env.REMOTE_CHART_VERSION }}")' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
 
               echo
               echo PR_CREATE_PULL_REQUEST="true" >> $GITHUB_ENV
