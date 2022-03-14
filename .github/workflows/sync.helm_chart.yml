@@ -190,7 +190,7 @@ jobs:
         if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CHART_SYNC_TYPE == 'dependency'
         run: |
           if [ -d "${{ env.LOCAL_CHART_ROOT_PATH }}" ]; then
-              yq eval -i '.dependencies |= map(select(.name == "${{ env.CHART_NAME }}").version = ${{ env.REMOTE_CHART_VERSION }})' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+              yq eval -i '.dependencies |= map(select(.name == "${{ env.CHART_NAME }}").version = "${{ env.REMOTE_CHART_VERSION }}")' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
 
               echo
               echo PR_CREATE_PULL_REQUEST="true" >> $GITHUB_ENV
