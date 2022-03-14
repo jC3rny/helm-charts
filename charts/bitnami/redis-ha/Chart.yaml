@@ -10,7 +10,7 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     version: 1.x.x
   - name: redis
-    version: 14.8.8
+    version: 15.7.1
     repository: https://charts.bitnami.com/bitnami
 # A chart can be either an 'application' or a 'library' chart.
 #
