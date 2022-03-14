@@ -201,7 +201,7 @@ jobs:
 
       # Update Helm chart dependency
       - name: Update Helm chart dependency
-        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.PR_CREATE_PULL_REQUEST == 'true'
         run: |
           if [ "$(yq eval '.dependencies' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)" != "null" ]; then
               for HELM_CHART_DEPENDENCY_REPOSITORY in "$(yq eval '.dependencies[].repository' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)"; do
