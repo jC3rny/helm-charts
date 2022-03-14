@@ -1,3 +1,24 @@
 apiVersion: v1
-entries: {}
-generated: "2022-03-14T15:18:00.044126483+01:00"
+entries:
+  redis-ha:
+  - apiVersion: v2
+    created: "2022-03-14T15:15:22.434526389Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.6.9
+    description: A Helm chart for Kubernetes
+    digest: a889ae48d5a42e007c9369568adb097e42a9645b80908cc1e00196a2f772f809
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/redis-ha
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: redis-ha
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/redis-ha-15.6.9-0.1.0.tgz
+    version: 15.6.9-0.1.0
+generated: "2022-03-14T15:15:22.428255367Z"
