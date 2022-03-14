@@ -94,7 +94,7 @@ jobs:
         run: |
           if [ "${{ env.CHART_SYNC_TYPE }}" == "dependency" ]; then
               REMOTE_CHART_NAME=$(awk -F '/' '{ print $NF }' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})
-              LOCAL_CHART_VERSION=$(yq '.dependencies.[] | select(.name == "'${REMOTE_CHART_NAME}'") | .version' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
+              echo LOCAL_CHART_VERSION=$(yq '.dependencies.[] | select(.name == "'${REMOTE_CHART_NAME}'") | .version' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
           else
               echo LOCAL_CHART_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
           fi
