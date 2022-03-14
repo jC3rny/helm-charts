@@ -4,6 +4,6 @@ dependencies:
   version: 1.11.3
 - name: cassandra
   repository: https://charts.bitnami.com/bitnami
-  version: 8.0.0
-digest: sha256:12772d2a54c7578c77457ab98d473771dca481202bb2a0cf5aec55be71b71148
-generated: "2022-03-14T21:18:04.676104702+01:00"
+  version: 8.0.6
+digest: sha256:186483aa26aae10e36b672e25f0a089a80d1b9052e5c99b04ab12c2549c88bea
+generated: "2022-03-14T23:57:11.756047942Z"
