@@ -92,8 +92,14 @@ jobs:
       - name: Get version
         id: getChartVersion
         run: |
+          if [ "${{ env.CHART_SYNC_TYPE }}" == "dependency" ]; then
+              REMOTE_CHART_NAME=$(awk -F '/' '{ print $NF }' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})
+              LOCAL_CHART_VERSION=$(yq '.dependencies.[] | select(.name == "'${REMOTE_CHART_NAME}'") | .version' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
+          else
+              echo LOCAL_CHART_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
+          fi
+
           echo REMOTE_CHART_VERSION=$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*') >> $GITHUB_ENV
-          echo LOCAL_CHART_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
 
       
       # Set up Helm
@@ -204,7 +210,7 @@ jobs:
         if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.PR_CREATE_PULL_REQUEST == 'true'
         run: |
           if [ "$(yq eval '.dependencies' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)" != "null" ]; then
-              for HELM_CHART_DEPENDENCY_REPOSITORY in "$(yq eval '.dependencies[].repository' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)"; do
+              for HELM_CHART_DEPENDENCY_REPOSITORY in $(yq eval '.dependencies[].repository' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml); do
                   if [ -z "$(grep -E '^file://' <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ]; then
                       echo
                       echo "repositoryName: $(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})"
