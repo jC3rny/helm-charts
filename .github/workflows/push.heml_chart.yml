@@ -17,7 +17,7 @@ env:
   SOURCE_REPO_DEFAULT_BRANCH: main
   SOURCE_REPO_CLONE_PATH: ${RUNNER_TEMP}/${GITHUB_REPOSITORY}
   SOURCE_REPO_ROOT_PATH: charts
-  SYNC_SETTINGS_FILE_PATH: ${SOURCE_REPO_CLONE_PATH}/.github/workflows/sync.settings.json
+  SYNC_SETTINGS_RELATIVE_PATH: .github/workflows/sync.settings.json
   RUN_CUSTOM: 'false'
 
 jobs:
@@ -95,11 +95,12 @@ jobs:
                   CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
 
                   if [ "$(yq eval '.dependencies' ${CHART_FILE})" != "null" ]; then
-                      CHART_DEPENDENCY_NAME=$(jq -r '.chart[] | select(.name == "'${CHART_NAME}'") .remote.rootPath' "${{ env.SYNC_SETTINGS_FILE_PATH }}" | awk -F '/' '{ print $NF }')
+                      CHART_DEPENDENCY_NAME=$(jq -r '.chart[] | select(.name == "'${CHART_NAME}'") .remote.rootPath' "${{ env.SYNC_SETTINGS_RELATIVE_PATH }}" | awk -F '/' '{ print $NF }')
                       CHART_DEPENDENCY_VERSION=$(yq eval '.dependencies.[] | select(.name == "'${CHART_NAME}'").version' ${CHART_FILE})
 
                       echo; pwd
-                      echo; la -alh ${{ env.SOURCE_REPO_ROOT_PATH }}
+                      echo; ls -alh ${{ env.SOURCE_REPO_CLONE_PATH }}
+                      echo
                       echo "CHART_DEPENDENCY_NAME:      ${CHART_DEPENDENCY_NAME}"
                       echo "CHART_DEPENDENCY_VERSION:   ${CHART_DEPENDENCY_VERSION}"
 
