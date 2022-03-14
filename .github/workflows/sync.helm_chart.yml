@@ -199,6 +199,9 @@ jobs:
               yq eval -i '.dependencies |= map(select(.name == "${{ env.REMOTE_CHART_NAME }}").version = "${{ env.REMOTE_CHART_VERSION }}")' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
 
               echo
+              cat ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+
+              echo
               echo PR_CREATE_PULL_REQUEST="true" >> $GITHUB_ENV
               echo PR_TITLE="[Sync] Update ${{ env.CHART_NAME }} dependency (version ${{ env.REMOTE_CHART_VERSION }})" >> $GITHUB_ENV
               echo PR_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>" >> $GITHUB_ENV
@@ -212,10 +215,6 @@ jobs:
           if [ "$(yq eval '.dependencies' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)" != "null" ]; then
               for HELM_CHART_DEPENDENCY_REPOSITORY in $(yq eval '.dependencies[].repository' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml); do
                   if [ -z "$(grep -E '^file://' <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ]; then
-                      echo
-                      echo "repositoryName: $(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})"
-                      echo "repositoryUrl:  ${HELM_CHART_DEPENDENCY_REPOSITORY}"
-
                       echo
                       helm repo add "$(cut -d '/' -f 3 <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ${HELM_CHART_DEPENDENCY_REPOSITORY} --debug
                   fi
@@ -254,7 +253,7 @@ jobs:
             automated
             sync
             ${{ env.CHART_NAME }}
-          commit-message: Sync version ${{ env.REMOTE_CHART_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
+          commit-message: Sync ${{ env.CHART_NAME }} version ${{ env.REMOTE_CHART_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
           author: ${{ env.PR_AUTHOR }}
           signoff: false
           assignees: ${GITHUB_ACTOR}
