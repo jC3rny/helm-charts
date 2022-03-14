@@ -99,6 +99,7 @@ jobs:
                   CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
                   CHART_VERSION="$(yq eval '.version' ${CHART_FILE})"
 
+                  # yq '.dependencies.[] | select(.repository == "https://charts.bitnami.com/bitnami" and .name != "common") | .version' Chart.yaml | head -n 1
                   HELM_REPO_CHART_VERSION="$(helm search repo -r "${HELM_REPO_NAME}/${CHART_NAME}[^-]" --devel --version "${CHART_VERSION}" -o json 2> /dev/null | jq -r '.[].version')"
 
                   echo
@@ -138,7 +139,7 @@ jobs:
               git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
               git config --local user.name "${GITHUB_ACTOR}"
               
-              echo ":: git add"
+              echo ":: git add & commit"
               git add .
               git commit -am "${{ env.COMMIT_MESSAGE }}" --allow-empty
 

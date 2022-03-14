@@ -39,6 +39,7 @@ jobs:
     
     env:
       CHART_NAME: ${{ matrix.chart.name }}
+      CHART_SYNC_TYPE: ${{ matrix.chart.type }}
       REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
       REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
       REMOTE_CHART_COMMIT_SHA1: ${{ matrix.chart.remote.commitSHA1 }}
@@ -91,19 +92,19 @@ jobs:
       - name: Get version
         id: getChartVersion
         run: |
-          echo REMOTE_VERSION=$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*') >> $GITHUB_ENV
-          echo LOCAL_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
+          echo REMOTE_CHART_VERSION=$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*') >> $GITHUB_ENV
+          echo LOCAL_CHART_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
 
       
       # Set up Helm
       - name: Set up Helm
-        if: env.REMOTE_VERSION != env.LOCAL_VERSION
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION
         uses: azure/setup-helm@v1
 
 
       # Set up YQ
       - name: Set up YQ
-        if: env.REMOTE_VERSION != env.LOCAL_VERSION
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION
         uses: chrisdickinson/setup-yq@latest
         with:
           yq-version: v4.16.2
@@ -111,7 +112,7 @@ jobs:
 
       # Clone remote repository
       - name: Clone remote repository
-        if: env.REMOTE_VERSION != env.LOCAL_VERSION
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION
         run: |
           git clone ${{ env.REMOTE_CHART_REPO_URL }} ${RUNNER_TEMP}/${{ env.REMOTE_CHART_REPO_NAME }}
           
@@ -135,7 +136,7 @@ jobs:
 
       # Import new or update existing chart
       - name: Import new or update existing chart
-        if: env.REMOTE_VERSION != env.LOCAL_VERSION
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CHART_SYNC_TYPE == 'src'
         run: |
           if [ ! -d "${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}" ]; then
               mkdir -p ${GITHUB_WORKSPACE}/${{ env.LOCAL_CHART_ROOT_PATH }}
@@ -178,7 +179,30 @@ jobs:
               fi
           fi
 
-          # Update Helm chart dependency
+          echo
+          echo PR_CREATE_PULL_REQUEST="true" >> $GITHUB_ENV
+          echo PR_TITLE="[Sync] Update ${{ env.CHART_NAME }} (version ${{ env.REMOTE_CHART_VERSION }})" >> $GITHUB_ENV
+          echo PR_AUTHOR="${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>" >> $GITHUB_ENV
+
+
+      # Update chart dependency
+      - name: Update chart dependency
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CHART_SYNC_TYPE == 'dependency'
+        run: |
+          if [ -d "${{ env.LOCAL_CHART_ROOT_PATH }}" ]; then
+              yq eval -i '.dependencies |= map(select(.name == "${{ env.CHART_NAME }}").version = ${{ env.REMOTE_CHART_VERSION }})' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+
+              echo
+              echo PR_CREATE_PULL_REQUEST="true" >> $GITHUB_ENV
+              echo PR_TITLE="[Sync] Update ${{ env.CHART_NAME }} dependency (version ${{ env.REMOTE_CHART_VERSION }})" >> $GITHUB_ENV
+              echo PR_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>" >> $GITHUB_ENV
+          fi
+
+
+      # Update Helm chart dependency
+      - name: Update Helm chart dependency
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION
+        run: |
           if [ "$(yq eval '.dependencies' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)" != "null" ]; then
               for HELM_CHART_DEPENDENCY_REPOSITORY in "$(yq eval '.dependencies[].repository' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)"; do
                   if [ -z "$(grep -E '^file://' <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ]; then
@@ -198,11 +222,11 @@ jobs:
       # Create Pull Request
       - name: Create Pull Request
         id: createPullRequest
-        if: env.REMOTE_VERSION != env.LOCAL_VERSION
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.PR_CREATE_PULL_REQUEST == 'true'
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.PAT_PUBLIC_MGR }}
-          title: "[Sync] Update ${{ env.CHART_NAME }} (version ${{ env.REMOTE_VERSION }})"
+          title: ${{ env.PR_TITLE }}
           body: |
             ## Original commit log
             <br/>
@@ -220,13 +244,10 @@ jobs:
             automated
             sync
             ${{ env.CHART_NAME }}
-          # commit-message: ${{ env.ORIGINAL_COMMIT_MESSAGE }}
-          commit-message: Sync version ${{ env.REMOTE_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
-          # committer: ${{ env.PR_COMMITER }}
-          author: ${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>
+          commit-message: Sync version ${{ env.REMOTE_CHART_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
+          author: ${{ env.PR_AUTHOR }}
           signoff: false
-          assignees: ${{ github.actor }}
-          # reviewers: ${{ github.actor }}
+          assignees: ${GITHUB_ACTOR}
           base: ${{ env.PR_BASE_BRANCH }}
           branch: ${{ env.CHART_NAME }}/patch
           branch-suffix: short-commit-hash

@@ -2,6 +2,7 @@
   "chart": [
     {
       "name": "local-path-provisioner",
+      "type": "src",
       "remote": {
         "url": "https://github.com/rancher/local-path-provisioner.git",
         "branch": "master",
@@ -15,6 +16,7 @@
     },
     {
       "name": "cassandra",
+      "type": "dependency",
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
@@ -27,11 +29,26 @@
       }
     },
     {
-      "name": "redis",
+      "name": "postgresql-ha",
+      "type": "dependency",
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "2294b172510cb82d1efcd78df8bee64bbd5be8aa",
+        "commitSHA1": "e9c79398b93cba7d69cdd5672bfc8d011e8dbfd2",
+        "rootPath": "bitnami/postgresql-ha"
+      },
+      "local": {
+        "basePath": "charts",
+        "pathPrefix": "bitnami"
+      }
+    },
+    {
+      "name": "redis",
+      "type": "dependency",
+      "remote": {
+        "url": "https://github.com/bitnami/charts.git",
+        "branch": "master",
+        "commitSHA1": "0d4a8bef0af6fe3797c6cc4a49492eaff0e004ed",
         "rootPath": "bitnami/redis"
       },
       "local": {
