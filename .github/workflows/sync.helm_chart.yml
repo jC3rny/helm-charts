@@ -85,7 +85,7 @@ jobs:
               REMOTE_CHART_FILE_URL=${{ env.REMOTE_CHART_FILE_URL }}
           fi
 
-          echo REMOTE_CHART_NAME=$(awk -F '/' '{ print $NF }' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})
+          echo REMOTE_CHART_NAME=$(awk -F '/' '{ print $NF }' <<< ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo REMOTE_CHART_REPO_ORG=${REMOTE_CHART_REPO_ORG} >> $GITHUB_ENV
 
 
@@ -197,9 +197,6 @@ jobs:
         run: |
           if [ -d "${{ env.LOCAL_CHART_ROOT_PATH }}" ]; then
               yq eval -i '.dependencies |= map(select(.name == "${{ env.REMOTE_CHART_NAME }}").version = "${{ env.REMOTE_CHART_VERSION }}")' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
-
-              echo
-              cat ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
 
               echo
               echo PR_CREATE_PULL_REQUEST="true" >> $GITHUB_ENV
