@@ -2,7 +2,7 @@ name: Push Helm chart
 
 on:
   push:
-    branches: [ "!sync-pr/*" ]
+    branches: [ "**", "!sync-pr/*" ]
     paths:
       - 'charts/**'
   workflow_dispatch:
