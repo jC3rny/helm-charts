@@ -1,6 +1,6 @@
 apiVersion: v2
 name: redis-ha
-description: A Helm chart for Kubernetes
+description: Redis(TM) is an open source, advanced key-value store. It is often referred to as a data structure server since keys can contain strings, hashes, lists, sets and sorted sets.
 home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/redis-ha
 maintainers:
   - name: jC3rny
@@ -24,7 +24,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.0
+version: 1.0.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
