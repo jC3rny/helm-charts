@@ -2,6 +2,26 @@ apiVersion: v1
 entries:
   cassandra:
   - apiVersion: v2
+    created: "2022-03-15T00:52:48.739390078Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: cassandra
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.0.12
+    description: A Helm chart for Kubernetes
+    digest: 9ee5af884b2d2258ced9fe445cbcd81640a20958dc1361a97b13cb00b63303f4
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cassandra
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/cassandra-1.0.0-9.0.12.tgz
+    version: 1.0.0-9.0.12
+  - apiVersion: v2
     created: "2022-03-15T00:46:27.317104985Z"
     dependencies:
     - name: common
@@ -59,4 +79,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/charts/redis-ha-1.0.0-15.7.1.tgz
     version: 1.0.0-15.7.1
-generated: "2022-03-15T00:46:27.310669486Z"
+generated: "2022-03-15T00:52:48.735530352Z"
