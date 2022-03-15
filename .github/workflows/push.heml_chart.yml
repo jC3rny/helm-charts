@@ -53,29 +53,29 @@ jobs:
           echo
           find ${{ env.SOURCE_REPO_ROOT_PATH }} -name "Chart.yaml" 2> /dev/null | uniq
 
-          echo COMMIT_MESSAGE="$(git log --pretty=format:"%B" -n 1 -- ${{ env.SOURCE_REPO_ROOT_PATH }})" >> $GITHUB_ENV
+          # echo COMMIT_MESSAGE="$(git log --pretty=format:"%B" -n 1 -- ${{ env.SOURCE_REPO_ROOT_PATH }})" >> $GITHUB_ENV
 
 
       - name: Set up Helm
-        if: env.COMMIT_MESSAGE != ''
+        # if: env.COMMIT_MESSAGE != ''
         uses: azure/setup-helm@v1
       
       
       - name: Set up YQ
-        if: env.COMMIT_MESSAGE != ''
+        # if: env.COMMIT_MESSAGE != ''
         uses: chrisdickinson/setup-yq@latest
         with:
           yq-version: v4.16.2
       
 
       - name: Set up ENV
-        if: env.COMMIT_MESSAGE != ''
+        # if: env.COMMIT_MESSAGE != ''
         run: |
           echo HELM_REPO_NAME=$(basename ${{ env.HELM_REPO_URL }} | sed -r 's|charts\.||') >> $GITHUB_ENV
 
 
       - name: Set up Helm repository
-        if: env.COMMIT_MESSAGE != ''
+        # if: env.COMMIT_MESSAGE != ''
         run: |
           helm repo add ${{ env.HELM_REPO_NAME }} ${{ env.HELM_REPO_URL }}
           echo
@@ -83,7 +83,7 @@ jobs:
       
 
       - name: Publish packages
-        if: env.COMMIT_MESSAGE != ''
+        # if: env.COMMIT_MESSAGE != ''
         run: |
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}; pwd
           echo
@@ -147,7 +147,7 @@ jobs:
               
               echo ":: git add & commit"
               git add .
-              git commit -am "${{ env.COMMIT_MESSAGE }}" --allow-empty
+              git commit -am "Push helm chart into repository $(date +'%Y-%m-%d %T')" --allow-empty
 
               echo; echo ":: git push"
               git push origin ${{ env.PUBLISH_REPO_TARGET_BRANCH }}
