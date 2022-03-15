@@ -1,3 +1,190 @@
 apiVersion: v1
-entries: {}
-generated: "2022-03-14T20:44:38.44297984+01:00"
+entries:
+  cassandra:
+  - apiVersion: v2
+    created: "2022-03-15T06:12:53.370516515Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: cassandra
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.1.6
+    description: Apache Cassandra is an open source distributed database management
+      system designed to handle large amounts of data across many servers, providing
+      high availability with no single point of failure.
+    digest: d7cd90e64f6253eac59f47eb58b9056e9abc574585c47e47fcbaa9ab7cb4e4b0
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cassandra
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/cassandra-1.0.1-9.1.6.tgz
+    version: 1.0.1-9.1.6
+  - apiVersion: v2
+    created: "2022-03-15T06:12:53.365883388Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: cassandra
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.0.12
+    description: Apache Cassandra is an open source distributed database management
+      system designed to handle large amounts of data across many servers, providing
+      high availability with no single point of failure.
+    digest: 3ded35f018db027a4fc133ae7d738e956c72760ea4573a3ee38821c4df62e672
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cassandra
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/cassandra-1.0.1-9.0.12.tgz
+    version: 1.0.1-9.0.12
+  - apiVersion: v2
+    created: "2022-03-15T06:12:53.362025748Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: cassandra
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.0.12
+    description: A Helm chart for Kubernetes
+    digest: 9ee5af884b2d2258ced9fe445cbcd81640a20958dc1361a97b13cb00b63303f4
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cassandra
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/cassandra-1.0.0-9.0.12.tgz
+    version: 1.0.0-9.0.12
+  - apiVersion: v2
+    created: "2022-03-15T00:46:27.317104985Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: cassandra
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.0.6
+    description: A Helm chart for Kubernetes
+    digest: 1aa75fdb4aa91fb1ad8fa48278ecca0415afc5eedf9f5ed8432cdbee2522a2df
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cassandra
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/charts/cassandra-1.0.0-8.0.6.tgz
+    version: 1.0.0-8.0.6
+  local-path-provisioner:
+  - apiVersion: v1
+    appVersion: v0.0.21
+    created: "2022-03-15T00:46:27.318008369Z"
+    description: Use HostPath for persistent local storage with Kubernetes
+    digest: 6df2d693dd938bdcc327ad10f92c18e43c7b379e90021119066550fffd223f6f
+    home: https://github.com/rancher/local-path-provisioner
+    keywords:
+    - storage
+    - hostpath
+    kubeVersion: '>=1.12.0-r0'
+    name: local-path-provisioner
+    sources:
+    - https://github.com/rancher/local-path-provisioner.git
+    urls:
+    - https://charts.c3rny.ninja/packages/charts/local-path-provisioner-0.0.21.tgz
+    version: 0.0.21
+  redis-ha:
+  - apiVersion: v2
+    created: "2022-03-15T06:12:53.390002309Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.4.5
+    description: Redis(TM) is an open source, advanced key-value store. It is often
+      referred to as a data structure server since keys can contain strings, hashes,
+      lists, sets and sorted sets.
+    digest: e1c144a2996f49140a8f569fd8f9695b70f0baefce471608d25bc48df4725a48
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/redis-ha
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: redis-ha
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/redis-ha-1.0.1-16.4.5.tgz
+    version: 1.0.1-16.4.5
+  - apiVersion: v2
+    created: "2022-03-15T06:12:53.383871905Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.3.1
+    description: Redis(TM) is an open source, advanced key-value store. It is often
+      referred to as a data structure server since keys can contain strings, hashes,
+      lists, sets and sorted sets.
+    digest: 2b95516c993a85ba3951c1699a07e28e735f8f4ab59768e54465c5c504febfea
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/redis-ha
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: redis-ha
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/redis-ha-1.0.1-16.3.1.tgz
+    version: 1.0.1-16.3.1
+  - apiVersion: v2
+    created: "2022-03-15T06:12:53.376909715Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.3.1
+    description: A Helm chart for Kubernetes
+    digest: b926dd2850f9dfdef17904b7f1f9808d94cd452645acff0b560ee770f5b5fe90
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/redis-ha
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: redis-ha
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/redis-ha-1.0.0-16.3.1.tgz
+    version: 1.0.0-16.3.1
+  - apiVersion: v2
+    created: "2022-03-15T00:46:27.325805294Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.7.1
+    description: A Helm chart for Kubernetes
+    digest: dcf58f249b66cf62a4f91a71b67cf8c1edc276cde13af73f6faee3a9d7ac2314
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/redis-ha
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: redis-ha
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/charts/redis-ha-1.0.0-15.7.1.tgz
+    version: 1.0.0-15.7.1
+generated: "2022-03-15T06:12:53.357359122Z"
