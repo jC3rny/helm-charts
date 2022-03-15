@@ -10,7 +10,7 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     version: 1.x.x
   - name: cassandra
-    version: 9.0.12
+    version: 9.1.6
     repository: https://charts.bitnami.com/bitnami
 # A chart can be either an 'application' or a 'library' chart.
 #

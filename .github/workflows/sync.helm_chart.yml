@@ -95,12 +95,14 @@ jobs:
         id: getChartVersion
         run: |
           if [ "${{ env.CHART_SYNC_TYPE }}" == "dependency" ]; then
-              echo LOCAL_CHART_VERSION=$(yq '.dependencies.[] | select(.name == "${{ env.REMOTE_CHART_NAME }}") | .version' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
+              echo LOCAL_CHART_VERSION=$(yq eval '.dependencies.[] | select(.name == "${{ env.REMOTE_CHART_NAME }}") | .version' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
           else
-              echo LOCAL_CHART_VERSION=$(grep -oP '(?<=^version: ).*' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
+              echo LOCAL_CHART_VERSION=$(yq eval '.version' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
           fi
 
-          echo REMOTE_CHART_VERSION=$(curl -SsL ${{ env.REMOTE_CHART_FILE_URL }} | grep -oP '(?<=^version: ).*') >> $GITHUB_ENV
+          echo REMOTE_CHART_VERSION=$(yq eval '.version' <(curl -sSL ${{ env.REMOTE_CHART_FILE_URL }})) >> $GITHUB_ENV
+          echo REMOTE_CHART_DESCRIPTION=$(yq eval '.description' <(curl -sSL ${{ env.REMOTE_CHART_FILE_URL }})) >> $GITHUB_ENV
+          echo REMOTE_CHART_APPVERSION=$(yq eval '.appVersion' <(curl -sSL ${{ env.REMOTE_CHART_FILE_URL }})) >> $GITHUB_ENV
 
       
       # Set up Helm
@@ -187,7 +189,7 @@ jobs:
           fi
 
           echo
-          echo PR_CREATE_PULL_REQUEST="true" >> $GITHUB_ENV
+          echo CREATE_PULL_REQUEST="true" >> $GITHUB_ENV
           echo PR_TITLE="[Sync] Update ${{ env.CHART_NAME }} (version ${{ env.REMOTE_CHART_VERSION }})" >> $GITHUB_ENV
           echo PR_AUTHOR="${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }} <${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }}>" >> $GITHUB_ENV
 
@@ -200,15 +202,15 @@ jobs:
               yq eval -i '.dependencies |= map(select(.name == "${{ env.REMOTE_CHART_NAME }}").version = "${{ env.REMOTE_CHART_VERSION }}")' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
 
               echo
-              echo PR_CREATE_PULL_REQUEST="true" >> $GITHUB_ENV
+              echo CREATE_PULL_REQUEST="true" >> $GITHUB_ENV
               echo PR_TITLE="[Sync] Update ${{ env.CHART_NAME }} dependency (version ${{ env.REMOTE_CHART_VERSION }})" >> $GITHUB_ENV
               echo PR_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>" >> $GITHUB_ENV
           fi
 
 
-      # Update chart dependencies
-      - name: Update Helm chart dependency
-        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.PR_CREATE_PULL_REQUEST == 'true'
+      # Update chart metadata
+      - name: Update chart metadata
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CREATE_PULL_REQUEST == 'true'
         run: |
           if [ "$(yq eval '.dependencies' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)" != "null" ]; then
               for HELM_CHART_DEPENDENCY_REPOSITORY in $(yq eval '.dependencies[].repository' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml); do
@@ -225,11 +227,14 @@ jobs:
               helm dependency update --debug
           fi
 
+          yq eval -i '.description = "'${{ env.REMOTE_CHART_DESCRIPTION }}'"' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+          yq eval -i '.appVersion = "'${{ env.REMOTE_CHART_APPVERSION }}'"' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+
 
       # Create Pull Request
       - name: Create Pull Request
         id: createPullRequest
-        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.PR_CREATE_PULL_REQUEST == 'true'
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CREATE_PULL_REQUEST == 'true'
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.PAT_PUBLIC_MGR }}
