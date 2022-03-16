@@ -108,6 +108,20 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/charts/cassandra-1.0.0-8.0.6.tgz
     version: 1.0.0-8.0.6
+  common-tpls:
+  - apiVersion: v2
+    created: "2022-03-16T20:44:18.953096392Z"
+    description: A Library Helm chart for Kubernetes
+    digest: 4ee570a053a905dfd83c94d0488ceaac2d4d96ce5bc1fe72b387679a20976d01
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: common-tpls
+    type: library
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-1.0.1.tgz
+    version: 1.0.1
   local-path-provisioner:
   - apiVersion: v1
     appVersion: v0.0.21
@@ -233,4 +247,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/charts/redis-ha-1.0.0-15.7.1.tgz
     version: 1.0.0-15.7.1
-generated: "2022-03-15T09:51:39.806938956Z"
+generated: "2022-03-16T20:44:18.952437605Z"
