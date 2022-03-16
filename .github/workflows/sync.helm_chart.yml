@@ -198,7 +198,7 @@ jobs:
       - name: Update chart dependency version
         if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CHART_SYNC_TYPE == 'dependency'
         run: |
-          if [ -d "${{ env.LOCAL_CHART_ROOT_PATH }}" ]; then
+          if [ -f "${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml" ]; then
               yq eval -i '.dependencies |= map(select(.name == "${{ env.REMOTE_CHART_NAME }}").version = "${{ env.REMOTE_CHART_VERSION }}")' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
 
               echo
