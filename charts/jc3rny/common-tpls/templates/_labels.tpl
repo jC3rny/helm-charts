@@ -47,6 +47,12 @@ Selector labels
 {{- toYaml .Values.customLabels.selector }}
 {{- else -}}
 app.kubernetes.io/name: {{ .Release.Name }}
-app.kubernetes.io/instance: {{ default (include "common.instance" .) .Values.rewriteLabels.instance }}
+{{- if hasKey .Values "rewriteLabels" }}
+{{- if hasKey .Values.rewriteLabels "instance" }}
+app.kubernetes.io/instance: {{ .Values.rewriteLabels.instance }}
+{{- end }}
+{{- else }}
+app.kubernetes.io/instance: {{ (include "common.instance" .) }}
+{{- end }}
 {{- end }}
 {{- end }}
