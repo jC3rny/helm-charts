@@ -1,0 +1,51 @@
+## Default values for cert-manager.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+cert-manager:
+  deploymentAnnotations: {}
+
+  clusterIssuer: []
+    # - name: ""
+    #   annotations: {}
+    #     helm.sh/hook: post-install, post-upgrade
+    #   type: "acme"
+    #   email: ""
+    #   server: ""
+    #   ## On January 11th 2021, Let’s Encrypt will change over to using its own ISRG Root CA. This will replace 
+    #   ## the cross-signed certificates by Identrust. This change over needs no changes to your cert-manager configuration,
+    #   ## any renewed or new certificates issued after this date will use the new CA root.
+    #   preferredChain: ""
+    #   ## You may want to reuse a single ACME account across multiple clusters. This might especially 
+    #   ## be useful when using EAB. If the disableAccountKeyGeneration field is set, cert-manager will not 
+    #   ## create a new ACME account and use the existing key specified in privateKeySecretRef. 
+    #   ## Note that the Issuer/ClusterIssuer will not be ready and will continue to retry until the Secret is provided.
+    #   disableAccountKeyGeneration: no
+    #   ## Secret resource that will be used to store the account's private key.
+    #   privateKeySecret: "example-issuer-account-key"
+    #   ## Create additional secrets that are commonly used in solvers
+    #   additioinalSecrets:
+    #     - name: example-issuer-account-key
+    #       annotations:
+    #         helm.sh/hook: post-install, post-upgrade
+    #       type: Opaque
+    #       stringData:
+    #         tls.key: |
+    #           -----BEGIN RSA PRIVATE KEY-----
+    #           MIIEpQIBAAKCAQEA3kfsAKkTT7pnQtcpBR1K0y4waWxxNZtKgWFS/bbRj6wdW7Mo
+    #           tKJW3rWzhA7LQ3hHI/hVEcIzsZYvYQpbaiCObyTiFz0U7Wjalo5i3ylEoTc2lQCo
+    #           IbRfeNsZYIxSOuT4PWp5F/SydP6ZrpyQYXVJqrYI3+BCHHIO+NtnPvx2wD5jo+b7
+    #           1vKJDXk882ETXQsf82uma+rlLo/myh2jRVAAHedzAoGAaqreCqtpbp2aAx0YCMxx
+    #           Zk997DwwZ+A6pA2cqJbwOzzgWZae4FazIu960jbGfJmcaLRhmdlPHK1sf
+    #           SbyBwhfnNuf6XBiwqReJ30CbzxyGz2JPrF3dSHLb1PbdNGej4UcwAmvfJpxr/2Vj
+    #           iRJE1FwWWsF/ji221tfvE55F7C38jOxKVcp9LJbkJj+bN0VHO6Bkw74=
+    #           -----END RSA PRIVATE KEY-----
+    #     - name: azuredns-config
+    #       annotations:
+    #         helm.sh/hook: post-install, post-upgrade
+    #       type: Opaque
+    #       stringData:
+    #         CLIENT_SECRET: LIasasdBa2135ga67jfdsob6nqy_lvr
+    #   # You may want to use different types of challenge solver configurations for different ingress controllers, 
+    #   # for example if you want to issue wildcard certificates using DNS01 alongside other certificates that are validated using HTTP01.
+    #   solvers: []

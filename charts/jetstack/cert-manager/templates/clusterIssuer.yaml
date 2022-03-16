@@ -1,0 +1,38 @@
+{{- range (index .Values "cert-manager" "clusterIssuer") }}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .name | quote }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    app: {{ template "cert-manager.name" $ }}
+    app.kubernetes.io/name: {{ template "cert-manager.name" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: "issuer"
+    {{- include "labels" $ | nindent 4 }}
+  {{- if or $.Values.deploymentAnnotations .annotations }}
+  annotations:
+  {{- with $.Values.deploymentAnnotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+spec:
+  {{- if eq .type "acme" }}
+  acme:
+    email: {{ .email | quote }}
+    privateKeySecretRef:
+      {{- if hasKey . "privateKeySecret" }}
+      name: {{ .privateKeySecret.name | quote }}
+      {{- else }}
+      name: {{ .name | quote }}
+      {{- end }}
+    server: {{ .server | quote }}
+    {{- with .solvers }}
+    solvers:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,5 @@
+
+- "sync.helm_chart":
+  - Chart.yaml file name as variable
+  - syncMethod: [ src, tag ]
+  - downlad additionalSrcFiles: [ "_helpers.tpl" ]
