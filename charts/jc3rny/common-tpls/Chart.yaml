@@ -1,7 +1,7 @@
 apiVersion: v2
 name: common-tpls
-description: A Helm chart for Kubernetes
-home: https://github.com/jC3rny/helm-charts/tree/main/charts/jC3rny/common-tpls
+description: A Library Helm chart for Kubernetes
+home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
 
 maintainers:
   - name: jC3rny
@@ -20,7 +20,7 @@ type: library
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.0
+version: 1.0.1
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
