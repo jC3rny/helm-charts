@@ -75,5 +75,8 @@
         "pathPrefix": "jetstack"
       }
     }
+  ],
+  "exclude": [
+    { "chart": [ { "name": "cert-manager" } ]}
   ]
 }
