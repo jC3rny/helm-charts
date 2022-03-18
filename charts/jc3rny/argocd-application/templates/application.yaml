@@ -1,0 +1,51 @@
+{{- range .Values.applications }}
+{{- $name := .name }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $name }}
+  namespace: argocd
+  labels:
+    {{- include "app-of-apps.labels" $ | nindent 4 }}
+  {{- if or (eq (.finalizers |toString |lower) "<nil>") .finalizers  }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  {{- end }}
+spec:
+  project: {{ default $name .project }}
+  destination:
+  {{- if .destination }}
+    server: {{ default "https://kubernetes.default.svc" .destination.server }}
+    namespace: {{ default $name .destination.namespace }}
+  {{- else }}
+    server: "https://kubernetes.default.svc"
+    namespace: {{ $name }}
+  {{- end }}
+  source:
+    repoURL: {{ .source.repoURL }}
+    targetRevision: {{ default "HEAD" (.source.targetRevision | quote) }}
+    {{- if .source.chart }}
+    chart: {{ .source.chart }}
+    {{- end }}
+    {{- if .source.path }}
+    path: {{ .source.path }}
+    {{- end }}
+    {{- if .source.helm }}
+    helm:
+      {{- if .source.helm.valueFiles }}
+      valueFiles:
+      {{- range .source.helm.valueFiles }}
+        - {{ . }}
+      {{- end }}
+      {{- end }}
+{{- if .source.helm.values }}
+      values: |
+{{ .source.helm.values |indent 8  }}
+{{- end }}
+    {{- end }}
+  {{- if .syncPolicy }}
+  syncPolicy:
+{{ toYaml .syncPolicy | indent 4 }}
+  {{- end }}
+{{- end }}

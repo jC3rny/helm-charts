@@ -1,0 +1,55 @@
+{{- range .Values.appProjects }}
+{{- $name := .name }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: {{ $name }}
+  namespace: {{ default "argocd" $.Values.namespaceOverride }}
+  labels:
+    {{- include "app-projects.labels" $ | nindent 4 }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  {{- if .description }}
+  description: {{ .description }}
+  {{- end }}
+  sourceRepos:
+  {{- if .sourceRepos }}
+    {{- range .sourceRepos }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- else }}
+    - "*"
+  {{- end }}
+  destinations:
+  {{- if .destinations }}
+  {{- range .destinations }}
+    - server: {{ default "https://kubernetes.default.svc" (.server | quote) }}
+      namespace: {{ default $name (.namespace | quote) }}
+  {{- end }}
+  {{- else }}
+    - server: "https://kubernetes.default.svc"
+      namespace: {{ $name }}
+  {{- end }}
+  {{- if .clusterResourceWhitelist }}
+  clusterResourceWhitelist:
+    {{- toYaml .clusterResourceWhitelist | nindent 4 }}
+  {{- end }}
+  {{- if .namespaceResourceBlacklist }}
+  namespaceResourceBlacklist:
+    {{- toYaml .namespaceResourceBlacklist | nindent 4 }}
+  {{- end }}
+  {{- if .namespaceResourceWhitelist }}
+  namespaceResourceWhitelist:
+    {{- toYaml .namespaceResourceWhitelist | nindent 4 }}
+  {{- end }}
+  {{- if .orphanedResources }}
+  orphanedResources:
+    {{- toYaml .orphanedResources | nindent 4 }}
+  {{- end }}
+  {{- if .roles }}
+  roles:
+    {{- toYaml .roles | nindent 4 }}
+  {{- end }}
+{{- end }}
