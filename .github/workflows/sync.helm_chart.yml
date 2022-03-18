@@ -61,12 +61,6 @@ jobs:
           fetch-depth: 50
 
 
-      # Skip synchronization
-      - name: Skip synchronization
-        if: env.CHART_SYNC_ENABLED == 'false'
-        exit: success()
-
-
       # Set ENV
       - name: Set ENV
         run: |
@@ -98,6 +92,7 @@ jobs:
 
       # Get version
       - name: Get version
+        if: env.CHART_SYNC_ENABLED == 'true'
         run: |
           if [ "${{ env.CHART_SYNC_TYPE }}" == "dependency" ]; then
               echo LOCAL_CHART_VERSION=$(yq eval '.dependencies.[] | select(.name == "${{ env.REMOTE_CHART_NAME }}") | .version' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV
