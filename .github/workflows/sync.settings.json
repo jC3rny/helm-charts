@@ -77,6 +77,6 @@
     }
   ],
   "exclude": [
-    { "chart": [ { "name": "cert-manager" } ]}
+    { "chart": [ { "name": "cert-manager" } ] }
   ]
 }
