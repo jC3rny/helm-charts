@@ -131,6 +131,24 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/charts/cassandra-1.0.0-8.0.6.tgz
     version: 1.0.0-8.0.6
+  cert-manager:
+  - apiVersion: v2
+    created: "2022-03-18T09:38:23.149652666Z"
+    dependencies:
+    - name: cert-manager
+      repository: https://charts.jetstack.io
+      version: v1.5.4
+    description: A Helm chart for cert-manager
+    digest: e5a2ad4efb0f18192b73ec221a3e19a30f336f128ae479c8b8bcb439a8b275b9
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jetstack/cert-manager
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cert-manager
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/jetstack/cert-manager-0.4.0-v1.5.4.tgz
+    version: 0.4.0-v1.5.4
   common-tpls:
   - apiVersion: v2
     created: "2022-03-16T21:44:36.41783727Z"
@@ -306,4 +324,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/charts/redis-ha-1.0.0-15.7.1.tgz
     version: 1.0.0-15.7.1
-generated: "2022-03-16T21:57:07.756611385Z"
+generated: "2022-03-18T09:38:23.140618096Z"
