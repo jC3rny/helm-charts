@@ -38,6 +38,8 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.set_matrix.outputs.SYNC_SETTINGS) }}
     
+    if: matrix.chart.enabled == 'true'
+    
     env:
       CHART_NAME: ${{ matrix.chart.name }}
       CHART_SYNC_TYPE: ${{ matrix.chart.type }}

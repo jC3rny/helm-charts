@@ -3,6 +3,7 @@
     {
       "name": "local-path-provisioner",
       "type": "src",
+      "enabled": "true",
       "remote": {
         "url": "https://github.com/rancher/local-path-provisioner.git",
         "branch": "master",
@@ -17,6 +18,7 @@
     {
       "name": "cassandra",
       "type": "dependency",
+      "enabled": "true",
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
@@ -31,6 +33,7 @@
     {
       "name": "postgresql-ha",
       "type": "dependency",
+      "enabled": "true",
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
@@ -45,6 +48,7 @@
     {
       "name": "redis-ha",
       "type": "dependency",
+      "enabled": "true",
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
@@ -54,6 +58,21 @@
       "local": {
         "basePath": "charts",
         "pathPrefix": "bitnami"
+      }
+    },
+    {
+      "name": "cert-manager",
+      "type": "dependency",
+      "enabled": "false",
+      "remote": {
+        "url": "https://github.com/cert-manager/cert-manager.git",
+        "branch": "master",
+        "commitSHA1": "",
+        "rootPath": "deploy/charts/cert-manager"
+      },
+      "local": {
+        "basePath": "charts",
+        "pathPrefix": "jetstack"
       }
     }
   ]
