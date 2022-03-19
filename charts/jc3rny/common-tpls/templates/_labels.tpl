@@ -9,8 +9,12 @@ Common labels
 {{- end }}
 {{- else }}
 {{- $component := default .Chart.Name (splitList "/" .Chart.Home | last) }}
-{{- if or (not (contains $component .Chart.Name)) .Values.rewriteLabels.component }}
-app.kubernetes.io/component: {{ default .Chart.Name .Values.rewriteLabels.component }}
+{{- if or (not (contains $component .Chart.Name)) (hasKey .Values "rewriteLabels") }}
+{{- if hasKey .Values.rewriteLabels "component" }}
+app.kubernetes.io/component: {{ .Values.rewriteLabels.component }}
+{{- else }}
+app.kubernetes.io/component: {{ .Chart.Name }}
+{{- end }}
 {{- end }}
 {{- if or .Chart.AppVersion (hasKey .Values "image") }}
 {{- if (hasKey .Values "image") }}
@@ -19,11 +23,15 @@ app.kubernetes.io/version: {{ hasKey .Values.image "useGlobal" | ternary .Values
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 {{- end }}
+{{- if hasKey .Values "rewriteLabels" }}
 {{- if .Values.rewriteLabels.environment }}
 app.kubernetes.io/environment: {{ .Values.rewriteLabels.environment }}
 {{- end }}
+{{- end }}
+{{- if hasKey .Values "rewriteLabels" }}
 {{- if .Values.rewriteLabels.partOf }}
 app.kubernetes.io/part-of: {{ .Values.rewriteLabels.partOf }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -48,7 +56,7 @@ Selector labels
 {{- else -}}
 app.kubernetes.io/name: {{ .Release.Name }}
 {{- if hasKey .Values "rewriteLabels" }}
-{{- if hasKey .Values.rewriteLabels "instance" }}
+{{- if .Values.rewriteLabels.instance }}
 app.kubernetes.io/instance: {{ .Values.rewriteLabels.instance }}
 {{- end }}
 {{- else }}
