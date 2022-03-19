@@ -41,6 +41,7 @@ jobs:
     env:
       CHART_NAME: ${{ matrix.chart.name }}
       CHART_SYNC_TYPE: ${{ matrix.chart.type }}
+      CHART_SYNC_ENABLED: ${{ matrix.chart.enabled }}
       REMOTE_CHART_REPO_URL: ${{ matrix.chart.remote.url }}
       REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
       REMOTE_CHART_COMMIT_SHA1: ${{ matrix.chart.remote.commitSHA1 }}
@@ -62,7 +63,6 @@ jobs:
 
       # Set ENV
       - name: Set ENV
-        id: setEnv
         run: |
           REMOTE_CHART_REPO_ORG=$(awk '{ n=split($0, a, /[\/]/); print a[4] }' <<<  ${{ env.REMOTE_CHART_REPO_URL }})
 
@@ -92,7 +92,7 @@ jobs:
 
       # Get version
       - name: Get version
-        id: getChartVersion
+        if: env.CHART_SYNC_ENABLED == 'true'
         run: |
           if [ "${{ env.CHART_SYNC_TYPE }}" == "dependency" ]; then
               echo LOCAL_CHART_VERSION=$(yq eval '.dependencies.[] | select(.name == "${{ env.REMOTE_CHART_NAME }}") | .version' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml) >> $GITHUB_ENV

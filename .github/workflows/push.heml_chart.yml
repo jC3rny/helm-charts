@@ -93,10 +93,13 @@ jobs:
                   CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
 
                   if [ "$(yq eval '.dependencies' ${CHART_FILE})" != "null" ]; then
-                      CHART_DEPENDENCY_NAME=$(jq -r '.chart[] | select(.name == "'${CHART_NAME}'") .remote.rootPath' "${{ env.SYNC_SETTINGS_RELATIVE_PATH }}" | awk -F '/' '{ print $NF }')
-                      CHART_DEPENDENCY_VERSION=$(yq eval '.dependencies.[] | select(.name == "'${CHART_DEPENDENCY_NAME}'").version' ${CHART_FILE})
+                      CHART_DEPENDENCY_NAME=$(jq -r '.chart[] | select(.name == "'${CHART_NAME}'").remote.rootPath' "${{ env.SYNC_SETTINGS_RELATIVE_PATH }}" | awk -F '/' '{ print $NF }')
 
-                      yq eval -i '.version = .version + "-'${CHART_DEPENDENCY_VERSION}'"' ${CHART_FILE}
+                      if [ ! -z "${CHART_DEPENDENCY_NAME}"]; then
+                          CHART_DEPENDENCY_VERSION=$(yq eval '.dependencies.[] | select(.name == "'${CHART_DEPENDENCY_NAME}'").version' ${CHART_FILE})
+
+                          yq eval -i '.version = .version + "-'${CHART_DEPENDENCY_VERSION}'"' ${CHART_FILE}
+                      fi
                   fi
 
                   if [ "${GITHUB_REF_NAME}" != "${{ env.SOURCE_REPO_DEFAULT_BRANCH }}" ]; then

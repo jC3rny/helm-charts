@@ -7,8 +7,8 @@ metadata:
   name: {{ $name }}
   namespace: argocd
   labels:
-    {{- include "app-of-apps.labels" $ | nindent 4 }}
-  {{- if or (eq (.finalizers |toString |lower) "<nil>") .finalizers  }}
+    {{- include "common.labels" $ | nindent 4 }}
+  {{- if or (eq (.finalizers | toString | lower) "<nil>") .finalizers  }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   {{- end }}
@@ -41,7 +41,7 @@ spec:
       {{- end }}
 {{- if .source.helm.values }}
       values: |
-{{ .source.helm.values |indent 8  }}
+{{ .source.helm.values | indent 8 }}
 {{- end }}
     {{- end }}
   {{- if .syncPolicy }}
