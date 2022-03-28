@@ -190,6 +190,8 @@ jobs:
                   if [ ! -z "${CONFLICTED_FILES}" ]; then
                       echo
                       git checkout --theirs ${CONFLICTED_FILES}
+                      
+                      git add ${{ env.LOCAL_CHART_ROOT_PATH }}
                   fi
               fi
           fi
