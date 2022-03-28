@@ -187,9 +187,11 @@ jobs:
                     --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
                     ${PATCH_FILE_PATH} || true
 
-                  for CONFLICTED_FILE in $(grep -lr '<<<<<<<' ${{ env.LOCAL_CHART_ROOT_PATH }}); do
-                      git checkout --theirs ${CONFLICTED_FILE}
-                  done
+                  CONFLICTED_FILES=$(grep -lr '<<<<<<<' ${{ env.LOCAL_CHART_ROOT_PATH }})
+
+                  if [ ! -z "${CONFLICTED_FILES}"]; then
+                      git checkout --theirs ${CONFLICTED_FILES}
+                  fi
               fi
           fi
 
