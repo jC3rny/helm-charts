@@ -191,7 +191,7 @@ jobs:
 
                   if [ ! -z "${CONFLICTED_FILES}" ]; then
                       echo
-                      echo ":: conflicted files (${CONFLICTED_FILES)"
+                      echo ":: conflicted files (${CONFLICTED_FILES})"
                       
                       git checkout --theirs ${CONFLICTED_FILES}
 
