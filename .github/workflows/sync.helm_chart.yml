@@ -161,8 +161,6 @@ jobs:
 
               if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
                   git reset --hard ${{ env.REMOTE_CHART_COMMIT_SHA1 }}
-              # else
-              #     git reset --hard ${{ env.ORIGINAL_COMMIT_ID }}
               fi
 
               if [ ! -z "${LOCAL_CHART_REMOTE_COMMIT_ID}" ]; then
@@ -189,16 +187,9 @@ jobs:
 
                   CONFLICTED_FILES=$(grep -lr '<<<<<<<' ${{ env.LOCAL_CHART_ROOT_PATH }})
 
-                  echo
-                  cat ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
-
                   if [ ! -z "${CONFLICTED_FILES}" ]; then
                       echo
-                      echo ":: conflicted files (${CONFLICTED_FILES})"
-                      
                       git checkout --theirs ${CONFLICTED_FILES}
-
-                      git status
                   fi
               fi
           fi
@@ -227,9 +218,6 @@ jobs:
       - name: Update chart metadata
         if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CREATE_PULL_REQUEST == 'true'
         run: |
-          cat ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
-          echo
-
           if [ "$(yq eval '.dependencies' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)" != "null" ]; then
               for HELM_CHART_DEPENDENCY_REPOSITORY in $(yq eval '.dependencies[].repository' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml); do
                   if [ -z "$(grep -E '^file://' <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ]; then
@@ -246,9 +234,15 @@ jobs:
           fi
 
           echo ":: after IF"
-          yq eval -i '.description = "'printf ${{ env.REMOTE_CHART_DESCRIPTION }}'"' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
-          yq eval -i '.appVersion = "'printf ${{ env.REMOTE_CHART_APPVERSION }}'"' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+          # yq eval -i '.description = "'printf ${{ env.REMOTE_CHART_DESCRIPTION }}'"' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+          yq eval -i '.description = strenv(REMOTE_CHART_DESCRIPTION)' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+          # yq eval -i '.appVersion = "'printf ${{ env.REMOTE_CHART_APPVERSION }}'"' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+          yq eval -i '.appVersion = strenv(REMOTE_CHART_APPVERSION)' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
 
+          echo
+          cat ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+          echo
+          
           exit 1
 
 
