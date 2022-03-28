@@ -191,6 +191,7 @@ jobs:
 
                   if [ ! -z "${CONFLICTED_FILES}" ]; then
                       echo
+                      echo ":: conflicted files (${CONFLICTED_FILES)"
                       
                       git checkout --theirs ${CONFLICTED_FILES}
 
@@ -227,7 +228,10 @@ jobs:
 
           ls -alh ${{ env.LOCAL_CHART_ROOT_PATH }}
 
+          cat ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+
           if [ "$(yq eval '.dependencies' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)" != "null" ]; then
+              echo ":: IF"
               for HELM_CHART_DEPENDENCY_REPOSITORY in $(yq eval '.dependencies[].repository' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml); do
                   if [ -z "$(grep -E '^file://' <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ]; then
                       echo
