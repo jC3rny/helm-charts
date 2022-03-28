@@ -8,7 +8,7 @@
         "url": "https://github.com/rancher/local-path-provisioner.git",
         "branch": "master",
         "commitSHA1": "",
-        "rootPath": "deploy/chart"
+        "rootPath": "deploy/chart/local-path-provisioner"
       },
       "local": {
         "basePath": "charts",
