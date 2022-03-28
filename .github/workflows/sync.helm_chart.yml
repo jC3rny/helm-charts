@@ -182,9 +182,14 @@ jobs:
 
                   git apply \
                     -p $(awk -F '/' '{ print NF-0 }' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
-                    --index --check --stat --apply --allow-empty --verbose \
+                    --index --check --stat --verbose \
+                    --apply --allow-empty --3way --ignore-space-change --ignore-whitespace \
                     --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
                     ${PATCH_FILE_PATH}
+
+                  for CONFLICTED_FILE in $(grep -lr '<<<<<<<' ${{ env.LOCAL_CHART_ROOT_PATH }}); do
+                      git checkout --theirs ${CONFLICTED_FILE}
+                  done
               fi
           fi
 
