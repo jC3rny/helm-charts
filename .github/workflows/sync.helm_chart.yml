@@ -189,7 +189,7 @@ jobs:
 
                   CONFLICTED_FILES=$(grep -lr '<<<<<<<' ${{ env.LOCAL_CHART_ROOT_PATH }})
 
-                  if [ ! -z "${CONFLICTED_FILES}"]; then
+                  if [ ! -z "${CONFLICTED_FILES}" ]; then
                       git checkout --theirs ${CONFLICTED_FILES}
                   fi
               fi
