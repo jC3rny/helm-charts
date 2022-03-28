@@ -38,7 +38,7 @@ Create a default app instance name.
 */}}
 {{- define "common.instance" -}}
   {{- if hasKey .Values "rewriteLabels" }}
-    {{- if hasKey .Values.rewriteLabels "environment" }}
+    {{- if .Values.rewriteLabels.environment }}
       {{- printf "%s-%s" (include "common.fullname" .) .Values.rewriteLabels.environment }}
     {{- end }}
   {{- else }}

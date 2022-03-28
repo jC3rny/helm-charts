@@ -2,7 +2,7 @@
 Create the name of the repository secret
 */}}
 {{- define "argocd.repo.secretName" -}}
-  {{- if .url }}
+  {{- if hasKey . "url" }}
       {{- printf "%s-%s" (regexReplaceAll "\\W+" (split "//" .url)._1 "-" | trimSuffix "-") "repo" }}
   {{- end }}
 {{- end }}
@@ -20,7 +20,7 @@ argocd.argoproj.io/secret-type: repository
 Create the name of the credential secret
 */}}
 {{- define "argocd.creds.secretName" -}}
-  {{- if .url }}
+  {{- if hasKey . "url" }}
       {{- printf "%s-%s" (regexReplaceAll "\\W+" (split "//" .url)._1 "-" | trimSuffix "-") "creds" }}
   {{- end }}
 {{- end }}

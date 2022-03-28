@@ -9,9 +9,8 @@ maintainers:
 
 dependencies:
   - name: common-tpls
-    version: 0.4.0-alpha
+    version: 1.0.3
     repository: https://charts.c3rny.ninja
-    #repository: file://../../charts/common-tpls
 
 # A chart can be either an 'application' or a 'library' chart.
 #

@@ -7,6 +7,11 @@ maintainers:
   - name: jC3rny
     email: iam@c3rny.ninja
 
+dependencies:
+  - name: common-tpls
+    version: 1.0.3
+    repository: https://charts.c3rny.ninja
+
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
