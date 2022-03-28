@@ -183,7 +183,7 @@ jobs:
                   git apply \
                     -p $(awk -F '/' '{ print NF-0 }' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
                     --index --check --stat --verbose \
-                    --apply --allow-empty --3way --ignore-space-change --ignore-whitespace \
+                    --apply --allow-empty --3way \
                     --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
                     ${PATCH_FILE_PATH} || true
 
