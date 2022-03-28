@@ -185,7 +185,7 @@ jobs:
                     --index --check --stat --verbose \
                     --apply --allow-empty --3way --ignore-space-change --ignore-whitespace \
                     --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
-                    ${PATCH_FILE_PATH}
+                    ${PATCH_FILE_PATH} || true
 
                   for CONFLICTED_FILE in $(grep -lr '<<<<<<<' ${{ env.LOCAL_CHART_ROOT_PATH }}); do
                       git checkout --theirs ${CONFLICTED_FILE}
