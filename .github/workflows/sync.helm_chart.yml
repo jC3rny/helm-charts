@@ -233,17 +233,8 @@ jobs:
               helm dependency update --debug
           fi
 
-          echo ":: after IF"
-          # yq eval -i '.description = "'printf ${{ env.REMOTE_CHART_DESCRIPTION }}'"' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
           yq eval -i '.description = strenv(REMOTE_CHART_DESCRIPTION)' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
-          # yq eval -i '.appVersion = "'printf ${{ env.REMOTE_CHART_APPVERSION }}'"' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
           yq eval -i '.appVersion = strenv(REMOTE_CHART_APPVERSION)' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
-
-          echo
-          cat ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
-          echo
-          
-          exit 1
 
 
       # Create Pull Request
