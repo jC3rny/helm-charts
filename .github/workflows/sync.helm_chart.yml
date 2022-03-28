@@ -189,6 +189,9 @@ jobs:
 
                   CONFLICTED_FILES=$(grep -lr '<<<<<<<' ${{ env.LOCAL_CHART_ROOT_PATH }})
 
+                  echo
+                  cat ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+
                   if [ ! -z "${CONFLICTED_FILES}" ]; then
                       echo
                       echo ":: conflicted files (${CONFLICTED_FILES})"
@@ -224,14 +227,10 @@ jobs:
       - name: Update chart metadata
         if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CREATE_PULL_REQUEST == 'true'
         run: |
-          git status
-
-          ls -alh ${{ env.LOCAL_CHART_ROOT_PATH }}
-
           cat ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+          echo
 
           if [ "$(yq eval '.dependencies' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml)" != "null" ]; then
-              echo ":: IF"
               for HELM_CHART_DEPENDENCY_REPOSITORY in $(yq eval '.dependencies[].repository' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml); do
                   if [ -z "$(grep -E '^file://' <<< ${HELM_CHART_DEPENDENCY_REPOSITORY})" ]; then
                       echo
