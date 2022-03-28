@@ -191,7 +191,11 @@ jobs:
 
                   if [ ! -z "${CONFLICTED_FILES}"]; then
                       git checkout --theirs ${CONFLICTED_FILES}
+<<<<<<< HEAD
                   fi
+=======
+                  done
+>>>>>>> origin/main
               fi
           fi
 
