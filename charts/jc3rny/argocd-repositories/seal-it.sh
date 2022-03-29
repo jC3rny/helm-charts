@@ -216,7 +216,7 @@ if [ ! -z "${CONTEXT}" ] && [ ! -z "${FILE_PATH}" ] && [ -z "${SEAL_VALUE}" ] &&
 
             for KEY in $(yq eval ${CONTEXT}' | ... comments = "" | keys' ${FILE_PATH} | awk '{ print $2 }' | grep -Ev "${MASKED_KEYS_REGEX}"); do
                 
-                VALUE="$(yq eval ${CONTEXT}'.'${KEY}' | ... comments = ""' ${FILE_PATH})"
+                VALUE="$(yq eval ${CONTEXT}'.'${KEY}' | ... comments = ""' ${FILE_PATH} | seal_value)"
 
                 yq eval -i -P "del(${CONTEXT}.${KEY})" ${FILE_PATH}
                 yq eval -i -P ${CONTEXT}'.'${ENCRYPTED_KEY}' |= (.'${KEY}' = "'${VALUE}'")' ${FILE_PATH}
@@ -238,7 +238,7 @@ if [ ! -z "${CONTEXT}" ] && [ ! -z "${FILE_PATH}" ] && [ -z "${SEAL_VALUE}" ] &&
 
                 for KEY in $(yq eval ${CONTEXT}'['${I}'] | ... comments = "" | keys' ${FILE_PATH} | awk '{ print $2 }'); do
 
-                    VALUE="$(yq eval ${CONTEXT}'['${I}'].'${KEY}' | ... comments = ""' ${FILE_PATH})"
+                    VALUE="$(yq eval ${CONTEXT}'['${I}'].'${KEY}' | ... comments = ""' ${FILE_PATH} | seal_value)"
 
                     if [ -z "${MAP}" ]; then
                         MAP="$(printf ".%s = \"%s\"" ${KEY} ${VALUE})"
