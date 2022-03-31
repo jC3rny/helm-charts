@@ -44,7 +44,7 @@ entries:
     version: 0.4.0-v1.5.4
   common-tpls:
   - apiVersion: v2
-    created: "2022-03-31T21:02:35.089371497Z"
+    created: "2022-03-31T22:43:49.482198568Z"
     description: A library Helm chart for common usage
     digest: bed742b7614d1cc3e77540c87c070dd3f96645f646c81a015c33589824601fec
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -57,7 +57,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.4.tgz
     version: 0.5.4
   - apiVersion: v2
-    created: "2022-03-31T21:02:35.088276884Z"
+    created: "2022-03-31T22:43:49.481675675Z"
     description: A Library Helm chart for Kubernetes
     digest: 15f222b661a47a030450765eccd629ead6de137ee2ab9e4c5b7d31092ce4b926
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -69,6 +69,20 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.3.tgz
     version: 0.5.3
+  kube-rbac:
+  - apiVersion: v2
+    created: "2022-03-31T22:43:49.483141353Z"
+    description: A Helm chart for Role-based access control (RBAC) management
+    digest: 7f1b0c823a96b717e05824d03f06f533575edc70bbd045aa166627f43af55a7b
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/web-app
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: kube-rbac
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/kube-rbac-0.7.2.tgz
+    version: 0.7.2
   local-path-provisioner:
   - apiVersion: v1
     appVersion: v0.0.22-dev
@@ -116,7 +130,7 @@ entries:
     version: 0.4.7
   web-app:
   - apiVersion: v2
-    created: "2022-03-31T21:02:35.096900286Z"
+    created: "2022-03-31T22:43:49.486561702Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -133,7 +147,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.1.tgz
     version: 2.5.1
   - apiVersion: v2
-    created: "2022-03-31T21:02:35.092055329Z"
+    created: "2022-03-31T22:43:49.484871328Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -149,4 +163,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-03-31T21:54:02.032292938Z"
+generated: "2022-03-31T22:43:49.48070249Z"
