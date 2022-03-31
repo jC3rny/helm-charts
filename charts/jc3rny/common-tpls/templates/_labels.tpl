@@ -3,6 +3,15 @@ Common labels
 */}}
 {{- define "common.labels" -}}
 {{ include "common.basicLabels" . }}
+{{ include "common.appLabels" . }}
+{{- end }}
+
+
+{{/*
+App labels
+*/}}
+{{- define "common.appLabels" -}}
+{{ include "common.selectorLabels" . }}
 {{- if .Values.customLabels }}
 {{- with .Values.customLabels.others }}
 {{ toYaml . }}
