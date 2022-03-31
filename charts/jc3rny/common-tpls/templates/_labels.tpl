@@ -38,7 +38,7 @@ app.kubernetes.io/name: {{ .Release.Name }}
 {{- if .Values.rewriteLabels.instance }}
 app.kubernetes.io/instance: {{ .Values.rewriteLabels.instance }}
 {{- end }}
-{{- else }}
+{{- else -}}
 app.kubernetes.io/instance: {{ (include "common.instance" .) }}
 {{- end }}
 {{- end }}
