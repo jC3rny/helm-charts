@@ -151,7 +151,7 @@ entries:
     version: 0.4.0-v1.5.4
   common-tpls:
   - apiVersion: v2
-    created: "2022-03-31T08:54:18.661370174Z"
+    created: "2022-03-31T09:20:37.446630174Z"
     description: A Library Helm chart for Kubernetes
     digest: 0922060f07d8f0fe88d27875211a42025f9c03d81921b3a385659c115a65df1a
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -164,7 +164,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-1.0.3.tgz
     version: 1.0.3
   - apiVersion: v2
-    created: "2022-03-31T08:54:18.66096317Z"
+    created: "2022-03-31T09:20:37.44631237Z"
     description: A Library Helm chart for Kubernetes
     digest: cc97876de4ad81f0399c608ed8c3498e962afb52868484ac87903bf2fea25d88
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -177,7 +177,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-1.0.2.tgz
     version: 1.0.2
   - apiVersion: v2
-    created: "2022-03-31T08:54:18.660231661Z"
+    created: "2022-03-31T09:20:37.445893964Z"
     description: A Library Helm chart for Kubernetes
     digest: 4ee570a053a905dfd83c94d0488ceaac2d4d96ce5bc1fe72b387679a20976d01
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -190,7 +190,20 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-1.0.1.tgz
     version: 1.0.1
   - apiVersion: v2
-    created: "2022-03-31T08:54:18.659752255Z"
+    created: "2022-03-31T09:20:37.445366757Z"
+    description: A Library Helm chart for Kubernetes
+    digest: 694f0ff68493a5ee3cad32bcd62f7dbee9b4cc4e6e5a498d9de7c4c04d27ab27
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: common-tpls
+    type: library
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.4.tgz
+    version: 0.5.4
+  - apiVersion: v2
+    created: "2022-03-31T09:20:37.445001453Z"
     description: A Library Helm chart for Kubernetes
     digest: 15f222b661a47a030450765eccd629ead6de137ee2ab9e4c5b7d31092ce4b926
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -366,4 +379,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/charts/redis-ha-1.0.0-15.7.1.tgz
     version: 1.0.0-15.7.1
-generated: "2022-03-31T08:54:18.659188948Z"
+generated: "2022-03-31T09:20:37.444394144Z"
