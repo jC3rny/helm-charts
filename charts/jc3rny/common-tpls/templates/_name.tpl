@@ -14,11 +14,11 @@ If release name contains chart name it will be used as a full name.
 {{- define "common.fullname" -}}
   {{- if .Values.fullnameOverride }}
     {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-  {{- else }}
+  {{- else -}}
     {{- $name := default .Release.Name .Values.nameOverride }}
     {{- if contains $name .Release.Name }}
       {{- .Release.Name | trunc 63 | trimSuffix "-" }}
-    {{- else }}
+    {{- else -}}
       {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
     {{- end }}
   {{- end }}
@@ -41,7 +41,7 @@ Create a default app instance name.
     {{- if .Values.rewriteLabels.environment }}
       {{- printf "%s-%s" (include "common.fullname" .) .Values.rewriteLabels.environment }}
     {{- end }}
-  {{- else }}
+  {{- else -}}
     {{- (include "common.fullname" .) }}
   {{- end }}
 {{- end }}
@@ -53,7 +53,7 @@ Create the name of the service account to use
 {{- define "common.serviceAccountName" -}}
   {{- if .Values.serviceAccount.create }}
     {{- default (include "common.fullname" .) .Values.serviceAccount.name }}
-  {{- else }}
+  {{- else -}}
     {{- default "default" .Values.serviceAccount.name }}
   {{- end }}
 {{- end }}
