@@ -1,9 +1,12 @@
 dependencies:
 - name: common-tpls
   repository: https://charts.c3rny.ninja
-  version: 1.0.2
+  version: 0.5.4
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 16.4.5
-digest: sha256:b89a5e0149e59b46f40b2a2789e9a5e279501f782c13214081317a9f86d8792c
-generated: "2022-03-16T22:49:30.666276405+01:00"
+- name: web-app
+  repository: https://charts.c3rny.ninja
+  version: 2.5.1
+digest: sha256:432ec05e631941c4fe8f4e5b9cccf76b01330da5da8cd8349e91c505e64e4df4
+generated: "2022-03-31T23:15:57.500340518+02:00"

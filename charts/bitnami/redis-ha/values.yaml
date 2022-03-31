@@ -3,15 +3,54 @@
 ## Declare variables to be passed into your templates.
 
 # redis:
-#   ## Redis&trade; Authentication parameters
-#   ## @param auth.enabled Enable password authentication
-#   ## @param auth.existingSecret The name of an existing secret with Redis&trade; credentials
-#   ## NOTE: When it's set, the previous `auth.password` parameter is ignored
-#   ## @param auth.existingSecretPasswordKey Password key to be retrieved from existing secret
-#   ## NOTE: ignored unless `auth.existingSecret` parameter is set
+#   ## follow instructions on https://github.com/bitnami/charts/tree/master/bitnami/redis
 #   ##
+#   ## Redis(TM) Authentication parameters
 #   auth:
 #     enabled: yes
 #     existingSecret: "redis-ha-password"
 #     existingSecretPasswordKey: "redis-password"
-#     existingSecretPasswordValue: AgCn1U3ZX1HzDpGV33ZG0WApjIGGk4iSSrnYowgqG9C1SRadBcO/I8c9A3iEAJenjkSRVxoWjB6t6qhTrhuVRGQpkKjVeyc4MzwtVEg04+lDe+LqD8icAPCDG9PrACwE61b96GNqDUj1U2RWcC71/GLw1qUIAUrb7oaq+QcBz7PvVE89tQc4GAOpBFbp6dtj/zPUShBZPEhAZOkpUd8V6RNT0n1C+pj/VSpZmxV/piksMbReK4K+sOexbbkMYHAJSBuGRMnG44nQHuQkO+sb6fRg2Oa3kFKNtEGHJ+m0ut0f1Vs1i1o67VvmyzUnH5yHzX92+evX64tKT8lpS0MDjg0MExlgEEZeqEDa4IQS4jLD8C/TKbJkuBaRxCNYs72ZlE24vffTUmCailXoeK0ELqOrJPoOq68HIhAW5d2rMFwcjBjwr/Rve7P8w91ZfueXhHyQCgcNTVCir9wYbKnV9dyRWxsyignMkgMcqlkX7t3SzGiCUnINupIoNXBBLpzdS7S4kCPztep1JPUzWMUMj6NLGLiLNE+91NsrU9VQOFZOvPaQQqA6jyz+DR1VlOPE1LC//VX8NmJq9Ti7BkfbpmdlmwAasQ==
+#     existingSecretPasswordValue: AgCn1U3ZX1HzDpGV33ZG0WApjIGGk4iSSrnYowgqwtVEg04+lDe+LqD8icAPCDG9PrACwE61b96GNqDUj1U2RWcC71/GLw1qUIAUrb7oaq+QcBz7PvVE89tQc4GAOpBFbp6dtj/zPUShBZPEhAZOkpUd8V6RNT0n1C+pj/VSpZmxV/piksMbReK4K+sOexbbkMYHAJSBuGRMnG44nQHuQkO+sb6fRg2Oa3kFKNtEGHJ+m0ut0f1Vs1i1o67VvmyzUnH5yHzX92+evX64tKT8lpS0MDjg0MExlgEEZeqEDa4IQS4jLD8C/TKbJkuBaRxCNYs72ZlE24vffTUmCailXoeK0ELqOrJPoOq68HIhAW5d2rMFwcjBjwr/Rve7P8w91ZfueXhHyQCgcNTVCir9wYbKnV9dyRWxsyignMkgMcqlkX7t3SzGiCUnINupIoNXBBLpzdS7S4kCPztep1JPUzWMUMj6NLGLiLNE+91NsrU9VQOFZOvPaQQqA6jyz+DR1VlOPE1LC//VX8NmJq9Ti7BkfbpmdlmwAasQ==
+#   ##
+#   ## @section Redis(TM) replicas configuration parameters
+#   replica:
+#     replicaCount: 5
+#   ##
+#   ## @section Redis(TM) Sentinel configuration parameters
+#   sentinel:
+#     enabled: true
+#     masterSet: example
+#     quorum: 3
+#
+#
+proxy:
+  ## If you want to use a proxy, set the following keys { statelessApp = "yes", service: { create = "yes" } } and 
+  ## be sure to set the appropriate env variables.
+  statelessApp: no
+
+  nameOverride: proxy
+
+  replicaCount: 3
+
+  image:
+    repository: "patrickdk/redis-sentinel-proxy"
+    tag: "latest"
+
+  env: []
+    # - { name: POD_NAMESPACE, valueFrom: { fieldRef: { fieldPath: metadata.namespace } } }
+    # - { name: DEBUG, value: "true" }
+    # - { name: LISTEN, value: ":36379" }
+    # - { name: MASTER, value: example }
+    # - { name: SENTINEL, value: "redis-ha-headless.$(POD_NAMESPACE):26379" }
+    # - { name: PASSWORD, valueFrom: { secretKeyRef: { name: redis-ha-password, key: redis-password } } }
+    # - { name: TIMEOUTMS, value: 2000 }
+    # - { name: CHECKMS, value: 250 }
+  
+  service:
+    create: no
+    portName: tcp-proxy
+    portNumber: 36379
+
+  resources: 
+    requests: { cpu: 0.015, memory: 32Mi }
+    limits: { cpu: 0.03, memory: 64Mi }
