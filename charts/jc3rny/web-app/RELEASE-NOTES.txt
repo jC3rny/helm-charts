@@ -1,4 +1,4 @@
-2.5.4 [ latest ]
+2.5.1 [ latest ]
   - change deployment and statefulset template labels
 
 
