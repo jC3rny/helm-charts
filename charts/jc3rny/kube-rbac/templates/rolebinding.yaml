@@ -1,0 +1,52 @@
+{{- if and .Values.roleBinding.enabled (not .Values.kubeConfig.enabled) }}
+{{- range $groupName,$group := .Values.groups }}
+{{- range $namespace,$namespaceValues := $group.namespaces }}
+{{- range $roleKind,$roles := $namespaceValues }}
+{{- if eq $roleKind "clusterRoles" }}
+{{- range $roleName := $roles }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ printf "%s:%s:%s" $.Values.roleBinding.prefix $groupName (include "kube-rbac.roleName" $roleName) }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "kube-rbac.labels" $ | nindent 4 }}
+subjects:
+{{- range $username := ($group.users | uniq) }}
+  - kind: ServiceAccount
+    name: {{ include "kube-rbac.username" $username }}
+    namespace: {{ include "kube-rbac.serviceAccount.namespace" $ }}
+{{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $roleName }}
+{{- end }}
+{{- else if eq $roleKind "roles" }}
+{{- range $roleName := $roles }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ printf "%s:%s:%s" $.Values.roleBinding.prefix $groupName (include "kube-rbac.roleName" $roleName) }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "kube-rbac.labels" $ | nindent 4 }}
+subjects:
+{{- range $username := ($group.users | uniq) }}
+  - kind: ServiceAccount
+    name: {{ include "kube-rbac.username" $username }}
+    namespace: {{ include "kube-rbac.serviceAccount.namespace" $ }}
+{{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $roleName }}
+  namespace: {{ $namespace }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,8 @@
+{{- if and .Values.roleBinding.enabled (ne .Values.serviceAccount.namespaceOverride "default") (not .Values.kubeConfig.enabled) }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.serviceAccount.namespaceOverride }}
+  labels:
+    {{- include "kube-rbac.labels" $ | nindent 4 }}
+{{- end }}

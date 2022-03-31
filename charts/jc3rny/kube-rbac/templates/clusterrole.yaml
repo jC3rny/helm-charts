@@ -1,0 +1,21 @@
+{{- if and (not .Values.roleBinding.enabled) (not .Values.kubeConfig.enabled) }}
+{{- range .Values.clusterRole.roles }}
+{{- $name := printf "%s:%s" $.Values.clusterRole.prefix .name }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $name | quote }}
+  labels:
+    {{- include "kube-rbac.labels" $ | nindent 4 }}
+    {{- if has $name $.Values.clusterRole.aggregateToView }}
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    {{- end }}
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+rules:
+  {{- range .rules }}
+  - {{ tpl (. | toYaml) $ | indent 4 | trim }}
+  {{- end }}
+{{- end }}
+{{- end }}
