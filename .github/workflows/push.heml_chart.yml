@@ -88,6 +88,7 @@ jobs:
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}; pwd
           echo
 
+          # find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}) \( -name "Chart.yaml" -or -name "Chart.lock" \)
           for CHART_FILE in $(find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}) -name "Chart.yaml" 2> /dev/null | uniq); do
               if [ -d "$(dirname ${CHART_FILE})" ]; then
                   CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
