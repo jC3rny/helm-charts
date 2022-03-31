@@ -9,6 +9,7 @@
 
 CONTEXT=""
 ENCRYPTED_KEY=""
+PRETTY_PRINT=""
 MASKED_KEYS_REGEX=""
 MARKER_KEY=""
 MARKER_VALUE_EVAL=""
@@ -33,6 +34,10 @@ for ARG in "${@}"; do
         -k|--encrypted-key)
         ENCRYPTED_KEY=${2}
         shift; shift
+        ;;
+        -P|--pretty-print)
+        PRETTY_PRINT="--prettyPrint"
+        shift
         ;;
         -m|--marker-key)
         MARKER_KEY=${2}
@@ -173,7 +178,7 @@ function seal_dockerconfig(){
 
             for KEY in url username password; do yq eval -i "del(${1}.${KEY})" ${FILE_PATH}; done
             
-            yq eval -i -P ${1}' |= (.'${ENCRYPTED_KEY}' = "'${VALUE}'")' ${FILE_PATH}
+            yq eval -i ${PRETTY_PRINT} ${1}' |= (.'${ENCRYPTED_KEY}' = "'${VALUE}'")' ${FILE_PATH}
         fi
 
         if [ -z "${VERBOSE}" ]; then VERBOSE="true"; fi
@@ -212,14 +217,14 @@ if [ ! -z "${CONTEXT}" ] && [ ! -z "${FILE_PATH}" ] && [ -z "${SEAL_VALUE}" ] &&
             # Backup original file
             backup
             
-            yq eval -i -P "${CONTEXT} |= (.${ENCRYPTED_KEY} = {})" ${FILE_PATH}
+            yq eval -i ${PRETTY_PRINT} "${CONTEXT} |= (.${ENCRYPTED_KEY} = {})" ${FILE_PATH}
 
             for KEY in $(yq eval ${CONTEXT}' | ... comments = "" | keys' ${FILE_PATH} | awk '{ print $2 }' | grep -Ev "${MASKED_KEYS_REGEX}"); do
                 
                 VALUE="$(yq eval ${CONTEXT}'.'${KEY}' | ... comments = ""' ${FILE_PATH} | seal_value)"
 
-                yq eval -i -P "del(${CONTEXT}.${KEY})" ${FILE_PATH}
-                yq eval -i -P ${CONTEXT}'.'${ENCRYPTED_KEY}' |= (.'${KEY}' = "'${VALUE}'")' ${FILE_PATH}
+                yq eval -i ${PRETTY_PRINT} "del(${CONTEXT}.${KEY})" ${FILE_PATH}
+                yq eval -i ${PRETTY_PRINT} ${CONTEXT}'.'${ENCRYPTED_KEY}' |= (.'${KEY}' = "'${VALUE}'")' ${FILE_PATH}
             done
         fi; echo
 
@@ -251,11 +256,11 @@ if [ ! -z "${CONTEXT}" ] && [ ! -z "${FILE_PATH}" ] && [ -z "${SEAL_VALUE}" ] &&
 
                 # Set marker
                 if [ ! -z "${MARKER_KEY}" ] && [ ! -z "${MARKER_VALUE_EVAL}" ]; then
-                    yq eval -i -P ${CONTEXT}'['${I}'] |= (.'${MARKER_KEY}' = "'$(eval ${MARKER_VALUE_EVAL})'")' ${FILE_PATH}
+                    yq eval -i ${PRETTY_PRINT} ${CONTEXT}'['${I}'] |= (.'${MARKER_KEY}' = "'$(eval ${MARKER_VALUE_EVAL})'")' ${FILE_PATH}
                 fi
 
-                yq eval -i -P "${CONTEXT}[${I}] |= (.${ENCRYPTED_KEY} = {})" ${FILE_PATH}
-                yq eval -i -P "${CONTEXT}[${I}].${ENCRYPTED_KEY} |= (${MAP})" ${FILE_PATH}
+                yq eval -i ${PRETTY_PRINT} "${CONTEXT}[${I}] |= (.${ENCRYPTED_KEY} = {})" ${FILE_PATH}
+                yq eval -i ${PRETTY_PRINT} "${CONTEXT}[${I}].${ENCRYPTED_KEY} |= (${MAP})" ${FILE_PATH}
             fi
 
             I=$((I+1))
