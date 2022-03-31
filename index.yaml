@@ -3,18 +3,18 @@ entries:
   cassandra:
   - apiVersion: v2
     appVersion: 4.0.3
-    created: "2022-03-16T21:57:07.775505014Z"
+    created: "2022-03-31T21:54:02.036574371Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
-      version: 1.x.x
+      version: 0.5.4
     - name: cassandra
       repository: https://charts.bitnami.com/bitnami
       version: 9.1.6
     description: Apache Cassandra is an open source distributed database management
       system designed to handle large amounts of data across many servers, providing
       high availability with no single point of failure.
-    digest: b67b0b1e04c069c5f32b7e49bd92b8fc05f21244820ec50fc8626f5e1d7dc977
+    digest: bf5ede3714e9185a2607e9990de036624b7cd704807e543a1d890e37a15ac0ef
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
     maintainers:
     - email: iam@c3rny.ninja
@@ -22,8 +22,8 @@ entries:
     name: cassandra
     type: application
     urls:
-    - https://charts.c3rny.ninja/packages/bitnami/cassandra-1.0.3-9.1.6.tgz
-    version: 1.0.3-9.1.6
+    - https://charts.c3rny.ninja/packages/bitnami/cassandra-0.3.2.tgz
+    version: 0.3.2
   cert-manager:
   - apiVersion: v2
     created: "2022-03-18T09:38:23.149652666Z"
@@ -44,7 +44,20 @@ entries:
     version: 0.4.0-v1.5.4
   common-tpls:
   - apiVersion: v2
-    created: "2022-03-31T15:27:11.249874197Z"
+    created: "2022-03-31T21:02:35.089371497Z"
+    description: A library Helm chart for common usage
+    digest: bed742b7614d1cc3e77540c87c070dd3f96645f646c81a015c33589824601fec
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: common-tpls
+    type: library
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.4.tgz
+    version: 0.5.4
+  - apiVersion: v2
+    created: "2022-03-31T21:02:35.088276884Z"
     description: A Library Helm chart for Kubernetes
     digest: 15f222b661a47a030450765eccd629ead6de137ee2ab9e4c5b7d31092ce4b926
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -76,18 +89,22 @@ entries:
   redis-ha:
   - apiVersion: v2
     appVersion: 6.2.6
-    created: "2022-03-16T21:57:07.805142173Z"
+    created: "2022-03-31T21:54:02.049866195Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
-      version: 1.x.x
+      version: 0.5.4
     - name: redis
       repository: https://charts.bitnami.com/bitnami
       version: 16.4.5
+    - alias: proxy
+      name: web-app
+      repository: https://charts.c3rny.ninja
+      version: 2.5.1
     description: Redis(TM) is an open source, advanced key-value store. It is often
       referred to as a data structure server since keys can contain strings, hashes,
       lists, sets and sorted sets.
-    digest: 0bce6faa000ae60660375b6d35bc370d2d358d715380f14aa361c4f5f423c874
+    digest: feda77693f778662c57d68122fd56dc7c7f7297f935f6d4ffd4183916d0db8be
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/redis-ha
     maintainers:
     - email: iam@c3rny.ninja
@@ -95,11 +112,28 @@ entries:
     name: redis-ha
     type: application
     urls:
-    - https://charts.c3rny.ninja/packages/bitnami/redis-ha-1.0.3-16.4.5.tgz
-    version: 1.0.3-16.4.5
+    - https://charts.c3rny.ninja/packages/bitnami/redis-ha-0.4.7.tgz
+    version: 0.4.7
   web-app:
   - apiVersion: v2
-    created: "2022-03-31T15:27:11.253566088Z"
+    created: "2022-03-31T21:02:35.096900286Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.4
+    description: A multi purpose Helm chart for Kubernetes
+    digest: d93ae96e85551ec371894f46e2c7d889b91c78815a766211cc7c296da3f30b60
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/web-app
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: web-app
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.1.tgz
+    version: 2.5.1
+  - apiVersion: v2
+    created: "2022-03-31T21:02:35.092055329Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -115,4 +149,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-03-31T15:27:11.248896399Z"
+generated: "2022-03-31T21:54:02.032292938Z"
