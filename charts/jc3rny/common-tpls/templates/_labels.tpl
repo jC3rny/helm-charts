@@ -8,10 +8,47 @@ Common labels
 
 
 {{/*
+Basic labels
+*/}}
+{{- define "common.basicLabels" -}}
+helm.sh/chart: {{ include "common.chart" . }}
+{{ include "common.selectorLabels" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+
+{{/*
+Pod labels
+*/}}
+{{- define "common.podLabels" -}}
+{{ include "common.selectorLabels" . }}
+{{ include "common.appLabels" . }}
+{{- end }}
+
+
+{{/*
+Selector labels
+*/}}
+{{- define "common.selectorLabels" -}}
+{{- if .Values.customLabels -}}
+{{- toYaml .Values.customLabels.selector }}
+{{- else -}}
+app.kubernetes.io/name: {{ .Release.Name }}
+{{- if hasKey .Values "rewriteLabels" }}
+{{- if .Values.rewriteLabels.instance }}
+app.kubernetes.io/instance: {{ .Values.rewriteLabels.instance }}
+{{- end }}
+{{- else }}
+app.kubernetes.io/instance: {{ (include "common.instance" .) }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+
+{{/*
 App labels
 */}}
 {{- define "common.appLabels" -}}
-{{ include "common.selectorLabels" . }}
 {{- if .Values.customLabels }}
 {{- with .Values.customLabels.others }}
 {{ toYaml . }}
@@ -41,35 +78,6 @@ app.kubernetes.io/environment: {{ .Values.rewriteLabels.environment }}
 {{- if .Values.rewriteLabels.partOf }}
 app.kubernetes.io/part-of: {{ .Values.rewriteLabels.partOf }}
 {{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
-
-
-{{/*
-Basic labels
-*/}}
-{{- define "common.basicLabels" -}}
-helm.sh/chart: {{ include "common.chart" . }}
-{{ include "common.selectorLabels" . }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
-
-
-{{/*
-Selector labels
-*/}}
-{{- define "common.selectorLabels" -}}
-{{- if .Values.customLabels -}}
-{{- toYaml .Values.customLabels.selector }}
-{{- else -}}
-app.kubernetes.io/name: {{ .Release.Name }}
-{{- if hasKey .Values "rewriteLabels" }}
-{{- if .Values.rewriteLabels.instance }}
-app.kubernetes.io/instance: {{ .Values.rewriteLabels.instance }}
-{{- end }}
-{{- else }}
-app.kubernetes.io/instance: {{ (include "common.instance" .) }}
 {{- end }}
 {{- end }}
 {{- end }}
