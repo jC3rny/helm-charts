@@ -1,5 +1,5 @@
-2.5.1 [ latest ]
-  - move to public repository (https://charts.c3rny.ninja)
+2.5.2 [ latest ]
+  - change deployment and statefulset template labels
 
 
 2.5.0 [ ebb89bf0a1bd7ed1d889f5d95be4492252d634b3 ]
