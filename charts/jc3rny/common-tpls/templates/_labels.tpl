@@ -53,19 +53,19 @@ App labels
 {{- with .Values.customLabels.others }}
 {{ toYaml . }}
 {{- end }}
-{{- else }}
+{{- else -}}
 {{- $component := default .Chart.Name (splitList "/" .Chart.Home | last) }}
 {{- if or (not (contains $component .Chart.Name)) (hasKey .Values "rewriteLabels") }}
 {{- if hasKey .Values.rewriteLabels "component" }}
 app.kubernetes.io/component: {{ .Values.rewriteLabels.component }}
-{{- else }}
+{{- else -}}
 app.kubernetes.io/component: {{ .Chart.Name }}
 {{- end }}
 {{- end }}
 {{- if or .Chart.AppVersion (hasKey .Values "image") }}
 {{- if (hasKey .Values "image") }}
 app.kubernetes.io/version: {{ hasKey .Values.image "useGlobal" | ternary .Values.global.image.tag .Values.image.tag | quote }}
-{{- else }}
+{{- else -}}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 {{- end }}
