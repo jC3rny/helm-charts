@@ -44,7 +44,7 @@ entries:
     version: 0.4.0-v1.5.4
   common-tpls:
   - apiVersion: v2
-    created: "2022-03-31T20:58:21.069607614Z"
+    created: "2022-03-31T21:02:35.089371497Z"
     description: A library Helm chart for common usage
     digest: bed742b7614d1cc3e77540c87c070dd3f96645f646c81a015c33589824601fec
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -57,7 +57,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.4.tgz
     version: 0.5.4
   - apiVersion: v2
-    created: "2022-03-31T20:58:21.068941979Z"
+    created: "2022-03-31T21:02:35.089027393Z"
     description: A library Helm chart for common usage
     digest: 3e680ef697bc8d73f20256f902650c20d1c35b6b7ab7b31acdcb7bf7486b6125
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -70,7 +70,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.4-r02.tgz
     version: 0.5.4-r02
   - apiVersion: v2
-    created: "2022-03-31T20:58:21.068438353Z"
+    created: "2022-03-31T21:02:35.088666589Z"
     description: A library Helm chart for common usage
     digest: 8b41c0026fbbb91edb8ff9600faf600d70a9c3cdc2181c4a836bc27cacc502c5
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -83,7 +83,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.4-r01.tgz
     version: 0.5.4-r01
   - apiVersion: v2
-    created: "2022-03-31T20:58:21.067953027Z"
+    created: "2022-03-31T21:02:35.088276884Z"
     description: A Library Helm chart for Kubernetes
     digest: 15f222b661a47a030450765eccd629ead6de137ee2ab9e4c5b7d31092ce4b926
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -138,7 +138,24 @@ entries:
     version: 1.0.3-16.4.5
   web-app:
   - apiVersion: v2
-    created: "2022-03-31T20:58:21.080621794Z"
+    created: "2022-03-31T21:02:35.096900286Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.4
+    description: A multi purpose Helm chart for Kubernetes
+    digest: d93ae96e85551ec371894f46e2c7d889b91c78815a766211cc7c296da3f30b60
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/web-app
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: web-app
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.1.tgz
+    version: 2.5.1
+  - apiVersion: v2
+    created: "2022-03-31T21:02:35.095333368Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -155,7 +172,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.1-r02.tgz
     version: 2.5.1-r02
   - apiVersion: v2
-    created: "2022-03-31T20:58:21.07580544Z"
+    created: "2022-03-31T21:02:35.093787849Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -172,7 +189,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.1-r01.tgz
     version: 2.5.1-r01
   - apiVersion: v2
-    created: "2022-03-31T20:58:21.07276538Z"
+    created: "2022-03-31T21:02:35.092055329Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -188,4 +205,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-03-31T20:58:21.066148933Z"
+generated: "2022-03-31T21:02:35.087561676Z"
