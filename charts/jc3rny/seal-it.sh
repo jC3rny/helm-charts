@@ -3,7 +3,7 @@
 # . seal-it.sh -c ".stringData" -f ./values-test.yaml --verbose
 # . seal-it.sh -c ".repositories" -f ./values-test.yaml -m name -E "date +'repo-%y%m%d-%H%M%S-%3N'" --verbose
 # . seal-it.sh -v "TEST" -u "https://sealed-secrets.example.local/v1/cert.pem" --verbose
-# . seal-it.sh -R 25 -n example -u "https://sealed-secrets.k8s.dev.pha.cdis.cz/v1/cert.pem" --verbose
+# . seal-it.sh -R 25 -n example -u "https://sealed-secrets.example.local/v1/cert.pem" --verbose
 # . seal-it.sh -D -c ".imagePullSecret" -k "sealedDockerConfig" -f ./values-test.yaml -u "https://sealed-secrets.example.local/v1/cert.pem" --verbose
 
 
