@@ -1,0 +1,502 @@
+## Default values for web-app.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+global:
+  ## Provide ability to rollout deployment.
+  rollout: no
+  image: {}
+  imagePullSecret: {}
+  envFrom:
+    annotations: {}
+    configMap: {}
+      # APP_ENV: global-dev
+      # DB_DRIVER: mariadb-10.3.23
+    secret: {}
+      # APP_SECRET: "d3b5cb6479ef3959d1d3fb3ef460c87a"
+    sealedSecret: {}
+      # DB_PASSWORD: "AgCo20XiExXxAvxIOqjnhi1D"
+      # REDIS_PASSWORD: "AgBk6QZPCtElpkDCun1b1F1QjvMKb9mOWqbSqDrv8Evfi+AL+JDfdVA2zgb"
+
+
+statelessApp: yes
+statefulApp: no
+
+replicaCount: 1
+
+revisionHistoryLimit: 3
+
+image:
+  useGlobal: no
+  repository: ""
+  pullPolicy: IfNotPresent
+  ## Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecret:
+  useGlobal: no
+  createGlobal: no
+  annotations: {}
+  url: ""
+  username: ""
+  password: ""
+  # sealedDockerConfig: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+namespaceOverride: ""
+
+kubeVersionOverride: ""
+
+serviceAccount:
+  ## Specifies whether a service account should be created
+  create: false
+  ## Annotations to add to the service account
+  annotations: {}
+  ## The name of the service account to use.
+  ## If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+rewriteLabels: {}
+  ## Overwrites the value of the recommended labels starting with app.kubernetes.io/*
+  # environment: "staging"
+  # instance: ""
+  # component: ""
+  # partOf: ""
+
+customLabels: {}
+  ## This will replace the recommended labels with the following.
+  ## All these labels are also used in the selector.
+  # selector:
+  #   app: web-app
+  #   instance: web-app-api-dev
+  # others:
+  #   component: api
+  #   version: "1.1.0"
+  #   environment: dev
+  #   tier: frontend
+
+annotations: {}
+
+podLabels: {}
+
+podAnnotations: {}
+
+podManagementPolicy: ""
+
+strategy: {}
+  # type: RollingUpdate
+  # rollingUpdate:
+  #   maxSurge: 1
+  #   maxUnavailable: 0
+
+dnsPolicy: ClusterFirst
+
+dnsConfig: {}
+
+hostAliases: []
+
+hostNetwork: no
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+initContainers: []
+  # - name: init-storage
+  #   image: busybox
+  #   imagePullPolicy: IfNotPresent
+  #   command: [ sh, -c, 'mkdir -p /storage/logs; chown 1000:0 -R /storage' ]
+  #   securityContext:
+  #     privileged: true
+  #   volumeMounts:
+  #     - name: storage
+  #       mountPath: /storage
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+configMap: []
+  # - name: sample-prometheus-cm
+  #   annotations: {}
+  #   data: |
+  #     prometheus.yml: |-
+  #       rule_files:
+  #         - "/prometheus/rules/*.yml"
+  #       global:
+  #         scrape_interval: 10s
+secret: []
+  # Default type is Opaque
+  # - name: common-secret
+  #   annotations: {}
+  #   type: Opaque
+  #   stringData: |
+  #     namespace: a3ViZS1zeZW0=
+  #     token: ZXlKaGJHY2lV
+sealedSecret: []
+  # Default type is Opaque
+  # - name: standalone-sealed-secret
+  #   annotations: {}
+  #   type: Opaque
+  #   encryptedData: |
+  #     namespace: a3ViZS1zeZW0=
+  #     token: ZXlKaGJHY2lV
+
+env: []
+  # - name: USERNAME
+  #   value: "admin"
+  # - name: SECRET_TOKEN
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: common-secret
+  #       key: token
+  # - name: POD_NAMESPACE
+  #   valueFrom:
+  #     fieldRef:
+  #       fieldPath: metadata.namespace
+
+envFrom:
+  useGlobal: no
+  createGlobal: no
+  annotations: {}
+  configMap: {}
+    # APP_ENV: global-dev
+    # DB_DRIVER: mariadb-10.3.23
+  secret: {}
+    # APP_SECRET: "d3b5cb6479ef3959d1d3fb3ef460c87a"
+  sealedSecret: {}
+    # DB_PASSWORD: "AgCo20XiExXxAvxIOqjnhi1D"
+    # REDIS_PASSWORD: "AgBk6QZPCtElpkDCun1b1F1QjvMKb9mOWqbSqDrv8Evfi+AL+JDfdVA2zgb"
+
+command: []
+  # - "/bin/sh"
+
+args: []
+  # - "-c"
+  # - "bundle"
+  # - "exec"
+  # - "rake"
+  # - "db:migrate"
+
+additionalPorts: []
+  # - name: liveness
+  #   port: 1234
+  #   protocol: TCP
+  # - name: readiness
+  #   port: 1243
+  #   protocol: TCP
+
+service:
+  create: yes
+  type: ClusterIP
+  # service types: ClusterIP, LoadBalancer, ExternalName
+  name: ""
+  annotations: {}
+  headless: no
+  # clusterIP: 
+  # loadBalancerIP: 
+  # externalName: 
+  # externalTrafficPolicy: 
+  # subsets: []
+  portName: http
+  portNumber: 8080
+  # containerPort: 3000
+  # protocol: TCP
+  additionalPorts: []
+    ## Add additional ports published in Pod (main container or in additionalContainers).
+    # - name:
+    #   port:
+    #   containerPort:
+    #   protocol: 
+
+minReadySeconds: 
+
+livenessProbe: {}
+  # httpGet:
+  #   path: /
+  #   port: liveness
+
+readinessProbe: {}
+  # httpGet:
+  #   path: /
+  #   port: readiness
+
+additionalContainers: []
+  ## Define additional containers (sidecar, adapter, ambassador, etc.)
+  # - name: zabbix-agent2
+  #   image: zabbix/zabbix-agent2:alpine-5.2-latest
+  #   imagePullPolicy: Always
+  #   securityContext: { privileged: true }
+  #   env:
+  #     - name: ZBX_SERVER_HOST
+  #       value: "zabbix-server"
+  #     - name: ZBX_PASSIVE_ALLOW
+  #       value: "true"
+  #     - name: ZBX_STARTAGENTS
+  #       value: "3"
+  #     - name: ZBX_TIMEOUT
+  #       value: "10"
+  #   ports: [ { name: zabbix-agent, containerPort: 10050 } ]
+  #   resources: { requests: { cpu: 100m, memory: 54Mi }, limits: { cpu: 100m, memory: 54Mi } }
+
+resources: {}
+  ## If you do want to specify resources, uncomment the following
+  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+terminationGracePeriodSeconds: 180
+
+volumes: []
+  # - name: prometheus-config
+  #   mountOptions:
+  #     mountPath: /prometheus/prometheus.yml
+  #     subPath: prometheus.yml
+  #   volumeOptions:
+  #     configMap:
+  #       name: sample-prometheus-cm
+
+persistentVolumes: []
+  ## accessModes, storageClassName and selector are optional
+  # - name: storage
+  #   accessModes: [ "ReadWriteOnce" ]
+  #   storageClassName: ""
+  #   size: 2Gi
+  #   mountOptions:
+  #     mountPath: /storage
+  #   selector:
+  #     matchLabels:
+  #       release: "stable"
+  #     matchExpressions:
+  #       - { key: environment, operator: In, values: [ "dev" ] }
+
+ingress:
+  enabled: no
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+        ## Create ingress as a part of global-config chart. Then make two deployments (separate charts) 
+        ## without ingress, but with specified serviceName (use case: hello-app:1.0, hello-app:2.0).
+        # - path: /v1
+        #   serviceName: "name-of-service-for-path-v1"
+        #   servicePort: 8081
+        # - path: /v2
+        #   serviceName: "name-of-service-for-path-v2"
+        #   servicePort: 8082
+  tls: []
+    ## The secretName is optional
+    # - hosts:
+    #     - chart-example.local
+    #   secretName: chart-example-tls
+    #   certificate: |
+    #     -----BEGIN CERTIFICATE-----
+    #   key: |
+    #     -----BEGIN RSA PRIVATE KEY-----
+
+
+pdb:
+  ## Values for minAvailable or maxUnavailable can be expressed as integers or as a percentage.
+  minAvailable: 50%
+  # maxUnavailable: 50%
+
+
+autoscaling:
+  enabled: no
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+
+rbac:
+  isClusterRole: no
+  roleName: ""
+  apiGroup: ""
+  rules: []
+
+
+job:
+  nameOverride: ""
+
+  annotations: {}
+  
+  backoffLimit: 6
+  
+  ttlSecondsAfterFinished: 0
+
+  restartPolicy: ""
+
+  image:
+    useGlobal: no
+    repository: ""
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  imagePullSecret:
+    useGlobal: no
+    url: ""
+    username: ""
+    password: ""
+    # sealedDockerConfig: ""
+  
+  env: []
+    ## Same configuration as above.
+  
+  envFrom:
+    ## Same configuration as above.
+    useGlobal: no
+    annotations: {}
+    configMap: {}
+    secret: {}
+    sealedSecret: {}
+  
+  configMap: []
+    ## Same configuration as above.
+
+  secret: []
+    ## Same configuration as above.
+
+  sealedSecret: []
+    ## Same configuration as above.
+
+  command: []
+    ## Same configuration as above.
+  
+  args: []
+    ## Same configuration as above.
+  
+  volumes: []
+    ## Same configuration as above.
+
+
+cronJob:
+  nameOverride: ""
+
+  annotations: {}
+
+  schedule: ""
+
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 0
+
+  restartPolicy: ""
+
+  image:
+    useGlobal: no
+    repository: ""
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  imagePullSecret:
+    useGlobal: no
+    url: ""
+    username: ""
+    password: ""
+    # sealedDockerConfig: ""
+  
+  env: []
+    ## Same configuration as above.
+  
+  envFrom:
+    ## Same configuration as above.
+    useGlobal: no
+    annotations: {}
+    configMap: {}
+    secret: {}
+    sealedSecret: {}
+  
+  configMap: []
+    ## Same configuration as above.
+
+  secret: []
+    ## Same configuration as above.
+
+  sealedSecret: []
+    ## Same configuration as above.
+
+  command: []
+    ## Same configuration as above.
+  
+  args: []
+    ## Same configuration as above.
+  
+  volumes: []
+    ## Same configuration as above.
+
+
+pod:
+  nameOverride: ""
+
+  annotations: {}
+
+  dnsPolicy: ClusterFirst
+
+  dnsConfig: {}
+
+  hostNetwork: no
+
+  restartPolicy: "Always"
+
+  image:
+    useGlobal: no
+    repository: ""
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  imagePullSecret:
+    useGlobal: no
+    annotations: {}
+    url: ""
+    username: ""
+    password: ""
+    # sealedDockerConfig: ""
+  
+  env: []
+    ## Same configuration as above.
+  
+  envFrom:
+    ## Same configuration as above.
+    useGlobal: no
+    annotations: {}
+    configMap: {}
+    secret: {}
+    sealedSecret: {}
+  
+  configMap: []
+    ## Same configuration as above.
+
+  secret: []
+    ## Same configuration as above.
+
+  sealedSecret: []
+    ## Same configuration as above.
+
+  command: []
+    ## Same configuration as above.
+  
+  args: []
+    ## Same configuration as above.
+  
+  volumes: []
+    ## Same configuration as above.
