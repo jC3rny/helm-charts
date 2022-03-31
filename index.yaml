@@ -151,7 +151,7 @@ entries:
     version: 0.4.0-v1.5.4
   common-tpls:
   - apiVersion: v2
-    created: "2022-03-31T09:57:52.213148759Z"
+    created: "2022-03-31T10:05:44.707039689Z"
     description: A Library Helm chart for Kubernetes
     digest: 0922060f07d8f0fe88d27875211a42025f9c03d81921b3a385659c115a65df1a
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -164,7 +164,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-1.0.3.tgz
     version: 1.0.3
   - apiVersion: v2
-    created: "2022-03-31T09:57:52.212868056Z"
+    created: "2022-03-31T10:05:44.706703984Z"
     description: A Library Helm chart for Kubernetes
     digest: cc97876de4ad81f0399c608ed8c3498e962afb52868484ac87903bf2fea25d88
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -177,7 +177,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-1.0.2.tgz
     version: 1.0.2
   - apiVersion: v2
-    created: "2022-03-31T09:57:52.212586452Z"
+    created: "2022-03-31T10:05:44.70641098Z"
     description: A Library Helm chart for Kubernetes
     digest: 4ee570a053a905dfd83c94d0488ceaac2d4d96ce5bc1fe72b387679a20976d01
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -190,7 +190,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-1.0.1.tgz
     version: 1.0.1
   - apiVersion: v2
-    created: "2022-03-31T09:57:52.212296548Z"
+    created: "2022-03-31T10:05:44.706087476Z"
     description: A library Helm chart for common usage
     digest: 55d78fecec641e2c29b3cbb79a12e771626270fadfd2f5ff08dede8dde2dc12d
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -203,7 +203,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.6.2.tgz
     version: 0.6.2
   - apiVersion: v2
-    created: "2022-03-31T09:57:52.211718641Z"
+    created: "2022-03-31T10:05:44.705397867Z"
     description: A Library Helm chart for Kubernetes
     digest: 441b5293f3bf496f69d489e458d8c300eb4bc100f10d8b13c0ccea2d27e25df0
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -216,7 +216,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.6.1.tgz
     version: 0.6.1
   - apiVersion: v2
-    created: "2022-03-31T09:57:52.211386836Z"
+    created: "2022-03-31T10:05:44.705033162Z"
     description: A Library Helm chart for Kubernetes
     digest: 694f0ff68493a5ee3cad32bcd62f7dbee9b4cc4e6e5a498d9de7c4c04d27ab27
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -229,7 +229,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.4.tgz
     version: 0.5.4
   - apiVersion: v2
-    created: "2022-03-31T09:57:52.211031832Z"
+    created: "2022-03-31T10:05:44.704674257Z"
     description: A Library Helm chart for Kubernetes
     digest: 15f222b661a47a030450765eccd629ead6de137ee2ab9e4c5b7d31092ce4b926
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -407,7 +407,24 @@ entries:
     version: 1.0.0-15.7.1
   web-app:
   - apiVersion: v2
-    created: "2022-03-31T09:57:52.214789481Z"
+    created: "2022-03-31T10:05:44.710259732Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.x.x
+    description: A Helm chart for Kubernetes
+    digest: 27803081323244f149aa90071f719e8da97b5851368ec0c9184a45ee236fc5ea
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/web-app
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: web-app
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.1.tgz
+    version: 2.5.1
+  - apiVersion: v2
+    created: "2022-03-31T10:05:44.708701111Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -423,4 +440,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-03-31T09:57:52.210386023Z"
+generated: "2022-03-31T10:05:44.704027749Z"
