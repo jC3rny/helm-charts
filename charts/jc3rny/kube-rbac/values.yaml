@@ -24,7 +24,7 @@ keyVault:
   resourceGroup: ""
   location: "West Europe"
   vaultName: ""
-  secretsOfficers: []
+  secretsOfficer: []
     ## Users who will be assigned to resources (in .groups.example-group.users) without an email address (example-username)
 
 

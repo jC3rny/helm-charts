@@ -94,7 +94,7 @@ for USERNAME in $(yq e '."'${3:-kube-rbac}'".groups.*.users' ${2} | awk -F ' ' '
                             --scope "${KEYVAULT_SCOPE}" &> /dev/null
                     fi
                 else
-                    for KEYVAULT_SECRETS_OFFICER in $(yq e '."'${3:-kube-rbac}'".keyVault.secretsOfficers' ${2} | awk '{ gsub(/[][]/,""); gsub(/,/,""); print}'); do
+                    for KEYVAULT_SECRETS_OFFICER in $(yq e '."'${3:-kube-rbac}'".keyVault.secretsOfficer' ${2} | awk '{ gsub(/[][]/,""); gsub(/,/,""); print}'); do
                         if [ ! -z "${KEYVAULT_SECRETS_OFFICER}" ]; then
                             KEYVAULT_SECRETS_OFFICER_ID="$(az ad user list --filter "mail eq '"${KEYVAULT_SECRETS_OFFICER}"'" | jq -r '.[].objectId')"
                             
