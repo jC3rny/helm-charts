@@ -1,7 +1,7 @@
 apiVersion: v2
 name: kube-rbac
 description: A Helm chart for Role-based access control (RBAC) management
-home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/web-app
+home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/kube-rbac
 
 maintainers:
   - name: jC3rny
