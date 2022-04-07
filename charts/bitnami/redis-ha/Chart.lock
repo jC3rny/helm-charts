@@ -7,6 +7,6 @@ dependencies:
   version: 16.4.5
 - name: web-app
   repository: https://charts.c3rny.ninja
-  version: 2.5.1
-digest: sha256:432ec05e631941c4fe8f4e5b9cccf76b01330da5da8cd8349e91c505e64e4df4
-generated: "2022-03-31T23:15:57.500340518+02:00"
+  version: 2.5.2
+digest: sha256:17a1cb232b1eae55c4d1b2c21dd383bfa793b76268cd86ca667b19ab16d1c748
+generated: "2022-04-07T13:07:37.774310056+02:00"
