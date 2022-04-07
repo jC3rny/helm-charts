@@ -3,7 +3,30 @@ entries:
   cassandra:
   - apiVersion: v2
     appVersion: 4.0.3
-    created: "2022-03-31T21:54:02.036574371Z"
+    created: "2022-04-07T08:43:56.525413603Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.5
+    - name: cassandra
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.1.6
+    description: Apache Cassandra is an open source distributed database management
+      system designed to handle large amounts of data across many servers, providing
+      high availability with no single point of failure.
+    digest: d2415be0fd2f94ff76dc83747d95bbf2758e68adf8e9aaab6d67e3817f5a1f48
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cassandra
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/cassandra-0.3.3.tgz
+    version: 0.3.3
+  - apiVersion: v2
+    appVersion: 4.0.3
+    created: "2022-04-07T08:43:56.521318475Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -44,7 +67,7 @@ entries:
     version: 0.4.0-v1.5.4
   common-tpls:
   - apiVersion: v2
-    created: "2022-04-07T08:17:39.322449883Z"
+    created: "2022-04-07T08:43:56.795975325Z"
     description: A library Helm chart for common usage
     digest: f291c2a83551031d67c88c3be5d37fc3b4c92b3e16cc4aed4568b897bb2798c7
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -57,7 +80,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.5.tgz
     version: 0.5.5
   - apiVersion: v2
-    created: "2022-04-07T08:17:39.32195793Z"
+    created: "2022-04-07T08:43:56.795436722Z"
     description: A Library Helm chart for Kubernetes
     digest: 15f222b661a47a030450765eccd629ead6de137ee2ab9e4c5b7d31092ce4b926
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -71,7 +94,7 @@ entries:
     version: 0.5.3
   kube-rbac:
   - apiVersion: v2
-    created: "2022-04-07T08:17:39.322867583Z"
+    created: "2022-04-07T08:43:56.797486436Z"
     description: A Helm chart for Role-based access control (RBAC) management
     digest: 3c40e3cd5a40a90a3fd213d0b3e24a0c8b8463f7ee3bf09b55d456365cbb45af
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/kube-rbac
@@ -103,7 +126,7 @@ entries:
   redis-ha:
   - apiVersion: v2
     appVersion: 6.2.6
-    created: "2022-03-31T21:54:02.049866195Z"
+    created: "2022-04-07T08:43:56.537611385Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -130,7 +153,24 @@ entries:
     version: 0.4.7
   web-app:
   - apiVersion: v2
-    created: "2022-04-07T08:17:39.324496253Z"
+    created: "2022-04-07T08:43:56.80109126Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.5
+    description: A multi purpose Helm chart for Kubernetes
+    digest: b3d93b3698ce7fa9b565dc99759483cfa4dd477f9908d5939072949126490f43
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/web-app
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: web-app
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.2.tgz
+    version: 2.5.2
+  - apiVersion: v2
+    created: "2022-04-07T08:43:56.799286248Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -146,4 +186,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-04-07T08:17:39.320548418Z"
+generated: "2022-04-07T08:43:56.794567816Z"
