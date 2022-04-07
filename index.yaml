@@ -1,5 +1,29 @@
 apiVersion: v1
 entries:
+  cassandra:
+  - apiVersion: v2
+    appVersion: 4.0.3
+    created: "2022-04-07T09:57:31.620633224Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.4
+    - name: cassandra
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.1.6
+    description: Apache Cassandra is an open source distributed database management
+      system designed to handle large amounts of data across many servers, providing
+      high availability with no single point of failure.
+    digest: 791e114faad6de97a419507c803158c71b0dad799d142a66e12f6292e2bf0e59
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cassandra
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/cassandra-0.3.2-9.1.6.tgz
+    version: 0.3.2-9.1.6
   cert-manager:
   - apiVersion: v2
     created: "2022-03-18T09:38:23.149652666Z"
@@ -76,6 +100,34 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/rancher/local-path-provisioner-0.0.22-dev.tgz
     version: 0.0.22-dev
+  redis-ha:
+  - apiVersion: v2
+    appVersion: 6.2.6
+    created: "2022-04-07T09:57:31.63054932Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.4
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.4.5
+    - alias: proxy
+      name: web-app
+      repository: https://charts.c3rny.ninja
+      version: 2.5.1
+    description: Redis(TM) is an open source, advanced key-value store. It is often
+      referred to as a data structure server since keys can contain strings, hashes,
+      lists, sets and sorted sets.
+    digest: 0156295e36b727818e03547d096efd32a8d00c3261a7b48eef23ddd9ae556623
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/redis-ha
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: redis-ha
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/redis-ha-0.4.7-16.4.5.tgz
+    version: 0.4.7-16.4.5
   web-app:
   - apiVersion: v2
     created: "2022-04-07T09:46:33.360631627Z"
@@ -111,4 +163,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-04-07T09:46:33.354837572Z"
+generated: "2022-04-07T09:57:31.615717426Z"
