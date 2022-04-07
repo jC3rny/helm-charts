@@ -3,7 +3,7 @@ entries:
   cassandra:
   - apiVersion: v2
     appVersion: 4.0.3
-    created: "2022-04-07T09:57:31.620633224Z"
+    created: "2022-04-07T11:11:48.815008968Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -103,7 +103,34 @@ entries:
   redis-ha:
   - apiVersion: v2
     appVersion: 6.2.6
-    created: "2022-04-07T09:57:31.63054932Z"
+    created: "2022-04-07T11:11:48.831960848Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.4
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.4.5
+    - alias: proxy
+      name: web-app
+      repository: https://charts.c3rny.ninja
+      version: 2.5.2
+    description: Redis(TM) is an open source, advanced key-value store. It is often
+      referred to as a data structure server since keys can contain strings, hashes,
+      lists, sets and sorted sets.
+    digest: 1340eeebd4360a22ee712c63cb6743c895d2a5345983702a4f31763c572d9f6a
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/redis-ha
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: redis-ha
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/redis-ha-0.4.8-16.4.5.tgz
+    version: 0.4.8-16.4.5
+  - apiVersion: v2
+    appVersion: 6.2.6
+    created: "2022-04-07T11:11:48.823579258Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -180,4 +207,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-04-07T11:08:22.136960932Z"
+generated: "2022-04-07T11:11:48.811380373Z"
