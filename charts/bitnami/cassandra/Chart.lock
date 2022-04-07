@@ -1,9 +1,9 @@
 dependencies:
 - name: common-tpls
   repository: https://charts.c3rny.ninja
-  version: 0.5.5
+  version: 0.5.4
 - name: cassandra
   repository: https://charts.bitnami.com/bitnami
   version: 9.1.6
-digest: sha256:09676aa2ad884be2224926f50bf71218fe14e74295837ba2bb8c63b66e73c8ca
-generated: "2022-04-07T10:22:47.520114455+02:00"
+digest: sha256:74ef6b175e752bfe0961463193ea7a5a5288c5401d3235abb6d86a26c1ed3880
+generated: "2022-04-07T11:50:49.979670416+02:00"

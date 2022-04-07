@@ -7,14 +7,14 @@ maintainers:
     email: iam@c3rny.ninja
 dependencies:
   - name: common-tpls
-    version: 0.5.5
+    version: 0.5.4
     repository: https://charts.c3rny.ninja
   - name: redis
     version: 16.4.5
     repository: https://charts.bitnami.com/bitnami
   - alias: proxy
     name: web-app
-    version: 2.5.2
+    version: 2.5.1
     repository: https://charts.c3rny.ninja
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -28,7 +28,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.4.8
+version: 0.4.7
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
