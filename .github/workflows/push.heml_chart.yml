@@ -96,7 +96,7 @@ jobs:
                   if [ "$(yq eval '.dependencies' ${CHART_FILE})" != "null" ]; then
                       CHART_DEPENDENCY_NAME=$(jq -r '.chart[] | select(.name == "'${CHART_NAME}'").remote.rootPath' "${{ env.SYNC_SETTINGS_RELATIVE_PATH }}" | awk -F '/' '{ print $NF }')
 
-                      if [ ! -z "${CHART_DEPENDENCY_NAME}"]; then
+                      if [ ! -z "${CHART_DEPENDENCY_NAME}" ]; then
                           CHART_DEPENDENCY_VERSION=$(yq eval '.dependencies.[] | select(.name == "'${CHART_DEPENDENCY_NAME}'").version' ${CHART_FILE})
 
                           yq eval -i '.version = .version + "-'${CHART_DEPENDENCY_VERSION}'"' ${CHART_FILE}
