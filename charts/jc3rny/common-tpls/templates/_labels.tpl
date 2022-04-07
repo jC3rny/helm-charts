@@ -2,27 +2,18 @@
 Common labels
 */}}
 {{- define "common.labels" -}}
-{{ include "common.basicLabels" . }}
+{{ include "common.markerLabels" . }}
 {{ include "common.appLabels" . }}
 {{- end }}
 
 
 {{/*
-Basic labels
+Marker labels
 */}}
-{{- define "common.basicLabels" -}}
+{{- define "common.markerLabels" -}}
 helm.sh/chart: {{ include "common.chart" . }}
 {{ include "common.selectorLabels" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
-
-
-{{/*
-Pod labels
-*/}}
-{{- define "common.podLabels" -}}
-{{ include "common.selectorLabels" . }}
-{{ include "common.appLabels" . }}
 {{- end }}
 
 
