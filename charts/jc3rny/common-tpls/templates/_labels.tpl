@@ -56,8 +56,8 @@ app.kubernetes.io/part-of: {{ .Values.rewriteLabels.partOf }}
 app.kubernetes.io/component: {{ not (contains $component .Chart.Name) | ternary .Chart.Name $component }}
 {{- end }}
 {{- if or .Chart.AppVersion (hasKey .Values "image") }}
-{{- if (hasKey .Values "image") }}
-app.kubernetes.io/version: {{ hasKey .Values.image "useGlobal" | ternary $.Values.global.image.tag .Values.image.tag | quote }}
+{{- if hasKey .Values "image" }}
+app.kubernetes.io/version: {{ .Values.image.useGlobal | ternary .Values.global.image.tag .Values.image.tag | quote }}
 {{- else }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
