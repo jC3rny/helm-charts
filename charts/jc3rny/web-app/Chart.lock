@@ -1,6 +1,6 @@
 dependencies:
 - name: common-tpls
   repository: https://charts.c3rny.ninja
-  version: 0.5.5-alpha
-digest: sha256:4e83f03533327b7629c21cb8393ea4674060291bc2874ec51868b9634d299430
-generated: "2022-04-15T00:42:34.267095463+02:00"
+  version: 0.5.4
+digest: sha256:0f0f2368c84b0739a19f90ffb0414488d6c9585bb8e313a23745b7ef5a793641
+generated: "2022-04-07T11:43:52.519103549+02:00"
