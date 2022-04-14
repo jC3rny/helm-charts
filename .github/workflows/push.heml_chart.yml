@@ -80,7 +80,7 @@ jobs:
 
       - name: Publish packages
         run: |
-          cd ${{ env.SOURCE_REPO_CLONE_PATH }}; pwd
+          echo; cd ${{ env.SOURCE_REPO_CLONE_PATH }}; pwd
           echo
 
           if [ "${GITHUB_REF_NAME}" != "${{ env.SOURCE_REPO_DEFAULT_BRANCH }}" ]; then
@@ -139,7 +139,7 @@ jobs:
               fi
           done
 
-          cd ${GITHUB_WORKSPACE}; pwd
+          echo; cd ${GITHUB_WORKSPACE}; pwd
           echo
 
           if [ ! -z "$(git status -s)" ]; then
