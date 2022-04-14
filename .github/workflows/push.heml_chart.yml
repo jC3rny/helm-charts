@@ -142,7 +142,7 @@ jobs:
           cd ${GITHUB_WORKSPACE}; pwd
           echo
 
-          if [ $(git status -s) ]; then
+          if [ ! -z "$(git status -s)" ]; then
               echo ":: git config"
 
               git remote set-url origin "https://x-access-token:${{ secrets.PAT_PUBLIC_MGR }}@github.com/${GITHUB_REPOSITORY}"
