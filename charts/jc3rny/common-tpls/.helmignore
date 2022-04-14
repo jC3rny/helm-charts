@@ -25,5 +25,3 @@
 .idea/
 *.tmproj
 .vscode/
-# ignore TMP folder
-**/tmp/**
