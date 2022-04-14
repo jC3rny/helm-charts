@@ -1,4 +1,5 @@
-2.5.2 [ latest ]
+2.5.3 [ latest ]
+  - fix common.appLabels template
   - fix condition for PodDisruptionBudget
 
 
