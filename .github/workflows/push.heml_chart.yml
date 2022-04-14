@@ -38,7 +38,7 @@ jobs:
         run: |
           mkdir -p ${{ env.SOURCE_REPO_CLONE_PATH }}
           
-          git clone ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
+          git clone --branch "${GITHUB_REF_NAME}" ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
 
           echo
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}
@@ -57,25 +57,21 @@ jobs:
 
 
       - name: Set up Helm
-        # if: env.COMMIT_MESSAGE != ''
         uses: azure/setup-helm@v1
       
       
       - name: Set up YQ
-        # if: env.COMMIT_MESSAGE != ''
         uses: chrisdickinson/setup-yq@latest
         with:
           yq-version: v4.16.2
       
 
       - name: Set up ENV
-        # if: env.COMMIT_MESSAGE != ''
         run: |
           echo HELM_REPO_NAME=$(basename ${{ env.HELM_REPO_URL }} | sed -r 's|charts\.||') >> $GITHUB_ENV
 
 
       - name: Set up Helm repository
-        # if: env.COMMIT_MESSAGE != ''
         run: |
           helm repo add ${{ env.HELM_REPO_NAME }} ${{ env.HELM_REPO_URL }}
           echo
@@ -83,13 +79,17 @@ jobs:
       
 
       - name: Publish packages
-        # if: env.COMMIT_MESSAGE != ''
         run: |
-          cd ${{ env.SOURCE_REPO_CLONE_PATH }}; pwd
+          echo; cd ${{ env.SOURCE_REPO_CLONE_PATH }}; pwd
           echo
 
-          # find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}) \( -name "Chart.yaml" -or -name "Chart.lock" \)
-          for CHART_FILE in $(find $(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }}) -name "Chart.yaml" 2> /dev/null | uniq); do
+          if [ "${GITHUB_REF_NAME}" != "${{ env.SOURCE_REPO_DEFAULT_BRANCH }}" ]; then
+              CHART_CHANGED_FILES="$(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }} | cut --delimiter '/' --fields -3 | sort -u)"
+          else
+              CHART_CHANGED_FILES="$(git diff-tree --no-commit-id --name-only -r ${GITHUB_SHA} -- ${{ env.SOURCE_REPO_ROOT_PATH }} | sort -u)"
+          fi
+          
+          for CHART_FILE in $(find ${CHART_CHANGED_FILES} -name "Chart.yaml" 2> /dev/null); do
               if [ -d "$(dirname ${CHART_FILE})" ]; then
                   CHART_NAME="$(yq eval '.name' ${CHART_FILE})"
 
@@ -139,17 +139,20 @@ jobs:
               fi
           done
 
-          if [ -z "${HELM_REPO_CHART_VERSION}" ] || [ ! -z "$(grep -oE '\-alpha$' <<< ${HELM_REPO_CHART_VERSION})" ]; then
-              echo; echo ":: git config"
-              cd ${GITHUB_WORKSPACE}
-              pwd; echo
+          echo; cd ${GITHUB_WORKSPACE}; pwd
+          echo
+
+          if [ ! -z "$(git status -s)" ]; then
+              echo ":: git config"
 
               git remote set-url origin "https://x-access-token:${{ secrets.PAT_PUBLIC_MGR }}@github.com/${GITHUB_REPOSITORY}"
               
               git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
               git config --local user.name "${GITHUB_ACTOR}"
+
+              git config -l
               
-              echo ":: git add & commit"
+              echo; echo ":: git add & commit"
               git add .
               git commit -am "Push helm chart into repository $(date +'%Y-%m-%d %T')" --allow-empty
 
