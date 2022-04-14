@@ -38,7 +38,7 @@ jobs:
         run: |
           mkdir -p ${{ env.SOURCE_REPO_CLONE_PATH }}
           
-          git clone ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
+          git clone --branch "${GITHUB_REF_NAME}" ${{ env.SOURCE_REPO_URL }} ${{ env.SOURCE_REPO_CLONE_PATH }}
 
           echo
           cd ${{ env.SOURCE_REPO_CLONE_PATH }}
