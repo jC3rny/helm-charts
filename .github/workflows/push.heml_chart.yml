@@ -149,8 +149,10 @@ jobs:
               
               git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
               git config --local user.name "${GITHUB_ACTOR}"
+
+              git config -l
               
-              echo ":: git add & commit"
+              echo; echo ":: git add & commit"
               git add .
               git commit -am "Push helm chart into repository $(date +'%Y-%m-%d %T')" --allow-empty
 
