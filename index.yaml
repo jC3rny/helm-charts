@@ -44,7 +44,7 @@ entries:
     version: 0.4.0-v1.5.4
   common-tpls:
   - apiVersion: v2
-    created: "2022-04-14T22:40:55.010693323Z"
+    created: "2022-04-14T22:45:07.013451675Z"
     description: A library Helm chart for common usage
     digest: ce440526f9eb5c0c8c9c5ccdb87f485d02350538ae464c2701e0972e4b6e9d4c
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -57,7 +57,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.5-alpha.tgz
     version: 0.5.5-alpha
   - apiVersion: v2
-    created: "2022-04-14T22:40:55.010387323Z"
+    created: "2022-04-14T22:45:07.012600663Z"
     description: A library Helm chart for common usage
     digest: bc51d14565493692ffe563b24b12fefe03520a6b78bd68e5895beb54f4cf8ccd
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -70,7 +70,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.4.tgz
     version: 0.5.4
   - apiVersion: v2
-    created: "2022-04-14T22:40:55.010098123Z"
+    created: "2022-04-14T22:45:07.012266658Z"
     description: A library Helm chart for common usage
     digest: 449c7a2e260be423ee1183182b24aa9a77c6752e953b81ff28157d4a1cb91175
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -83,7 +83,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.4-alpha.tgz
     version: 0.5.4-alpha
   - apiVersion: v2
-    created: "2022-04-14T22:40:55.009805123Z"
+    created: "2022-04-14T22:45:07.011778851Z"
     description: A Library Helm chart for Kubernetes
     digest: 15f222b661a47a030450765eccd629ead6de137ee2ab9e4c5b7d31092ce4b926
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -97,7 +97,7 @@ entries:
     version: 0.5.3
   kube-rbac:
   - apiVersion: v2
-    created: "2022-04-14T22:40:55.011134623Z"
+    created: "2022-04-14T22:45:07.013930181Z"
     description: A Helm chart for Role-based access control (RBAC) management
     digest: 3c40e3cd5a40a90a3fd213d0b3e24a0c8b8463f7ee3bf09b55d456365cbb45af
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/kube-rbac
@@ -183,7 +183,7 @@ entries:
     version: 0.4.7-16.4.5
   web-app:
   - apiVersion: v2
-    created: "2022-04-14T22:40:55.015682823Z"
+    created: "2022-04-14T22:45:07.022574602Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -200,7 +200,24 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.2.tgz
     version: 2.5.2
   - apiVersion: v2
-    created: "2022-04-14T22:40:55.014204123Z"
+    created: "2022-04-14T22:45:07.020743276Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.5-alpha
+    description: A multi purpose Helm chart for Kubernetes
+    digest: c8f8483d3ccacc5afbc7d733b253c81c4021cacecab21b07aad4d4408b354b8c
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/web-app
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: web-app
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.2-alpha.tgz
+    version: 2.5.2-alpha
+  - apiVersion: v2
+    created: "2022-04-14T22:45:07.017513731Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -217,7 +234,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.1.tgz
     version: 2.5.1
   - apiVersion: v2
-    created: "2022-04-14T22:40:55.012706323Z"
+    created: "2022-04-14T22:45:07.015736807Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -233,4 +250,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-04-14T22:40:55.009332023Z"
+generated: "2022-04-14T22:45:07.011176943Z"
