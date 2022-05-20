@@ -14,12 +14,7 @@
 *.swp
 *.bak
 *.tmp
-*.orig
 *~
-# Common script files
-*.sh
-# Common text files
-*.txt
 # Various IDEs
 .project
 .idea/

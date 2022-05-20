@@ -1,17 +1,17 @@
 apiVersion: v2
-name: cassandra
-description: Apache Cassandra is an open source distributed database management system designed to handle large amounts of data across many servers, providing high availability with no single point of failure.
-home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
+name: web-app
+description: A multi purpose Helm chart for Kubernetes
+home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/web-app
+
 maintainers:
   - name: jC3rny
     email: iam@c3rny.ninja
+
 dependencies:
   - name: common-tpls
     version: 0.5.5
     repository: https://charts.c3rny.ninja
-  - name: cassandra
-    version: 9.1.6
-    repository: https://charts.bitnami.com/bitnami
+
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
@@ -21,12 +21,14 @@ dependencies:
 # a dependency of application charts to inject those utilities and functions into the rendering
 # pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
+
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.3.3
+version: 2.5.3
+
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "4.0.3"
+appVersion: ""

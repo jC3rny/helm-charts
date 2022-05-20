@@ -145,7 +145,7 @@ function seal_value(){
     fi
 
     if [ ! -z "${SEALED_SECRET_URL}" ]; then
-        printf "${STDIN}" | kubeseal --cert "${SEALED_SECRET_URL}" \
+        echo -n "${STDIN}" | kubeseal --cert "${SEALED_SECRET_URL}" \
                                  --namespace ${NAMESPACE} \
                                  --scope namespace-wide \
                                  --raw \

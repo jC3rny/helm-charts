@@ -1,0 +1,209 @@
+{{- if .Values.statefulApp }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "common.fullname" . }}
+  namespace: {{ include "common.namespace" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- with .Values.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if semverCompare ">=1.22-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride) -}}
+  {{- with .Values.minReadySeconds }}
+  minReadySeconds: {{ . }}
+  {{- end }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "common.serviceName" . }}
+  podManagementPolicy: {{ default "OrderedReady" .Values.podManagementPolicy }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/sealedSecret: {{ include (print $.Template.BasePath "/sealedsecret.yaml") . | sha256sum }}
+        checksum/global-config: {{ toJson $.Values.global.envFrom.configMap | sha256sum }}
+        checksum/global-secret: {{ toJson $.Values.global.envFrom.secret | sha256sum }}
+        checksum/global-sealedSecret: {{ toJson $.Values.global.envFrom.sealedSecret | sha256sum }}
+        {{- if $.Values.global.rollout }}
+        checksum/global-rollout: {{ randAlphaNum 10 | quote }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "common.serviceAccountName" . }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+      {{- with .Values.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      hostNetwork: {{ .Values.hostNetwork }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.imagePullSecret.url $.Values.global.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ include "common.containerRegistryName" . }}
+      {{- end }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ include "common.fullname" . }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: {{ include "common.containerImage" . | quote }}
+          imagePullPolicy: {{ include "common.containerImagePullPolicy" . }}
+          {{- with .Values.env }}
+          env:
+            {{- range . }}
+            - name: {{ .name }}
+              {{- if .valueFrom }}
+              valueFrom:
+                {{- toYaml .valueFrom | nindent 16 }}
+              {{- else }}
+              value: {{ .value | quote }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if or (or .Values.envFrom.configMap .Values.envFrom.secret .Values.envFrom.sealedSecret) .Values.envFrom.useGlobal }}
+          envFrom:
+            {{- if or .Values.envFrom.configMap (and .Values.envFrom.useGlobal $.Values.global.envFrom.configMap) }}
+            - configMapRef:
+                name: {{ include "common.envFrom.configMapName" . }}
+            {{- end }}
+            {{- if or .Values.envFrom.secret (and .Values.envFrom.useGlobal $.Values.global.envFrom.secret) }}
+            - secretRef:
+                name: {{ include "common.envFrom.secretName" . }}
+            {{- end }}
+            {{- if or .Values.envFrom.sealedSecret (and .Values.envFrom.useGlobal $.Values.global.envFrom.sealedSecret) }}
+            - secretRef:
+                name: {{ include "common.envFrom.sealedSecretName" . }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.command }}
+          command:
+            {{- range . }}
+            - {{ . | quote }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.args }}
+          args:
+            {{- range . }}
+            - {{ . | quote }}
+            {{- end }}
+          {{- end }}
+          {{- if or .Values.service.create .Values.additionalPorts }}
+          ports:
+            {{- if .Values.service.create }}
+            {{- with .Values.service  }}
+            - name: {{ .portName }}
+              containerPort: {{ default .portNumber .containerPort }}
+              protocol: {{ default "TCP" .protocol }}
+            {{- end }}
+            {{- end }}
+            {{- range .Values.additionalPorts  }}
+            - name: {{ .name }}
+              containerPort: {{ .port }}
+              protocol: {{ default "TCP" .protocol }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.volumes .Values.persistentVolumes }}
+          volumeMounts:
+            {{- range .Values.volumes }}
+            - name: {{ .name }}
+              {{- toYaml .mountOptions | nindent 14 }}
+            {{- end }}
+            {{- range .Values.persistentVolumes }}
+            - name: {{ .name }}
+              {{- toYaml .mountOptions | nindent 14 }}
+            {{- end }}
+          {{- end}}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.additionalContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.volumes }}
+      volumes:
+        {{- range .Values.volumes }}
+        - name: {{ .name }}
+          {{- toYaml .volumeOptions | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+  {{- if .Values.persistentVolumes }}
+  volumeClaimTemplates:
+    {{- range .Values.persistentVolumes }}
+    - metadata:
+        name: {{ .name }}
+        namespace: {{ include "common.namespace" $ }}
+        labels:
+          {{- include "common.labels" $ | nindent 10 }}
+      spec:
+        accessModes:
+        {{- if .accessModes }}
+        {{- range .accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        {{- else }}
+          - {{ print "ReadWriteOnce" | quote }}
+        {{- end }}
+        {{- if .storageClassName }}
+        storageClassName: {{ .storageClassName | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .size | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}

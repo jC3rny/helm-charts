@@ -2,45 +2,15 @@
 Common labels
 */}}
 {{- define "common.labels" -}}
-{{ include "common.basicLabels" . }}
-{{- if .Values.customLabels }}
-{{- with .Values.customLabels.others }}
-{{ toYaml . }}
-{{- end }}
-{{- else }}
-{{- $component := default .Chart.Name (splitList "/" .Chart.Home | last) }}
-{{- if or (not (contains $component .Chart.Name)) (hasKey .Values "rewriteLabels") }}
-{{- if hasKey .Values.rewriteLabels "component" }}
-app.kubernetes.io/component: {{ .Values.rewriteLabels.component }}
-{{- else }}
-app.kubernetes.io/component: {{ .Chart.Name }}
-{{- end }}
-{{- end }}
-{{- if or .Chart.AppVersion (hasKey .Values "image") }}
-{{- if (hasKey .Values "image") }}
-app.kubernetes.io/version: {{ hasKey .Values.image "useGlobal" | ternary .Values.global.image.tag .Values.image.tag | quote }}
-{{- else }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-{{- end }}
-{{- if hasKey .Values "rewriteLabels" }}
-{{- if .Values.rewriteLabels.environment }}
-app.kubernetes.io/environment: {{ .Values.rewriteLabels.environment }}
-{{- end }}
-{{- end }}
-{{- if hasKey .Values "rewriteLabels" }}
-{{- if .Values.rewriteLabels.partOf }}
-app.kubernetes.io/part-of: {{ .Values.rewriteLabels.partOf }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{ include "common.markerLabels" . }}
+{{ include "common.appLabels" . }}
 {{- end }}
 
 
 {{/*
-Basic labels
+Marker labels
 */}}
-{{- define "common.basicLabels" -}}
+{{- define "common.markerLabels" -}}
 helm.sh/chart: {{ include "common.chart" . }}
 {{ include "common.selectorLabels" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -51,16 +21,46 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "common.selectorLabels" -}}
-{{- if .Values.customLabels -}}
+{{- if .Values.customLabels }}
 {{- toYaml .Values.customLabels.selector }}
 {{- else -}}
 app.kubernetes.io/name: {{ .Release.Name }}
 {{- if hasKey .Values "rewriteLabels" }}
-{{- if .Values.rewriteLabels.instance }}
-app.kubernetes.io/instance: {{ .Values.rewriteLabels.instance }}
-{{- end }}
+app.kubernetes.io/instance: {{ empty .Values.rewriteLabels.instance | ternary (include "common.instance" .) .Values.rewriteLabels.instance }}
 {{- else }}
-app.kubernetes.io/instance: {{ (include "common.instance" .) }}
+app.kubernetes.io/instance: {{ include "common.instance" . }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+
+{{/*
+App labels
+*/}}
+{{- define "common.appLabels" -}}
+{{- if .Values.customLabels }}
+{{- with .Values.customLabels.others }}
+{{- toYaml . }}
+{{- end }}
+{{- else -}}
+{{- $component := default .Chart.Name (splitList "/" .Chart.Home | last) -}}
+{{- if hasKey .Values "rewriteLabels" -}}
+app.kubernetes.io/component: {{ empty .Values.rewriteLabels.component | ternary .Chart.Name .Values.rewriteLabels.component }}
+{{- if not (empty .Values.rewriteLabels.environment) }}
+app.kubernetes.io/environment: {{ .Values.rewriteLabels.environment }}
+{{- end }}
+{{- if not (empty .Values.rewriteLabels.partOf) }}
+app.kubernetes.io/part-of: {{ .Values.rewriteLabels.partOf }}
+{{- end }}
+{{- else -}}
+app.kubernetes.io/component: {{ not (contains $component .Chart.Name) | ternary .Chart.Name $component }}
+{{- end }}
+{{- if or .Chart.AppVersion (hasKey .Values "image") }}
+{{- if hasKey .Values "image" }}
+app.kubernetes.io/version: {{ .Values.image.useGlobal | ternary .Values.global.image.tag .Values.image.tag | quote }}
+{{- else }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

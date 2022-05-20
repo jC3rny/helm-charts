@@ -161,8 +161,6 @@ jobs:
 
               if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
                   git reset --hard ${{ env.REMOTE_CHART_COMMIT_SHA1 }}
-              else
-                  git reset --hard ${{ env.ORIGINAL_COMMIT_ID }}
               fi
 
               if [ ! -z "${LOCAL_CHART_REMOTE_COMMIT_ID}" ]; then
@@ -182,9 +180,19 @@ jobs:
 
                   git apply \
                     -p $(awk -F '/' '{ print NF-0 }' <<< $(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})) \
-                    --index --check --stat --apply --allow-empty --verbose \
+                    --index --check --stat --verbose \
+                    --apply --allow-empty --3way --ignore-space-change --ignore-whitespace \
                     --directory ${{ env.LOCAL_CHART_ROOT_PATH }} \
-                    ${PATCH_FILE_PATH}
+                    ${PATCH_FILE_PATH} || true
+
+                  CONFLICTED_FILES=$(grep -lr '<<<<<<<' ${{ env.LOCAL_CHART_ROOT_PATH }})
+
+                  if [ ! -z "${CONFLICTED_FILES}" ]; then
+                      echo
+                      git checkout --theirs ${CONFLICTED_FILES}
+                      
+                      git add ${{ env.LOCAL_CHART_ROOT_PATH }}
+                  fi
               fi
           fi
 
@@ -227,8 +235,8 @@ jobs:
               helm dependency update --debug
           fi
 
-          yq eval -i '.description = "'${{ env.REMOTE_CHART_DESCRIPTION }}'"' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
-          yq eval -i '.appVersion = "'${{ env.REMOTE_CHART_APPVERSION }}'"' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+          yq eval -i '.description = strenv(REMOTE_CHART_DESCRIPTION)' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
+          yq eval -i '.appVersion = strenv(REMOTE_CHART_APPVERSION)' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
 
 
       # Create Pull Request
