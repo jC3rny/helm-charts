@@ -17,12 +17,15 @@ KUBECONFIG_CLUSTER_CA_DATA="$(${KUBECTL_CMD} config view --flatten -o jsonpath='
 
 KUBECONFIG_USER_NAMESPACE="$(yq e '."'${3:-kube-rbac}'".serviceAccount.namespaceOverride' ${2})"
 
-KEYVAULT_PROVIDER="$(yq e '."'${3:-kube-rbac}'".keyVault.provider' ${2})"
-KEYVAULT_SUBSCRIPTION="$(yq e '."'${3:-kube-rbac}'".keyVault.subscription' ${2})"
-KEYVAULT_RESOURCE_GROUP="$(yq e '."'${3:-kube-rbac}'".keyVault.resourceGroup' ${2})"
-KEYVAULT_RESOURCE_GROUP_SCOPE="$(az group show --subscription "${KEYVAULT_SUBSCRIPTION}" --name "${KEYVAULT_RESOURCE_GROUP}" | jq -r '.id')"
-KEYVAULT_RESOURCE_GROUP_ROLES_ASSIGNMENT="$(az role assignment list --role "Key Vault Reader" --scope "${KEYVAULT_RESOURCE_GROUP_SCOPE}")"
-KEYVAULT_LOCATION="$(yq e '."'${3:-kube-rbac}'".keyVault.location' ${2})"
+
+if [ "$(yq e '."'${3:-kube-rbac}'".keyVault.provider' ${2})" != "null" ]; then
+    KEYVAULT_PROVIDER="$(yq e '."'${3:-kube-rbac}'".keyVault.provider' ${2})"
+    KEYVAULT_SUBSCRIPTION="$(yq e '."'${3:-kube-rbac}'".keyVault.subscription' ${2})"
+    KEYVAULT_RESOURCE_GROUP="$(yq e '."'${3:-kube-rbac}'".keyVault.resourceGroup' ${2})"
+    KEYVAULT_RESOURCE_GROUP_SCOPE="$(az group show --subscription "${KEYVAULT_SUBSCRIPTION}" --name "${KEYVAULT_RESOURCE_GROUP}" | jq -r '.id')"
+    KEYVAULT_RESOURCE_GROUP_ROLES_ASSIGNMENT="$(az role assignment list --role "Key Vault Reader" --scope "${KEYVAULT_RESOURCE_GROUP_SCOPE}")"
+    KEYVAULT_LOCATION="$(yq e '."'${3:-kube-rbac}'".keyVault.location' ${2})"
+fi
 
 
 if [ "${KEYVAULT_LOCATION}" == "null" ]; then
@@ -39,13 +42,13 @@ for USERNAME in $(yq e '."'${3:-kube-rbac}'".groups.*.users' ${2} | awk -F ' ' '
 
     if [ ! -z "${KUBECONFIG_USER_TOKEN}" ]; then
         KUBECONFIG_DATA="$(helm template kubeconfig . \
-            --set "kubeConfig.enabled=yes" \
-            --set "kubeConfig.cluster.name=${KUBECONFIG_CLUSTER_NAME}" \
-            --set "kubeConfig.cluster.server=${KUBECONFIG_CLUSTER_SERVER}" \
-            --set "kubeConfig.cluster.certificateAuthorityData=${KUBECONFIG_CLUSTER_CA_DATA}" \
-            --set "kubeConfig.user.name=${KUBECONFIG_USERNAME}" \
-            --set "kubeConfig.user.token=${KUBECONFIG_USER_TOKEN}" \
-            --set "serviceAccount.namespaceOverride=${KUBECONFIG_USER_NAMESPACE}" 2> /dev/null)"
+            --set "${3:-kube-rbac}.kubeConfig.enabled=yes" \
+            --set "${3:-kube-rbac}.kubeConfig.cluster.name=${KUBECONFIG_CLUSTER_NAME}" \
+            --set "${3:-kube-rbac}.kubeConfig.cluster.server=${KUBECONFIG_CLUSTER_SERVER}" \
+            --set "${3:-kube-rbac}.kubeConfig.cluster.certificateAuthorityData=${KUBECONFIG_CLUSTER_CA_DATA}" \
+            --set "${3:-kube-rbac}.kubeConfig.user.name=${KUBECONFIG_USERNAME}" \
+            --set "${3:-kube-rbac}.kubeConfig.user.token=${KUBECONFIG_USER_TOKEN}" \
+            --set "${3:-kube-rbac}.serviceAccount.namespaceOverride=${KUBECONFIG_USER_NAMESPACE}" 2> /dev/null)"
         
         if [ "${KEYVAULT_PROVIDER}" == "azure" ]; then
             KEYVAULT_VAULT_NAME="$(yq e '."'${3:-kube-rbac}'".keyVault.vaultName' ${2})"
@@ -76,7 +79,7 @@ for USERNAME in $(yq e '."'${3:-kube-rbac}'".groups.*.users' ${2} | awk -F ' ' '
                     | jq -r '.id'
                 
                 if [ ! -z "${USERNAME_DOMAIN}" ]; then
-                    USERNAME_OBJECT_ID="$(az ad user list --filter "mail eq '"${USERNAME}"'" | jq -r '.[].objectId')"
+                    USERNAME_OBJECT_ID="$(az ad user list --filter "mail eq '"${USERNAME}"'" 2> /dev/null | jq -r '.[].objectId')"
 
                     if [ ! -z "${USERNAME_OBJECT_ID}" ]; then
                         if [ -z "$(jq -r '.[] | select(.principalId == "'${USERNAME_OBJECT_ID}'").id' <<< "${KEYVAULT_RESOURCE_GROUP_ROLES_ASSIGNMENT}")" ]; then
@@ -117,6 +120,11 @@ for USERNAME in $(yq e '."'${3:-kube-rbac}'".groups.*.users' ${2} | awk -F ' ' '
                     done
                 fi
             fi
+        else
+        # handle it manually
+        mkdir -p ${PWD}/tmp
+
+        yq e -n <<< ${KUBECONFIG_DATA} > ${PWD}/tmp/$(printf "%s_%s.conf" ${KUBECONFIG_USERNAME} $(awk -F '/' '{ split($3, a, ":"); print a[1] }' <<< ${KUBECONFIG_CLUSTER_SERVER}))
         fi
     fi
 done
