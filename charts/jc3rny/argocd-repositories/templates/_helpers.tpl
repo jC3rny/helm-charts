@@ -2,11 +2,12 @@
 Create the name of the repository secret
 */}}
 {{- define "argocd.repo.secretName" -}}
-  {{- if hasKey . "url" }}
-      {{- printf "%s-%s" (regexReplaceAll "\\W+" (split "//" .url)._1 "-" | trimSuffix "-") "repo" }}
+  {{- if and (not (hasKey . "name")) (hasKey . "url") }}
+    {{- printf  "argocd-repository-%s" (regexReplaceAll "\\W+" (split "//" .url)._1 "-" | trimSuffix "-" | trimSuffix "-git" ) }}
+  {{- else }}
+    {{- .name }}
   {{- end }}
 {{- end }}
-
 
 {{/*
 Repository labels
@@ -16,15 +17,17 @@ argocd.argoproj.io/secret-type: repository
 {{- end }}
 
 
+
 {{/*
 Create the name of the credential secret
 */}}
 {{- define "argocd.creds.secretName" -}}
-  {{- if hasKey . "url" }}
-      {{- printf "%s-%s" (regexReplaceAll "\\W+" (split "//" .url)._1 "-" | trimSuffix "-") "creds" }}
+  {{- if and (not (hasKey . "name")) (hasKey . "url") }}
+    {{- printf "argocd-repo-creds-%s" (regexReplaceAll "\\W+" (split "//" .url)._1 "-" | trimSuffix "-" | trimSuffix "-git" ) }}
+  {{- else }}
+    {{- .name }}
   {{- end }}
 {{- end }}
-
 
 {{/*
 Credential labels

@@ -4,7 +4,7 @@
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
-  name: {{ include "argocd.creds.secretName" . }}
+  name: {{ .name }}
   namespace: {{ include "common.namespace" $ }}
   labels:
     {{- include "common.labels" $ | nindent 4 }}
@@ -31,8 +31,27 @@ metadata:
     {{- include "common.labels" $ | nindent 4 }}
     {{- include "argocd.creds.labels" $ | nindent 4 }}
 stringData:
-  {{- range $key, $value := . -}}
-    {{ $key | nindent 4 }}: {{ $value | quote }}
-  {{- end -}}
+  url: {{ .url }}
+  {{- if or .auth.username .auth.password }}
+  username: {{ .auth.username }}
+  password: {{ .auth.password }}
+  {{- end }}
+  {{- with .auth.sshPrivateKey }}
+  sshPrivateKey: |
+    {{- . | nindent 4}}
+  {{- end }}
+  {{- with .auth.githubAppID }}
+  githubAppID: {{ . }}
+  {{- end }}
+  {{- with .auth.githubAppInstallationID }}
+  githubAppInstallationID: {{ . }}
+  {{- end }}
+  {{- with .auth.githubAppEnterpriseBaseUrl }}
+  githubAppEnterpriseBaseUrl: {{ . }}
+  {{- end }}
+  {{- with .auth.githubAppPrivateKey }}
+  githubAppPrivateKey: |
+    {{- . | nindent 4 }}
+  {{- end }}
 {{- end }}
 {{- end }}

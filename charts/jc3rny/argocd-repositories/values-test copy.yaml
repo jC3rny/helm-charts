@@ -8,15 +8,15 @@ imagePullSecret:
   annotations:
     helm.sh/hook: pre-install, pre-upgrade
     helm.sh/hook-weight: "0"
-  url: gitlab.zasilkovna.cz:8443
+  url: gitlab.c3rny.ninja
   username: "dev-cluster-registry-pull"
-  password: "3YdcsNiMn4sH2ov_muoV"
+  password: "3Ydff32davASDf4=sadf3V"
 
 stringData:
   url: https://github.com/jC3rny/example-gitops.git
   #sealedPassword: "AgCyKzCP59IRCmtEcj4wzRF2FaPcRH/uL+rwrHTQTFqGUdvpEzWlheAyUj6dK0t1A9VWyfwmqy6jJiOGiwV1N1y5FFXaDtoTulbY+vsnCHifyg7Xz3R05Zvma/e9ipd35uboK/xDSuM/6zqLa15Q9JXu3YGbjNdsdaLUFeaJIE1rYiHdW9ulPQS7UFn3pBQbPe3rXqWVfD6bdShnNH3P7OPwep9VvBB2VKTr8YSC6YnXeaqH0gMIC/oAi+DdQ3an5pZFq8/ptW+PynGE4bdfoCIIPkVt2teB5kZZrgMORSs6ihMVgEVG3CMrgSwqXAFmwTH7dh6LbEfynYUYINmLGSeCh+L+vef+LPrWWe5/7X4E+xuJloFqsAJZHI+9T59cBnKD7lX2HYfnKvKBILWxPV5UeElyB8E4cTbcsSYdXYJNubHgTW5H1oG3lMM42G8V0XKRdMTDVrjVUr4nBUTgNADDlNBiOsrfuys+PCrAYCq/EsT9K42p8AhfOY2qVNZAkkHlMASB+XMSSb9XJBxLndv+90RySESAuvKe0LTatWsobeqSRjvbVYZqntQnbhGqPWop4DeQNyiepOSCjPmUbxr2PvTWk1t2r0/pZRADPorLxm8sWjUGd4sU93msIrJui8V25+vukoHyXR/AT33cja0nWZH1l8wEahAg=="
   username: argocd-dev-deploy
-  password: amLLKNK02Xc_gbBcpiIT2HYIH
+  password: amLLKdsafrfeYIH
 
 repositories:
   - url: https://github.com/jC3rny/example-gitops.git

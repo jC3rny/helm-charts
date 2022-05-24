@@ -1,6 +1,7 @@
 {{- range .Values.repositories }}
 {{- if hasKey . "encryptedData" }}
 ---
+
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
@@ -19,7 +20,9 @@ spec:
     {{ $key | nindent 4 }}: {{ $value | quote }}
   {{- end -}}
 {{- else }}
+
 ---
+
 apiVersion: v1
 kind: Secret
 metadata:
