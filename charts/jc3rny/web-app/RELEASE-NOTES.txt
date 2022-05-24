@@ -1,4 +1,8 @@
-2.5.3 [ latest ]
+2.5.4 [ latest ]
+  - fix deployment and statefulset volume mountOptions
+
+
+2.5.3 [ d0a78aa9ad05b55427b42e9c8ab2cabd52db8430 ]
   - fix common.appLabels template
   - fix condition for PodDisruptionBudget
 
