@@ -1,4 +1,9 @@
-2.5.4 [ latest ]
+2.6.0 [ latest ]
+  - added ability to provide additional labels
+  - option to configure additional services
+
+
+2.5.4 [ cb12ed8dc082e615b505ae6a2e4840e0dbbda119 ]
   - fix deployment and statefulset volume mountOptions
 
 
