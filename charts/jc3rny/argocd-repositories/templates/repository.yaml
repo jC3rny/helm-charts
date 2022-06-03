@@ -5,7 +5,7 @@
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
-  name: {{ .id }}
+  name: {{ include "argocd.repo.secretName" . }}
   namespace: {{ include "common.namespace" $ }}
   labels:
     {{- include "common.labels" $ | nindent 4 }}
@@ -20,7 +20,6 @@ spec:
     {{ $key | nindent 4 }}: {{ $value | quote }}
   {{- end -}}
 {{- else }}
-
 ---
 
 apiVersion: v1
