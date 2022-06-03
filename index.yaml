@@ -1,5 +1,41 @@
 apiVersion: v1
 entries:
+  argocd-appProject:
+  - apiVersion: v2
+    created: "2022-06-03T08:03:41.50253377Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.6.0
+    description: A Helm chart for Kubernetes
+    digest: 157ce0969591030428cfe24b4dd2a9b553f500039edaf1de9bb5fea6fad947d6
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/argocd-appProject
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: argocd-appProject
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/argocd-appProject-0.2.1-alpha.tgz
+    version: 0.2.1-alpha
+  argocd-application:
+  - apiVersion: v2
+    created: "2022-06-03T08:03:41.503267344Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.6.0
+    description: A Helm chart for Kubernetes
+    digest: 2144649d4d3d3262773778f9af04ed4140d94a74eb96d2c630c26b8e73987d2b
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/argocd-application
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: argocd-application
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/jc3rny/argocd-application-0.2.6-alpha.tgz
+    version: 0.2.6-alpha
   cassandra:
   - apiVersion: v2
     appVersion: 4.0.3
@@ -44,7 +80,7 @@ entries:
     version: 0.4.0-v1.5.4
   common-tpls:
   - apiVersion: v2
-    created: "2022-06-02T23:31:32.728766301Z"
+    created: "2022-06-03T08:03:41.504452301Z"
     description: A library Helm chart for common usage
     digest: 92930b62756671b1a73fc1d45fbd408a85c0b5a363c46f7977b266cddb05e7e0
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -57,7 +93,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v2
-    created: "2022-06-02T23:31:32.728496574Z"
+    created: "2022-06-03T08:03:41.504062715Z"
     description: A library Helm chart for common usage
     digest: 1b9be7fbff9cf906f00790cf16dec2e64c1311bebe6399b47aa6f250f959b008
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -70,7 +106,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/common-tpls-0.5.5.tgz
     version: 0.5.5
   - apiVersion: v2
-    created: "2022-06-02T23:31:32.728198965Z"
+    created: "2022-06-03T08:03:41.503616731Z"
     description: A Library Helm chart for Kubernetes
     digest: 15f222b661a47a030450765eccd629ead6de137ee2ab9e4c5b7d31092ce4b926
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/common-tpls
@@ -84,7 +120,7 @@ entries:
     version: 0.5.3
   kube-rbac:
   - apiVersion: v2
-    created: "2022-06-02T23:31:32.729449562Z"
+    created: "2022-06-03T08:03:41.504962183Z"
     description: A Helm chart for Role-based access control (RBAC) management
     digest: 3c40e3cd5a40a90a3fd213d0b3e24a0c8b8463f7ee3bf09b55d456365cbb45af
     home: https://github.com/jC3rny/helm-charts/tree/main/charts/jc3rny/kube-rbac
@@ -143,7 +179,7 @@ entries:
     version: 0.4.9-16.4.5
   web-app:
   - apiVersion: v2
-    created: "2022-06-02T23:31:32.736560395Z"
+    created: "2022-06-03T08:03:41.513648369Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -160,7 +196,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.6.0.tgz
     version: 2.6.0
   - apiVersion: v2
-    created: "2022-06-02T23:31:32.735054662Z"
+    created: "2022-06-03T08:03:41.511829635Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -177,7 +213,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.4.tgz
     version: 2.5.4
   - apiVersion: v2
-    created: "2022-06-02T23:31:32.733568317Z"
+    created: "2022-06-03T08:03:41.509852906Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -194,7 +230,7 @@ entries:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.3.tgz
     version: 2.5.3
   - apiVersion: v2
-    created: "2022-06-02T23:31:32.732036301Z"
+    created: "2022-06-03T08:03:41.507060607Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -210,4 +246,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-06-02T23:31:32.727747056Z"
+generated: "2022-06-03T08:03:41.500734735Z"
