@@ -38,8 +38,31 @@ entries:
     version: 0.2.6-alpha
   cassandra:
   - apiVersion: v2
+    appVersion: 4.0.4
+    created: "2022-06-05T21:30:58.053473858Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.5
+    - name: cassandra
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.2.0
+    description: Apache Cassandra is an open source distributed database management
+      system designed to handle large amounts of data across many servers, providing
+      high availability with no single point of failure.
+    digest: e6e7cf03f3b1498d9607db4a1bb1b23c4a6c0f35230e728e6618ba5183db1fc8
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cassandra
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/cassandra-0.3.3-9.2.0.tgz
+    version: 0.3.3-9.2.0
+  - apiVersion: v2
     appVersion: 4.0.3
-    created: "2022-04-15T00:05:56.963599255Z"
+    created: "2022-06-05T21:30:58.0497823Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -152,7 +175,7 @@ entries:
   redis-ha:
   - apiVersion: v2
     appVersion: 6.2.6
-    created: "2022-04-15T00:05:56.986923956Z"
+    created: "2022-06-05T21:30:58.065836715Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -246,4 +269,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-06-03T08:03:41.500734735Z"
+generated: "2022-06-05T21:30:58.046168442Z"
