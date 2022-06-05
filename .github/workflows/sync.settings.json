@@ -65,7 +65,7 @@
       "type": "dependency",
       "enabled": "true",
       "remote": {
-        "url": "https://grafana.github.io/helm-charts",
+        "url": "https://github.com/grafana/helm-charts.git",
         "branch": "main",
         "commitSHA1": "d7fa5c3d5322912ad7f9fff1a5cada183967b8b9",
         "rootPath": "charts/grafana",
