@@ -247,8 +247,10 @@ jobs:
                   for _TEMPLATE in "${_TEMPLATES[@]}"; do
                       echo ${_TEMPLATE}
 
-                      curl -L -O "${{ env.REMOTE_CHART_RAW_CONTENT_URL }}/templates/${_TEMPLATE}"
+                      curl -sSL -O "${{ env.REMOTE_CHART_RAW_CONTENT_URL }}/templates/${_TEMPLATE}"
                   done
+
+                  ls -alh
               fi
 
               cd ${GITHUB_WORKSPACE}
