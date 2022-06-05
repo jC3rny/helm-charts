@@ -245,7 +245,9 @@ jobs:
 
                   IFS=',' read -ra _TEMPLATES <<< "${{ env.REMOTE_CHART_TEMPLATES }}"
                   for _TEMPLATE in "${_TEMPLATES[@]}"; do
-                      curl -sSL -O ${{ env.REMOTE_CHART_RAW_CONTENT_URL }}/templates/${_TEMPLATE}
+                      echo ${_TEMPLATE}
+
+                      curl -L -O "${{ env.REMOTE_CHART_RAW_CONTENT_URL }}/templates/${_TEMPLATE}"
                   done
               fi
 
