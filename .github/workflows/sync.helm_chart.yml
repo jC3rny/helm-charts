@@ -233,6 +233,8 @@ jobs:
 
               echo
               helm dependency update --debug
+
+              cd ${GITHUB_WORKSPACE}
           fi
 
           yq eval -i '.description = strenv(REMOTE_CHART_DESCRIPTION)' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
