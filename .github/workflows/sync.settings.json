@@ -8,7 +8,8 @@
         "url": "https://github.com/rancher/local-path-provisioner.git",
         "branch": "master",
         "commitSHA1": "",
-        "rootPath": "deploy/chart/local-path-provisioner"
+        "rootPath": "deploy/chart/local-path-provisioner",
+        "templates": ""
       },
       "local": {
         "basePath": "charts",
@@ -23,7 +24,8 @@
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
         "commitSHA1": "b06e04db807be426ab94e4eecdfb5f2ef1749747",
-        "rootPath": "bitnami/cassandra"
+        "rootPath": "bitnami/cassandra",
+        "templates": ""
       },
       "local": {
         "basePath": "charts",
@@ -38,7 +40,8 @@
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
         "commitSHA1": "cb786a868c793d2fffbfab457a4a3c32384f5b41",
-        "rootPath": "bitnami/postgresql-ha"
+        "rootPath": "bitnami/postgresql-ha",
+        "templates": ""
       },
       "local": {
         "basePath": "charts",
@@ -53,11 +56,28 @@
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
         "commitSHA1": "176180a2a3210f88c2edbfbc455b7f047f5c3328",
-        "rootPath": "bitnami/redis"
+        "rootPath": "bitnami/redis",
+        "templates": ""
       },
       "local": {
         "basePath": "charts",
         "pathPrefix": "bitnami"
+      }
+    },
+    {
+      "name": "grafana",
+      "type": "dependency",
+      "enabled": "true",
+      "remote": {
+        "url": "https://github.com/grafana/helm-charts.git",
+        "branch": "main",
+        "commitSHA1": "3def92d20c6a8371ecde1dc27d51dd7828968e5e",
+        "rootPath": "charts/grafana",
+        "templates": "_helpers.tpl"
+      },
+      "local": {
+        "basePath": "charts",
+        "pathPrefix": "grafana"
       }
     },
     {
@@ -68,7 +88,8 @@
         "url": "https://github.com/cert-manager/cert-manager.git",
         "branch": "master",
         "commitSHA1": "",
-        "rootPath": "deploy/charts/cert-manager"
+        "rootPath": "deploy/charts/cert-manager",
+        "templates": "_helpers.tpl"
       },
       "local": {
         "basePath": "charts",
