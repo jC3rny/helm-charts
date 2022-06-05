@@ -1,0 +1,29 @@
+apiVersion: v2
+name: grafana
+description: The leading tool for querying and visualizing time series and metrics.
+home: https://github.com/jC3rny/helm-charts/tree/main/charts/grafana/grafana
+maintainers:
+  - name: jC3rny
+    email: iam@c3rny.ninja
+dependencies:
+  - name: grafana
+    version: 6.17.7
+    repository: https://grafana.github.io/helm-charts
+# A chart can be either an 'application' or a 'library' chart.
+#
+# Application charts are a collection of templates that can be packaged into versioned archives
+# to be deployed.
+#
+# Library charts provide useful utilities or functions for the chart developer. They're included as
+# a dependency of application charts to inject those utilities and functions into the rendering
+# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+type: application
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.3.3
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+# It is recommended to use it with quotes.
+appVersion: 8.2.5

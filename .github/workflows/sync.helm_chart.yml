@@ -46,6 +46,7 @@ jobs:
       REMOTE_CHART_REPO_BRANCH: ${{ matrix.chart.remote.branch }}
       REMOTE_CHART_COMMIT_SHA1: ${{ matrix.chart.remote.commitSHA1 }}
       REMOTE_CHART_ROOT_PATH: ${{ matrix.chart.remote.rootPath }}
+      REMOTE_CHART_TEMPLATES: ${{ matrix.chart.remote.templates }}
       LOCAL_CHART_BASE_PATH: ${{ matrix.chart.local.basePath }}
       LOCAL_CHART_PATH_PREFIX: ${{ matrix.chart.local.pathPrefix }}
       LOCAL_CHART_ROOT_PATH: ${LOCAL_CHART_BASE_PATH}/${LOCAL_CHART_PATH_PREFIX}/${CHART_NAME}
@@ -74,20 +75,21 @@ jobs:
               REMOTE_CHART_REPO_NAME=${{ env.REMOTE_CHART_REPO_NAME }}
           fi
 
+          if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
+              REMOTE_CHART_RAW_CONTENT_URL="https://raw.githubusercontent.com/${REMOTE_CHART_REPO_ORG}/${REMOTE_CHART_REPO_NAME}/${{ env.REMOTE_CHART_COMMIT_SHA1 }}/$(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})"
+          else
+              REMOTE_CHART_RAW_CONTENT_URL="https://raw.githubusercontent.com/${REMOTE_CHART_REPO_ORG}/${REMOTE_CHART_REPO_NAME}/${{ env.REMOTE_CHART_REPO_BRANCH }}/$(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})"
+          fi
+
           if [ -z "${{ env.REMOTE_CHART_FILE_URL }}" ]; then
-              if [ ! -z "${{ env.REMOTE_CHART_COMMIT_SHA1 }}" ]; then
-                  REMOTE_CHART_FILE_URL="https://raw.githubusercontent.com/${REMOTE_CHART_REPO_ORG}/${REMOTE_CHART_REPO_NAME}/${{ env.REMOTE_CHART_COMMIT_SHA1 }}/$(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})/Chart.yaml"
-              else
-                  REMOTE_CHART_FILE_URL="https://raw.githubusercontent.com/${REMOTE_CHART_REPO_ORG}/${REMOTE_CHART_REPO_NAME}/${{ env.REMOTE_CHART_REPO_BRANCH }}/$(sed -r 's|/$||' <<< ${{ env.REMOTE_CHART_ROOT_PATH }})/Chart.yaml"
-              fi
+              REMOTE_CHART_FILE_URL="${REMOTE_CHART_RAW_CONTENT_URL}/Chart.yaml"
 
               echo REMOTE_CHART_FILE_URL=${REMOTE_CHART_FILE_URL} >> $GITHUB_ENV
-          else
-              REMOTE_CHART_FILE_URL=${{ env.REMOTE_CHART_FILE_URL }}
           fi
 
           echo REMOTE_CHART_NAME=$(awk -F '/' '{ print $NF }' <<< ${{ env.REMOTE_CHART_ROOT_PATH }}) >> $GITHUB_ENV
           echo REMOTE_CHART_REPO_ORG=${REMOTE_CHART_REPO_ORG} >> $GITHUB_ENV
+          echo REMOTE_CHART_RAW_CONTENT_URL=${REMOTE_CHART_RAW_CONTENT_URL} >> $GITHUB_ENV
 
 
       # Get version
@@ -234,6 +236,16 @@ jobs:
               echo
               helm dependency update --debug
 
+              if [ ! -z "${{ env.REMOTE_CHART_TEMPLATES }}" ]; then
+                  mkdir -p templates && cd templates; pwd
+
+                  echo ${{ env.REMOTE_CHART_TEMPLATES }}
+
+                  for _TEMPLATE in ${{ env.REMOTE_CHART_TEMPLATES }}; do
+                      curl -sSL -O ${{ env.REMOTE_CHART_RAW_CONTENT_URL }}/templates/${_TEMPLATE}
+                  done
+              fi
+
               cd ${GITHUB_WORKSPACE}
           fi
 
@@ -241,46 +253,46 @@ jobs:
           yq eval -i '.appVersion = strenv(REMOTE_CHART_APPVERSION)' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
 
 
-      # Create Pull Request
-      - name: Create Pull Request
-        id: createPullRequest
-        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CREATE_PULL_REQUEST == 'true'
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ secrets.PAT_PUBLIC_MGR }}
-          title: ${{ env.PR_TITLE }}
-          body: |
-            ## Original commit log
-            <br/>
-
-            > commit [${{ env.ORIGINAL_COMMIT_ID }}][1]
-            >
-            > Author: [${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }}](mailto:${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }})
-            >
-            > Date: &nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_DATE }}
-            >
-            > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_MESSAGE }}
-            
-            [1]: ${{ env.ORIGINAL_COMMIT_URL }}
-          labels: |
-            automated
-            sync
-            ${{ env.CHART_NAME }}
-          commit-message: Sync ${{ env.CHART_NAME }} version ${{ env.REMOTE_CHART_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
-          author: ${{ env.PR_AUTHOR }}
-          signoff: false
-          assignees: ${GITHUB_ACTOR}
-          base: ${{ env.PR_BASE_BRANCH }}
-          branch: sync-pr/${{ env.CHART_NAME }}
-          branch-suffix: short-commit-hash
-          delete-branch: true
-      
-
-      # Enable Automerge
-      - name: Enable Automerge
-        if: steps.createPullRequest.outputs.pull-request-operation == 'created'
-        uses: peter-evans/enable-pull-request-automerge@v1
-        with:
-          token: ${{ secrets.PAT_PUBLIC_MGR }}
-          pull-request-number: ${{ steps.createPullRequest.outputs.pull-request-number }}
-          merge-method: squash
+#      # Create Pull Request
+#      - name: Create Pull Request
+#        id: createPullRequest
+#        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CREATE_PULL_REQUEST == 'true'
+#        uses: peter-evans/create-pull-request@v3
+#        with:
+#          token: ${{ secrets.PAT_PUBLIC_MGR }}
+#          title: ${{ env.PR_TITLE }}
+#          body: |
+#            ## Original commit log
+#            <br/>
+#
+#            > commit [${{ env.ORIGINAL_COMMIT_ID }}][1]
+#            >
+#            > Author: [${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }}](mailto:${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }})
+#            >
+#            > Date: &nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_DATE }}
+#            >
+#            > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_MESSAGE }}
+#            
+#            [1]: ${{ env.ORIGINAL_COMMIT_URL }}
+#          labels: |
+#            automated
+#            sync
+#            ${{ env.CHART_NAME }}
+#          commit-message: Sync ${{ env.CHART_NAME }} version ${{ env.REMOTE_CHART_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
+#          author: ${{ env.PR_AUTHOR }}
+#          signoff: false
+#          assignees: ${GITHUB_ACTOR}
+#          base: ${{ env.PR_BASE_BRANCH }}
+#          branch: sync-pr/${{ env.CHART_NAME }}
+#          branch-suffix: short-commit-hash
+#          delete-branch: true
+#      
+#
+#      # Enable Automerge
+#      - name: Enable Automerge
+#        if: steps.createPullRequest.outputs.pull-request-operation == 'created'
+#        uses: peter-evans/enable-pull-request-automerge@v1
+#        with:
+#          token: ${{ secrets.PAT_PUBLIC_MGR }}
+#          pull-request-number: ${{ steps.createPullRequest.outputs.pull-request-number }}
+#          merge-method: squash

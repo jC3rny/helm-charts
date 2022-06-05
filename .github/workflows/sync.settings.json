@@ -61,6 +61,22 @@
       }
     },
     {
+      "name": "grafana",
+      "type": "dependency",
+      "enabled": "true",
+      "remote": {
+        "url": "https://grafana.github.io/helm-charts",
+        "branch": "main",
+        "commitSHA1": "d7fa5c3d5322912ad7f9fff1a5cada183967b8b9",
+        "rootPath": "charts/grafana",
+        "templates": [ "_helpers.tpl", "_pod.tpl" ]
+      },
+      "local": {
+        "basePath": "charts",
+        "pathPrefix": "grafana"
+      }
+    },
+    {
       "name": "cert-manager",
       "type": "dependency",
       "enabled": "false",
