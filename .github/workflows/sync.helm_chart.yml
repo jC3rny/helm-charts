@@ -241,7 +241,7 @@ jobs:
 
                   echo ${{ env.REMOTE_CHART_TEMPLATES }}
 
-                  for _TEMPLATE in ${{ env.REMOTE_CHART_TEMPLATES }}; do
+                  for _TEMPLATE in $(tr ',' '\n' <<< ${{ env.REMOTE_CHART_TEMPLATES }} | xargs); do
                       curl -sSL -O ${{ env.REMOTE_CHART_RAW_CONTENT_URL }}/templates/${_TEMPLATE}
                   done
               fi
