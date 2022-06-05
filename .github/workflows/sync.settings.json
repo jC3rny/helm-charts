@@ -71,7 +71,7 @@
       "remote": {
         "url": "https://github.com/grafana/helm-charts.git",
         "branch": "main",
-        "commitSHA1": "3def92d20c6a8371ecde1dc27d51dd7828968e5e",
+        "commitSHA1": "34f1b48f0f454f0c61ae1eb41f528743b38ec58c",
         "rootPath": "charts/grafana",
         "templates": "_helpers.tpl"
       },
