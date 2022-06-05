@@ -69,7 +69,7 @@
         "branch": "main",
         "commitSHA1": "d7fa5c3d5322912ad7f9fff1a5cada183967b8b9",
         "rootPath": "charts/grafana",
-        "templates": [ "_helpers.tpl", "_pod.tpl" ]
+        "templates": "_helpers.tpl, _pod.tpl"
       },
       "local": {
         "basePath": "charts",
