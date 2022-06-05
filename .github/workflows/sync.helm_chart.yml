@@ -235,22 +235,15 @@ jobs:
 
               echo
               helm dependency update --debug
-
-              
               
               if [ ! -z "${{ env.REMOTE_CHART_TEMPLATES }}" ]; then
+                  echo
                   mkdir -p templates && cd templates; pwd
-
-                  echo ${{ env.REMOTE_CHART_TEMPLATES }}
 
                   IFS=',' read -ra _TEMPLATES <<< "${{ env.REMOTE_CHART_TEMPLATES }}"
                   for _TEMPLATE in "${_TEMPLATES[@]}"; do
-                      echo ${_TEMPLATE}
-
                       curl -sSL -O "${{ env.REMOTE_CHART_RAW_CONTENT_URL }}/templates/${_TEMPLATE}"
                   done
-
-                  ls -alh
               fi
 
               cd ${GITHUB_WORKSPACE}
@@ -260,46 +253,46 @@ jobs:
           yq eval -i '.appVersion = strenv(REMOTE_CHART_APPVERSION)' ${{ env.LOCAL_CHART_ROOT_PATH }}/Chart.yaml
 
 
-#      # Create Pull Request
-#      - name: Create Pull Request
-#        id: createPullRequest
-#        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CREATE_PULL_REQUEST == 'true'
-#        uses: peter-evans/create-pull-request@v3
-#        with:
-#          token: ${{ secrets.PAT_PUBLIC_MGR }}
-#          title: ${{ env.PR_TITLE }}
-#          body: |
-#            ## Original commit log
-#            <br/>
-#
-#            > commit [${{ env.ORIGINAL_COMMIT_ID }}][1]
-#            >
-#            > Author: [${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }}](mailto:${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }})
-#            >
-#            > Date: &nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_DATE }}
-#            >
-#            > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_MESSAGE }}
-#            
-#            [1]: ${{ env.ORIGINAL_COMMIT_URL }}
-#          labels: |
-#            automated
-#            sync
-#            ${{ env.CHART_NAME }}
-#          commit-message: Sync ${{ env.CHART_NAME }} version ${{ env.REMOTE_CHART_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
-#          author: ${{ env.PR_AUTHOR }}
-#          signoff: false
-#          assignees: ${GITHUB_ACTOR}
-#          base: ${{ env.PR_BASE_BRANCH }}
-#          branch: sync-pr/${{ env.CHART_NAME }}
-#          branch-suffix: short-commit-hash
-#          delete-branch: true
-#      
-#
-#      # Enable Automerge
-#      - name: Enable Automerge
-#        if: steps.createPullRequest.outputs.pull-request-operation == 'created'
-#        uses: peter-evans/enable-pull-request-automerge@v1
-#        with:
-#          token: ${{ secrets.PAT_PUBLIC_MGR }}
-#          pull-request-number: ${{ steps.createPullRequest.outputs.pull-request-number }}
-#          merge-method: squash
+      # Create Pull Request
+      - name: Create Pull Request
+        id: createPullRequest
+        if: env.REMOTE_CHART_VERSION != env.LOCAL_CHART_VERSION && env.CREATE_PULL_REQUEST == 'true'
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.PAT_PUBLIC_MGR }}
+          title: ${{ env.PR_TITLE }}
+          body: |
+            ## Original commit log
+            <br/>
+
+            > commit [${{ env.ORIGINAL_COMMIT_ID }}][1]
+            >
+            > Author: [${{ env.ORIGINAL_COMMIT_AUTHOR_NAME }}](mailto:${{ env.ORIGINAL_COMMIT_AUTHOR_EMAIL }})
+            >
+            > Date: &nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_DATE }}
+            >
+            > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${{ env.ORIGINAL_COMMIT_MESSAGE }}
+            
+            [1]: ${{ env.ORIGINAL_COMMIT_URL }}
+          labels: |
+            automated
+            sync
+            ${{ env.CHART_NAME }}
+          commit-message: Sync ${{ env.CHART_NAME }} version ${{ env.REMOTE_CHART_VERSION }} [${{ env.ORIGINAL_COMMIT_ID }}]
+          author: ${{ env.PR_AUTHOR }}
+          signoff: false
+          assignees: ${GITHUB_ACTOR}
+          base: ${{ env.PR_BASE_BRANCH }}
+          branch: sync-pr/${{ env.CHART_NAME }}
+          branch-suffix: short-commit-hash
+          delete-branch: true
+      
+
+      # Enable Automerge
+      - name: Enable Automerge
+        if: steps.createPullRequest.outputs.pull-request-operation == 'created'
+        uses: peter-evans/enable-pull-request-automerge@v1
+        with:
+          token: ${{ secrets.PAT_PUBLIC_MGR }}
+          pull-request-number: ${{ steps.createPullRequest.outputs.pull-request-number }}
+          merge-method: squash
