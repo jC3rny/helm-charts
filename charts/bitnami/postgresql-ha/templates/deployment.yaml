@@ -1,0 +1,73 @@
+{{- $name := default .Chart.Name (index .Values "postgresql-ha" "nameOverride") -}}
+{{- $deployment := contains $name $.Release.Name | ternary (printf "%s-restore" $.Release.Name) (printf "%s-%s-restore" $.Release.Name $name) | trunc 63 | trimSuffix "-" -}}
+{{- $existingSecret := (index $.Values "postgresql-ha" "postgresql" "existingSecret") -}}
+{{- with (index .Values "postgresql-ha" "backup") }}
+{{- if .enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $deployment }}
+  labels: {{- include "common.labels.standard" $ | nindent 4 }}
+    app.kubernetes.io/component: restore
+    {{- if .labels }}
+    {{- include "common.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if (index $.Values "postgresql-ha" "commonLabels") }}
+    {{- include "common.tplvalues.render" ( dict "value" (index $.Values "postgresql-ha" "commonLabels") "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if (index $.Values "postgresql-ha" "commonAnnotations") }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" (index $.Values "postgresql-ha" "commonAnnotations") "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .restoreReplicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $name }}
+      app.kubernetes.io/component: restore
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $name }}
+        app.kubernetes.io/component: restore
+    spec:
+      containers:
+      - name: restore
+        {{- with (index $.Values "postgresql-ha" "backupImage") }}
+        image: {{ (printf "%s/%s:%s" .registry .repository .tag) | quote }}
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
+        env:
+          - name: PGHOST
+            value: {{ include "postgresql-ha.pgpool" $ | quote }}
+          - name: PGPORT
+            value: {{ (index $.Values "postgresql-ha" "service" "port") | quote }}
+          - name: PGUSER
+            value: "postgres"
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ empty $existingSecret | ternary $name $existingSecret }}
+                key: postgresql-postgres-password
+          - name: POSTGRES_DB
+            value: {{ (index $.Values "postgresql-ha" "postgresql" "database") | quote }}
+        command: [ "/bin/sh" ]
+        args: [ "-c", "tail -f /dev/null" ]
+        volumeMounts:
+          {{- if .persistence.enabled }}
+          - name: data
+            mountPath: /data
+          {{- end }}
+          - name: script
+            mountPath: /backup-postgresql.sh
+            subPath: backup-postgresql.sh
+      volumes:
+        {{- if .persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ contains $name $.Release.Name | ternary (printf "data-%s-backup" $.Release.Name) (printf "data-%s-%s-backup" $.Release.Name $name) | trunc 63 | trimSuffix "-" }}
+        {{- end }}
+        - name: script
+          configMap:
+            name: {{ contains $name $.Release.Name | ternary (printf "%s-backup-script" $.Release.Name) (printf "%s-%s-backup-script" $.Release.Name $name) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}

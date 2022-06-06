@@ -35,11 +35,11 @@
     {
       "name": "postgresql-ha",
       "type": "dependency",
-      "enabled": "false",
+      "enabled": "true",
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "cb786a868c793d2fffbfab457a4a3c32384f5b41",
+        "commitSHA1": "751036204c13eb90737a69bb98b060fe13ac0029",
         "rootPath": "bitnami/postgresql-ha",
         "templates": ""
       },

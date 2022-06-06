@@ -1,0 +1,79 @@
+{{- $name := default .Chart.Name (index .Values "postgresql-ha" "nameOverride") -}}
+{{- $existingSecret := (index $.Values "postgresql-ha" "postgresql" "existingSecret") -}}
+{{- with (index .Values "postgresql-ha" "backup") }}
+{{- if .enabled }}
+{{- if semverCompare ">=1.21-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride) -}}
+apiVersion: batch/v1
+{{- else -}}
+apiVersion: batch/v1beta1
+{{- end }}
+kind: CronJob
+metadata:
+  name: {{ contains $name $.Release.Name | ternary (printf "%s-backup" $.Release.Name) (printf "%s-%s-backup" $.Release.Name $name) | trunc 63 | trimSuffix "-" }}
+  labels: {{- include "common.labels.standard" $ | nindent 4 }}
+    app.kubernetes.io/component: backup
+    {{- if .labels }}
+    {{- include "common.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if (index $.Values "postgresql-ha" "commonLabels") }}
+    {{- include "common.tplvalues.render" ( dict "value" (index $.Values "postgresql-ha" "commonLabels") "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if (index $.Values "postgresql-ha" "commonAnnotations") }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" (index $.Values "postgresql-ha" "commonAnnotations") "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  schedule: {{ .schedule | quote }}
+  successfulJobsHistoryLimit: {{ .successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: {{ .restartPolicy }}
+          containers:
+            - name: backup
+              {{- with (index $.Values "postgresql-ha" "backupImage") }}
+              image: {{ (printf "%s/%s:%s" .registry .repository .tag) | quote }}
+              imagePullPolicy: {{ .pullPolicy }}
+              {{- end }}
+              env:
+                - name: PGHOST
+                  value: {{ include "postgresql-ha.pgpool" $ | quote }}
+                - name: PGPORT
+                  value: {{ (index $.Values "postgresql-ha" "service" "port") | quote }}
+                - name: PGUSER
+                  value: "postgres"
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ empty $existingSecret | ternary $name $existingSecret }}
+                      key: postgresql-postgres-password
+                - name: POSTGRES_DB
+                  value: {{ (index $.Values "postgresql-ha" "postgresql" "database") | quote }}
+              command:
+                {{- range .command }}
+                - {{ . | quote }}
+                {{- end }}
+              args:
+                {{- range .args }}
+                - {{ . | quote }}
+                {{- end }}
+              volumeMounts:
+                {{- if .persistence.enabled }}
+                - name: data
+                  mountPath: /data
+                {{- end }}
+                - name: script
+                  mountPath: /backup-postgresql.sh
+                  subPath: backup-postgresql.sh
+          volumes:
+            {{- if .persistence.enabled }}
+            - name: data
+              persistentVolumeClaim:
+                claimName: {{ contains $name $.Release.Name | ternary (printf "data-%s-backup" $.Release.Name) (printf "data-%s-%s-backup" $.Release.Name $name) | trunc 63 | trimSuffix "-" }}
+            {{- end }}
+            - name: script
+              configMap:
+                name: {{ contains $name $.Release.Name | ternary (printf "%s-backup-script" $.Release.Name) (printf "%s-%s-backup-script" $.Release.Name $name) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
