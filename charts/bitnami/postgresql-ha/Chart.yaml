@@ -1,7 +1,9 @@
 apiVersion: v2
 name: postgresql-ha
 description: This PostgreSQL cluster solution includes the PostgreSQL replication manager, an open-source tool for managing replication and failover on PostgreSQL clusters.
-
+maintainers:
+  - name: jC3rny
+    email: iam@c3rny.ninja
 dependencies:
   - name: common
     repository: https://charts.bitnami.com/bitnami
@@ -9,7 +11,6 @@ dependencies:
   - name: postgresql-ha
     version: 8.2.7
     repository: https://charts.bitnami.com/bitnami
-
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
