@@ -39,7 +39,7 @@ entries:
   cassandra:
   - apiVersion: v2
     appVersion: 4.0.4
-    created: "2022-06-06T06:37:09.923880076Z"
+    created: "2022-06-23T20:21:03.036454001Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -62,7 +62,7 @@ entries:
     version: 0.3.3-9.2.0
   - apiVersion: v2
     appVersion: 4.0.3
-    created: "2022-06-06T06:37:09.918917848Z"
+    created: "2022-06-23T20:21:03.033542365Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -229,7 +229,7 @@ entries:
     version: 0.0.22-dev
   postgresql-ha:
   - apiVersion: v2
-    created: "2022-06-06T06:37:09.934740537Z"
+    created: "2022-06-23T20:21:03.042064172Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -240,7 +240,10 @@ entries:
     description: This PostgreSQL cluster solution includes the PostgreSQL replication
       manager, an open-source tool for managing replication and failover on PostgreSQL
       clusters.
-    digest: 4fa552594eff34664082550c61c66ceb0905983eac38c6d274adfdae45d8ad5e
+    digest: 1186295b1e3cd03f4e8d23c6532b72574add9ea26dc26da3e922fe1546861f37
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
     name: postgresql-ha
     type: application
     urls:
@@ -249,7 +252,7 @@ entries:
   redis-ha:
   - apiVersion: v2
     appVersion: 6.2.6
-    created: "2022-06-06T06:37:09.942731682Z"
+    created: "2022-06-23T20:21:03.048993059Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -343,4 +346,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-06-06T06:37:09.914652124Z"
+generated: "2022-06-23T20:21:03.029346312Z"
