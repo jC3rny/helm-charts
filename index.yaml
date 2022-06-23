@@ -154,7 +154,24 @@ entries:
     version: 0.3.3-9.1.6
   cert-manager:
   - apiVersion: v2
-    created: "2022-03-18T09:38:23.149652666Z"
+    created: "2022-06-23T22:46:43.194656855Z"
+    dependencies:
+    - name: cert-manager
+      repository: https://charts.jetstack.io
+      version: v1.8.2
+    description: A Helm chart for cert-manager
+    digest: 3e46a2cc2934b91be672fe9f1e5462ce359446dd4d01e25337c6dc1f7fe1492a
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/jetstack/cert-manager
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cert-manager
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/jetstack/cert-manager-0.4.0-v1.8.2.tgz
+    version: 0.4.0-v1.8.2
+  - apiVersion: v2
+    created: "2022-06-23T22:46:43.189956787Z"
     dependencies:
     - name: cert-manager
       repository: https://charts.jetstack.io
@@ -415,4 +432,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-06-23T20:56:21.512981283Z"
+generated: "2022-06-23T22:46:43.178130463Z"
