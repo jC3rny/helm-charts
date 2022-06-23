@@ -1,0 +1,57 @@
+{{- range .Values.credentials }}
+{{- if .encryptedData }}
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+    {{- include "argocd.creds.labels" $ | nindent 4 }}
+  annotations:
+    sealedsecrets.bitnami.com/namespace-wide: "true"
+spec:
+  template:
+    type: Opaque
+  encryptedData:
+  {{- range $key, $value := .encryptedData -}}
+    {{ $key | nindent 4 }}: {{ $value | quote }}
+  {{- end -}}
+{{- else }}
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "argocd.creds.secretName" . }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+    {{- include "argocd.creds.labels" $ | nindent 4 }}
+stringData:
+  url: {{ .url }}
+  {{- if or .auth.username .auth.password }}
+  username: {{ .auth.username }}
+  password: {{ .auth.password }}
+  {{- end }}
+  {{- with .auth.sshPrivateKey }}
+  sshPrivateKey: |
+    {{- . | nindent 4}}
+  {{- end }}
+  {{- with .auth.githubAppID }}
+  githubAppID: {{ . }}
+  {{- end }}
+  {{- with .auth.githubAppInstallationID }}
+  githubAppInstallationID: {{ . }}
+  {{- end }}
+  {{- with .auth.githubAppEnterpriseBaseUrl }}
+  githubAppEnterpriseBaseUrl: {{ . }}
+  {{- end }}
+  {{- with .auth.githubAppPrivateKey }}
+  githubAppPrivateKey: |
+    {{- . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

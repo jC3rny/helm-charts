@@ -1,0 +1,38 @@
+{{- range index .Values "repo-creds" }}
+{{- if .encryptedData }}
+---
+
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: {{ include "argocd.repo-creds.secretName" . }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+    {{- include "argocd.repo-creds.labels" $ | nindent 4 }}
+  annotations:
+    sealedsecrets.bitnami.com/namespace-wide: "true"
+spec:
+  template:
+    type: Opaque
+  encryptedData:
+  {{- range $key, $value := .encryptedData -}}
+    {{ $key | nindent 4 }}: {{ $value | quote }}
+  {{- end -}}
+{{- else }}
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "argocd.repo-creds.secretName" . }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+    {{- include "argocd.repo-creds.labels" $ | nindent 4 }}
+stringData:
+  {{- range $key, $value := . -}}
+    {{ $key | nindent 4 }}: {{ $value | quote }}
+  {{- end -}}
+{{- end }}
+{{- end }}
