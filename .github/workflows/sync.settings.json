@@ -23,7 +23,7 @@
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "b06e04db807be426ab94e4eecdfb5f2ef1749747",
+        "commitSHA1": "fbb138a5b1b5638446d7ee0cd930f47de310e37d",
         "rootPath": "bitnami/cassandra",
         "templates": ""
       },
@@ -39,7 +39,7 @@
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "751036204c13eb90737a69bb98b060fe13ac0029",
+        "commitSHA1": "b925a70ab2f0c58702016c2a95123d8d6647b1b4",
         "rootPath": "bitnami/postgresql-ha",
         "templates": ""
       },
@@ -55,7 +55,7 @@
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "176180a2a3210f88c2edbfbc455b7f047f5c3328",
+        "commitSHA1": "d4dba2b393167d79b8c8f65b46c48b70ee3a9662",
         "rootPath": "bitnami/redis",
         "templates": ""
       },
