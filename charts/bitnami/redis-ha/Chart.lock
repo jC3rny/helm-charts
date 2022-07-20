@@ -4,9 +4,9 @@ dependencies:
   version: 0.5.5
 - name: redis
   repository: https://charts.bitnami.com/bitnami
-  version: 16.13.2
+  version: 17.0.2
 - name: web-app
   repository: https://charts.c3rny.ninja
   version: 2.5.3
-digest: sha256:3a4161cec50787fae9cc06bdf9568fa97a1c146b266b006eb3264c4a74bfc17e
-generated: "2022-07-20T22:26:04.263768378Z"
+digest: sha256:ac5d8aaec6a226ee1f2aaaeb1e89148773126ba6ee185aae5ef570cf1c86159c
+generated: "2022-07-20T22:37:52.169388069Z"
