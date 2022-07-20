@@ -108,7 +108,7 @@ entries:
   cassandra:
   - apiVersion: v2
     appVersion: 4.0.5
-    created: "2022-07-20T22:27:36.761415133Z"
+    created: "2022-07-20T22:38:52.826308606Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -131,7 +131,7 @@ entries:
     version: 0.3.3-9.2.8
   - apiVersion: v2
     appVersion: 4.0.4
-    created: "2022-07-20T22:27:36.758210906Z"
+    created: "2022-07-20T22:38:52.821713249Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -154,7 +154,7 @@ entries:
     version: 0.3.3-9.2.0
   - apiVersion: v2
     appVersion: 4.0.3
-    created: "2022-07-20T22:27:36.754543475Z"
+    created: "2022-07-20T22:38:52.817290794Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -373,7 +373,7 @@ entries:
   postgresql-ha:
   - apiVersion: v2
     appVersion: 11.14.0
-    created: "2022-07-20T22:27:36.780917898Z"
+    created: "2022-07-20T22:38:52.85302244Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -394,7 +394,7 @@ entries:
     - https://charts.c3rny.ninja/packages/bitnami/postgresql-ha-0.5.2-8.3.1.tgz
     version: 0.5.2-8.3.1
   - apiVersion: v2
-    created: "2022-07-20T22:27:36.768538394Z"
+    created: "2022-07-20T22:38:52.835529621Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -415,7 +415,7 @@ entries:
     - https://charts.c3rny.ninja/packages/bitnami/postgresql-ha-0.5.2-8.2.7-alpha.tgz
     version: 0.5.2-8.2.7-alpha
   - apiVersion: v2
-    created: "2022-07-20T22:27:36.77396204Z"
+    created: "2022-07-20T22:38:52.842854213Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -437,8 +437,35 @@ entries:
     version: 0.5.2-8.2.7
   redis-ha:
   - apiVersion: v2
+    appVersion: 7.0.4
+    created: "2022-07-20T22:38:52.882897913Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.5
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.0.2
+    - alias: proxy
+      name: web-app
+      repository: https://charts.c3rny.ninja
+      version: 2.5.3
+    description: Redis(R) is an open source, advanced key-value store. It is often
+      referred to as a data structure server since keys can contain strings, hashes,
+      lists, sets and sorted sets.
+    digest: c7d02522072767950a86135e953a111acd1ad1504abb44e433acefe5f850acb8
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/redis-ha
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: redis-ha
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/redis-ha-0.4.9-17.0.2.tgz
+    version: 0.4.9-17.0.2
+  - apiVersion: v2
     appVersion: 6.2.7
-    created: "2022-07-20T22:27:36.79522792Z"
+    created: "2022-07-20T22:38:52.862763762Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -465,7 +492,7 @@ entries:
     version: 0.4.9-16.13.2
   - apiVersion: v2
     appVersion: 6.2.6
-    created: "2022-07-20T22:27:36.802256679Z"
+    created: "2022-07-20T22:38:52.873596097Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -559,4 +586,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-07-20T22:27:36.75039914Z"
+generated: "2022-07-20T22:38:52.811501721Z"
