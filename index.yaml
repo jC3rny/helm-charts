@@ -108,7 +108,7 @@ entries:
   cassandra:
   - apiVersion: v2
     appVersion: 4.0.5
-    created: "2022-07-20T22:46:03.634084423Z"
+    created: "2022-07-20T22:51:45.204546207Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -131,7 +131,7 @@ entries:
     version: 0.3.3-9.2.8
   - apiVersion: v2
     appVersion: 4.0.4
-    created: "2022-07-20T22:46:03.630202722Z"
+    created: "2022-07-20T22:51:45.201664891Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -154,7 +154,7 @@ entries:
     version: 0.3.3-9.2.0
   - apiVersion: v2
     appVersion: 4.0.3
-    created: "2022-07-20T22:46:03.625687387Z"
+    created: "2022-07-20T22:51:45.197932471Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -373,7 +373,29 @@ entries:
   postgresql-ha:
   - apiVersion: v2
     appVersion: 11.15.0
-    created: "2022-07-20T22:46:03.664282692Z"
+    created: "2022-07-20T22:51:45.234890575Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: postgresql-ha
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.5.3
+    description: This PostgreSQL cluster solution includes the PostgreSQL replication
+      manager, an open-source tool for managing replication and failover on PostgreSQL
+      clusters.
+    digest: 0566908ea970b716ff87bd2760e41bd726e51866cde7b7c0230ef19eaf78194b
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: postgresql-ha
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/postgresql-ha-0.5.2-8.5.3.tgz
+    version: 0.5.2-8.5.3
+  - apiVersion: v2
+    appVersion: 11.15.0
+    created: "2022-07-20T22:51:45.227250033Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -395,7 +417,7 @@ entries:
     version: 0.5.2-8.5.1
   - apiVersion: v2
     appVersion: 11.14.0
-    created: "2022-07-20T22:46:03.656796503Z"
+    created: "2022-07-20T22:51:45.222401506Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -416,7 +438,7 @@ entries:
     - https://charts.c3rny.ninja/packages/bitnami/postgresql-ha-0.5.2-8.3.1.tgz
     version: 0.5.2-8.3.1
   - apiVersion: v2
-    created: "2022-07-20T22:46:03.642305751Z"
+    created: "2022-07-20T22:51:45.210642441Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -437,7 +459,7 @@ entries:
     - https://charts.c3rny.ninja/packages/bitnami/postgresql-ha-0.5.2-8.2.7-alpha.tgz
     version: 0.5.2-8.2.7-alpha
   - apiVersion: v2
-    created: "2022-07-20T22:46:03.649892845Z"
+    created: "2022-07-20T22:51:45.215346567Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -460,7 +482,7 @@ entries:
   redis-ha:
   - apiVersion: v2
     appVersion: 7.0.4
-    created: "2022-07-20T22:46:03.692087337Z"
+    created: "2022-07-20T22:51:45.256199193Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -487,7 +509,7 @@ entries:
     version: 0.4.9-17.0.2
   - apiVersion: v2
     appVersion: 6.2.7
-    created: "2022-07-20T22:46:03.673039147Z"
+    created: "2022-07-20T22:51:45.241694313Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -514,7 +536,7 @@ entries:
     version: 0.4.9-16.13.2
   - apiVersion: v2
     appVersion: 6.2.6
-    created: "2022-07-20T22:46:03.683330682Z"
+    created: "2022-07-20T22:51:45.249575057Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -608,4 +630,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-07-20T22:46:03.61996799Z"
+generated: "2022-07-20T22:51:45.194519452Z"
