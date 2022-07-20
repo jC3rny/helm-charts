@@ -10,7 +10,7 @@ dependencies:
     version: 0.5.5
     repository: https://charts.c3rny.ninja
   - name: redis
-    version: 16.13.2
+    version: 17.0.2
     repository: https://charts.bitnami.com/bitnami
   - alias: proxy
     name: web-app
@@ -33,4 +33,4 @@ version: 0.4.9
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "6.2.7"
+appVersion: "7.0.4"
