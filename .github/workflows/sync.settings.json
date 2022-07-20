@@ -39,7 +39,7 @@
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "bd69fac8068e7778b88d351b4bd3e335c680dc51",
+        "commitSHA1": "80686f86446ec2d3ef84e645a075fc7c741c8ad6",
         "rootPath": "bitnami/postgresql-ha",
         "templates": ""
       },
@@ -71,7 +71,7 @@
       "remote": {
         "url": "https://github.com/grafana/helm-charts.git",
         "branch": "main",
-        "commitSHA1": "f11c9a25349379cc2b7cbff4b36df2f3f164c69e",
+        "commitSHA1": "bb4b9e31c8641a470091ecd66059a49344bbcbd9",
         "rootPath": "charts/grafana",
         "templates": "_helpers.tpl"
       },
