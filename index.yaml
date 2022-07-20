@@ -108,7 +108,7 @@ entries:
   cassandra:
   - apiVersion: v2
     appVersion: 4.0.4
-    created: "2022-06-23T20:21:03.036454001Z"
+    created: "2022-07-20T22:15:00.720374007Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -131,7 +131,7 @@ entries:
     version: 0.3.3-9.2.0
   - apiVersion: v2
     appVersion: 4.0.3
-    created: "2022-06-23T20:21:03.033542365Z"
+    created: "2022-07-20T22:15:00.716549134Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -349,7 +349,7 @@ entries:
     version: 0.0.22-dev
   postgresql-ha:
   - apiVersion: v2
-    created: "2022-06-23T20:21:03.042064172Z"
+    created: "2022-07-20T22:15:00.727085336Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -369,10 +369,31 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/bitnami/postgresql-ha-0.5.2-8.2.7-alpha.tgz
     version: 0.5.2-8.2.7-alpha
+  - apiVersion: v2
+    created: "2022-07-20T22:15:00.732333136Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - name: postgresql-ha
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.2.7
+    description: This PostgreSQL cluster solution includes the PostgreSQL replication
+      manager, an open-source tool for managing replication and failover on PostgreSQL
+      clusters.
+    digest: 227b20b3b3094a8e52acac69ada9214a3ff06ac2098f83cc7d6b16a5c365fd6d
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: postgresql-ha
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/postgresql-ha-0.5.2-8.2.7.tgz
+    version: 0.5.2-8.2.7
   redis-ha:
   - apiVersion: v2
     appVersion: 6.2.6
-    created: "2022-06-23T20:21:03.048993059Z"
+    created: "2022-07-20T22:15:00.741002902Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -466,4 +487,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-06-23T23:23:23.554405304Z"
+generated: "2022-07-20T22:15:00.710904926Z"
