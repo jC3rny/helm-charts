@@ -286,8 +286,26 @@ entries:
     version: 0.5.3
   grafana:
   - apiVersion: v2
+    appVersion: 8.5.3
+    created: "2022-07-20T22:57:58.0881572Z"
+    dependencies:
+    - name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.30.3
+    description: The leading tool for querying and visualizing time series and metrics.
+    digest: a2022f47af720d217589d6ebb8dd7e2aca491e8d9ff73da9a3c80c11aac6ff73
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/grafana/grafana
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: grafana
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/grafana/grafana-0.1.2-6.30.3.tgz
+    version: 0.1.2-6.30.3
+  - apiVersion: v2
     appVersion: 8.5.0
-    created: "2022-06-05T23:18:01.386960041Z"
+    created: "2022-07-20T22:57:58.084796772Z"
     dependencies:
     - name: grafana
       repository: https://grafana.github.io/helm-charts
@@ -305,7 +323,7 @@ entries:
     version: 0.1.2-6.29.2
   - apiVersion: v2
     appVersion: 8.2.5
-    created: "2022-06-05T23:18:01.383808311Z"
+    created: "2022-07-20T22:57:58.082072949Z"
     dependencies:
     - name: grafana
       repository: https://grafana.github.io/helm-charts
@@ -323,7 +341,7 @@ entries:
     version: 0.1.2-6.17.9
   - apiVersion: v2
     appVersion: 8.2.5
-    created: "2022-06-05T23:18:01.380771782Z"
+    created: "2022-07-20T22:57:58.079212425Z"
     dependencies:
     - name: grafana
       repository: https://grafana.github.io/helm-charts
@@ -630,4 +648,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-07-20T22:51:45.194519452Z"
+generated: "2022-07-20T22:57:58.075262592Z"
