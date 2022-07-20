@@ -1,0 +1,183 @@
+## PostgreSQL configuration parameters
+##
+## @param postgresql-ha.postgresql.username PostgreSQL username
+## @param postgresql-ha.postgresql.database PostgreSQL database
+##
+## @param postgresql-ha.postgresql.repmgrUsername PostgreSQL Repmgr username
+## @param postgresql-ha.postgresql.repmgrDatabase PostgreSQL Repmgr database
+##
+## @param postgresql-ha.postgresql.existingSecret secret name
+## @param postgresql-ha.postgresql.existingSecretPasswordValue sealed PostgreSQL password (replacement of `postgresql-ha.postgresql.password`)
+## @param postgresql-ha.postgresql.existingSecretPostgresPasswordValue sealed PostgreSQL postgres password (replacement of `postgresql-ha.postgresql.postgresPassword`)
+## @param postgresql-ha.postgresql.existingSecretRepmgrPasswordValue sealed PostgreSQL repmgr password (replacement of `postgresql-ha.postgresql.repmgrPassword`)
+##
+##
+## Pgpool parameters
+##
+## @param postgresql-ha.pgpool.adminUsername Pgpool Admin username
+## @param postgresql-ha.pgpool.existingSecret secret name
+## @param postgresql-ha.pgpool.existingSecretAdminPasswordValue Pgpool admin password (replacement of `postgresql-ha.pgpool.adminPassword`)
+##
+## @param postgresql-ha.pgpool.customUsersSecret secret name
+## @param postgresql-ha.pgpool.customUsersSecretUsernamesValue sealed list of postgres usernames (replacement of `postgresql-ha.pgpool.customUsers.usernames`)
+## @param postgresql-ha.pgpool.customUsersSecretPasswordsValue sealed list of the associated passwords for the users above (replacement of `postgresql-ha.pgpool.customUsers.passwords`)
+##
+nameOverride: ""
+fullnameOverride: ""
+
+postgresql-ha:
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  postgresqlImage:
+    registry: docker.io
+    # repository: bitnami/postgresql-repmgr
+    # tag: 13.6.0-debian-10-r5
+    repository: jc3rny/timescaledb
+    # tag: 2.4.2-pg-repmgr-12.9.0_r90-bitnami
+    # tag: 2.4.2-pg-repmgr-13.6.0_r10-bitnami
+    tag: 2.5.2-pg-repmgr-13.6.0_r10-bitnami
+
+  postgresql:
+    username: postgres
+    database: ""
+    
+    repmgrUsername: repmgr
+    repmgrDatabase: repmgr
+
+    existingSecret: ""
+    existingSecretPasswordValue: ""
+    ## @param postgresql-ha.postgresql.existingSecretPostgresPasswordValue PostgreSQL password for the `postgres` user when `username` is not `postgres`
+    ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#creating-a-database-user-on-first-run (see note!)
+    ##
+    existingSecretPostgresPasswordValue: ""
+    existingSecretRepmgrPasswordValue: ""
+
+  pgpool:
+    adminUsername: admin
+    existingSecret: ""
+    existingSecretAdminPasswordValue: ""
+
+    ## @param postgresql-ha.pgpool.customUsersSecret Name of a secret containing the usernames and passwords of accounts that will be added to pgpool_passwd
+    ## The secret must contain the keys "usernames" and "passwords" respectively.
+    ##
+    customUsersSecret: ""
+    ## @param postgresql-ha.pgpool.customUsersSecretUsernamesValue Comma or semicolon separated list of postgres usernames
+    ## e.g:
+    ## customUsersSecretUsernamesValue: 'user01;user02'
+    ##
+    customUsersSecretUsernamesValue: ""
+    ## @param postgresql-ha.pgpool.customUsersSecretPasswordsValue Comma or semicolon separated list of the associated passwords for the users above
+    ## e.g:
+    ## customUsersSecretPasswordsValue: 'pass01;pass02'
+    ##
+    customUsersSecretPasswordsValue: ""
+
+    # Override default probes
+    livenessProbe: { timeoutSeconds: 180 }
+    readinessProbe: { timeoutSeconds: 180 }
+
+    # Performance tuning
+    numInitChildren: 70
+    maxPool: 3
+
+    # Custom init scripts
+    initdbScripts:
+      upgrade_timescaledb.sh: |
+        #!/bin/env sh
+    
+        EXIT="false"
+        I=1
+        LOGFILE_NAME="upgrade_timescaledb_$(date +'%Y-%m-%d-%H%M%S').log"
+        LOGFILE_PATH="/opt/bitnami/pgpool/logs/${LOGFILE_NAME}"
+        POSTGRES_PASSWORD=""
+        PSQL_DB_OWNER_QUERY="SELECT datname FROM pg_database JOIN pg_authid ON pg_database.datdba = pg_authid.oid WHERE rolname = '${PGPOOL_POSTGRES_USERNAME}';"
+        PSQL_STAT_REPLICATION_QUERY="SELECT application_name,client_addr,state FROM pg_stat_replication;"
+    
+        touch ${LOGFILE_PATH}
+        date +'[ %Y-%m-%d %T ] :: upgrade_timescaledb.sh' | tee -a ${LOGFILE_PATH}
+        date +'[ %Y-%m-%d %T ]' | tee -a ${LOGFILE_PATH}
+        echo "$(date +'[ %Y-%m-%d %T ]    ')PSQL_DB_OWNER_QUERY:            ${PSQL_DB_OWNER_QUERY}" | tee -a ${LOGFILE_PATH}
+        echo "$(date +'[ %Y-%m-%d %T ]    ')PSQL_STAT_REPLICATION_QUERY:    ${PSQL_STAT_REPLICATION_QUERY}" | tee -a ${LOGFILE_PATH}
+        date +'[ %Y-%m-%d %T ]' | tee -a ${LOGFILE_PATH}
+
+        while [ $I -le 10 ] && [ "${EXIT}" != "true" ]; do
+            if [ "$(cut --delimiter=',' --field=${I} <<< ${PGPOOL_POSTGRES_CUSTOM_USERS})" == "postgres" ]; then
+                EXIT="true"
+                POSTGRES_PASSWORD=$(cut --delimiter=',' --field=${I} <<< ${PGPOOL_POSTGRES_CUSTOM_PASSWORDS})
+            fi
+
+            echo "$(date +'[ %Y-%m-%d %T ]    ')I:                              ${I}" | tee -a ${LOGFILE_PATH}
+            I=$(( $I + 1 ))
+        done
+
+        date +'[ %Y-%m-%d %T ]' | tee -a ${LOGFILE_PATH}
+        echo "$(date +'[ %Y-%m-%d %T ]    ')EXIT:                           ${EXIT}" | tee -a ${LOGFILE_PATH}
+        echo "$(date +'[ %Y-%m-%d %T ]    ')POSTGRES_PASSWORD:              ${POSTGRES_PASSWORD}" | tee -a ${LOGFILE_PATH}
+    
+        if [ ! -z "${POSTGRES_PASSWORD}" ]; then
+            EXIT="false"
+
+            date +'[ %Y-%m-%d %T ]' | tee -a ${LOGFILE_PATH}
+
+            for POSTGRES_HOST in $(tr ',' '\n' <<< ${PGPOOL_BACKEND_NODES} | grep -v '^$' | cut -d ':' -f 2-); do
+                POSTGRES_CONNECTION_STRING="postgres://postgres:${POSTGRES_PASSWORD}@${POSTGRES_HOST}"
+                
+                echo "$(date +'[ %Y-%m-%d %T ]    ')EXIT:                           ${EXIT}" | tee -a ${LOGFILE_PATH}
+                echo "$(date +'[ %Y-%m-%d %T ]    ')POSTGRES_CONNECTION_STRING:     ${POSTGRES_CONNECTION_STRING}" | tee -a ${LOGFILE_PATH}
+                
+                if [ ! -z "$(psql -X "${POSTGRES_CONNECTION_STRING}/postgres" -t -c "${PSQL_STAT_REPLICATION_QUERY}" | grep -v '^$')" ] && [ "${EXIT}" != "true" ]; then
+                    POSTGRES_DB="$(psql -X "${POSTGRES_CONNECTION_STRING}/postgres" -t -c "${PSQL_DB_OWNER_QUERY}" | grep -v '^$' | awk '{ print $1 }')"
+                    
+                    echo "$(date +'[ %Y-%m-%d %T ]    ')POSTGRES_DB:                    ${POSTGRES_DB}" | tee -a ${LOGFILE_PATH}
+
+                    if [ ! -z "${POSTGRES_DB}" ]; then
+                        psql -X "${POSTGRES_CONNECTION_STRING}/${POSTGRES_DB}" -c '\dx' | tee -a ${LOGFILE_PATH}
+                    
+                        if [ ! -z "$(psql -X "${POSTGRES_CONNECTION_STRING}/${POSTGRES_DB}" -t -c '\dx' | grep -o 'timescaledb')" ]; then
+                            psql -X "${POSTGRES_CONNECTION_STRING}/${POSTGRES_DB}" -c 'ALTER EXTENSION timescaledb UPDATE;' | tee -a ${LOGFILE_PATH}
+                            psql -X "${POSTGRES_CONNECTION_STRING}/${POSTGRES_DB}" -c '\dx' | tee -a ${LOGFILE_PATH}
+                        fi
+                    fi
+
+                    EXIT="true"
+                fi
+            done
+        fi
+    
+        date +'[ %Y-%m-%d %T ] :: upgrade_timescaledb.sh' | tee -a ${LOGFILE_PATH}
+  
+
+  backupImage:
+    registry: docker.io
+    repository: postgres
+    tag: 13.6-alpine
+
+    pullPolicy: IfNotPresent
+
+
+  backup:
+    enabled: no
+
+    restoreReplicaCount: 0
+
+    schedule: "15 */6 * * *"
+
+    successfulJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 2
+
+    restartPolicy: "Never"
+    
+    command: [ "/bin/sh" ]
+
+    args:
+      - "-c"
+      - >
+        . /backup-postgresql.sh
+
+    persistence:
+      enabled: no
+      storageClassName:
+      accessModes: [ "ReadWriteOnce" ]
+      size: 8Gi

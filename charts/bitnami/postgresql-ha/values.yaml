@@ -1,0 +1,108 @@
+## PostgreSQL configuration parameters
+##
+## @param postgresql-ha.postgresql.username PostgreSQL username
+## @param postgresql-ha.postgresql.database PostgreSQL database
+##
+## @param postgresql-ha.postgresql.repmgrUsername PostgreSQL Repmgr username
+## @param postgresql-ha.postgresql.repmgrDatabase PostgreSQL Repmgr database
+##
+## @param postgresql-ha.postgresql.existingSecret secret name
+## @param postgresql-ha.postgresql.existingSecretPasswordValue sealed PostgreSQL password (replacement of `postgresql-ha.postgresql.password`)
+## @param postgresql-ha.postgresql.existingSecretPostgresPasswordValue sealed PostgreSQL postgres password (replacement of `postgresql-ha.postgresql.postgresPassword`)
+## @param postgresql-ha.postgresql.existingSecretRepmgrPasswordValue sealed PostgreSQL repmgr password (replacement of `postgresql-ha.postgresql.repmgrPassword`)
+##
+##
+## Pgpool parameters
+##
+## @param postgresql-ha.pgpool.adminUsername Pgpool Admin username
+## @param postgresql-ha.pgpool.existingSecret secret name
+## @param postgresql-ha.pgpool.existingSecretAdminPasswordValue Pgpool admin password (replacement of `postgresql-ha.pgpool.adminPassword`)
+##
+## @param postgresql-ha.pgpool.customUsersSecret secret name
+## @param postgresql-ha.pgpool.customUsersSecretUsernamesValue sealed list of postgres usernames (replacement of `postgresql-ha.pgpool.customUsers.usernames`)
+## @param postgresql-ha.pgpool.customUsersSecretPasswordsValue sealed list of the associated passwords for the users above (replacement of `postgresql-ha.pgpool.customUsers.passwords`)
+##
+nameOverride: ""
+fullnameOverride: ""
+
+postgresql-ha:
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  postgresql:
+    username: postgres
+    database: ""
+    
+    repmgrUsername: repmgr
+    repmgrDatabase: repmgr
+
+    existingSecret: ""
+    existingSecretPasswordValue: ""
+    ## @param postgresql-ha.postgresql.existingSecretPostgresPasswordValue PostgreSQL password for the `postgres` user when `username` is not `postgres`
+    ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#creating-a-database-user-on-first-run (see note!)
+    ##
+    existingSecretPostgresPasswordValue: ""
+    existingSecretRepmgrPasswordValue: ""
+
+  pgpool:
+    adminUsername: admin
+    existingSecret: ""
+    existingSecretAdminPasswordValue: ""
+
+    ## @param postgresql-ha.pgpool.customUsersSecret Name of a secret containing the usernames and passwords of accounts that will be added to pgpool_passwd
+    ## The secret must contain the keys "usernames" and "passwords" respectively.
+    ##
+    customUsersSecret: ""
+    ## @param postgresql-ha.pgpool.customUsersSecretUsernamesValue Comma or semicolon separated list of postgres usernames
+    ## e.g:
+    ## customUsersSecretUsernamesValue: 'user01;user02'
+    ##
+    customUsersSecretUsernamesValue: ""
+    ## @param postgresql-ha.pgpool.customUsersSecretPasswordsValue Comma or semicolon separated list of the associated passwords for the users above
+    ## e.g:
+    ## customUsersSecretPasswordsValue: 'pass01;pass02'
+    ##
+    customUsersSecretPasswordsValue: ""
+
+    # Override default probes
+    livenessProbe: { timeoutSeconds: 180 }
+    readinessProbe: { timeoutSeconds: 180 }
+
+    # Performance tuning
+    numInitChildren: 70
+    maxPool: 3
+
+  
+  backupImage:
+    registry: docker.io
+    repository: postgres
+    tag: 13.6-alpine
+
+    pullPolicy: IfNotPresent
+
+
+  backup:
+    enabled: no
+
+    restoreReplicaCount: 0
+
+    schedule: "15 */6 * * *"
+
+    successfulJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 2
+
+    restartPolicy: "Never"
+    
+    command: [ "/bin/sh" ]
+
+    args:
+      - "-c"
+      - >
+        . /backup-postgresql.sh
+
+    persistence:
+      enabled: no
+      storageClassName:
+      accessModes: [ "ReadWriteOnce" ]
+      size: 8Gi

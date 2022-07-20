@@ -1,0 +1,64 @@
+{{- $name := default .Chart.Name (index .Values "postgresql-ha" "nameOverride") -}}
+{{- with (index .Values "postgresql-ha" "backup") }}
+{{- if .enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ contains $name $.Release.Name | ternary (printf "%s-backup-script" $.Release.Name) (printf "%s-%s-backup-script" $.Release.Name $name) | trunc 63 | trimSuffix "-" }}
+  labels: {{- include "common.labels.standard" $ | nindent 4 }}
+    app.kubernetes.io/component: backup
+    {{- if .labels }}
+    {{- include "common.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if (index $.Values "postgresql-ha" "commonLabels") }}
+    {{- include "common.tplvalues.render" ( dict "value" (index $.Values "postgresql-ha" "commonLabels") "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if (index $.Values "postgresql-ha" "commonAnnotations") }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" (index $.Values "postgresql-ha" "commonAnnotations") "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  backup-postgresql.sh: |-
+    #/bin/env bash
+
+    # ${1}  backup retention
+
+    echo $(date +'[ %Y-%m-%d %T ]')
+    DESTINATION="/data/backup"
+    TIMESTAMP=$(date +'%Y%m%d-%H')
+
+    psql -c "\conninfo"
+
+    if [ $? -eq 0 ]; then
+        mkdir -p ${DESTINATION}
+
+        echo; echo ":: pg_dumpall [ globals, roles, schema, tablespaces ]"
+        pg_dumpall --clean --globals-only | gzip > "${DESTINATION}/${TIMESTAMP}____globals.gz"
+        pg_dumpall --clean --roles-only | gzip > "${DESTINATION}/${TIMESTAMP}____roles.gz"
+        pg_dumpall --clean --schema-only | gzip > "${DESTINATION}/${TIMESTAMP}____schema.gz"
+        pg_dumpall --clean --tablespaces-only | gzip > "${DESTINATION}/${TIMESTAMP}____tablespaces.gz"
+
+        echo; echo ":: pg_dump [ postgres, template0, template1 ]"
+        for DATABASE in $(psql -t -c "SELECT datname FROM pg_database WHERE datname IN ('postgres','template0','template1');" | grep -v '^$' | awk '{ print $1 }'); do
+            echo "  ==> ${DATABASE}"
+            pg_dump --clean ${DATABASE} | gzip > "${DESTINATION}/${TIMESTAMP}___${DATABASE}.gz"
+        done
+
+        echo; echo ":: pg_dump"
+        for DATABASE in $(psql -t -c "SELECT datname FROM pg_database WHERE datname NOT IN ('postgres','template0','template1');" | grep -v '^$' | awk '{ print $1 }'); do
+            echo "  ==> ${DATABASE}"
+            pg_dump --clean ${DATABASE} | gzip > "${DESTINATION}/${TIMESTAMP}__${DATABASE}.gz"
+        done
+
+        if [ $? -eq 0 ]; then
+            find ${DESTINATION} -type f -mtime +${1:-7} -delete
+        fi
+
+        cd ${DESTINATION}
+        echo; pwd; ls -alh
+    fi
+
+    echo
+    echo $(date +'[ %Y-%m-%d %T ]')
+{{- end }}
+{{- end }}

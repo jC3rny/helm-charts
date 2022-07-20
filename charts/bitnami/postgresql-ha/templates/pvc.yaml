@@ -1,0 +1,35 @@
+{{- $name := default .Chart.Name (index .Values "postgresql-ha" "nameOverride") -}}
+{{- with (index .Values "postgresql-ha" "backup" "persistence") }}
+{{- if .enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ contains $name $.Release.Name | ternary (printf "data-%s-backup" $.Release.Name) (printf "data-%s-%s-backup" $.Release.Name $name) | trunc 63 | trimSuffix "-" }}
+  labels: {{- include "common.labels.standard" $ | nindent 4 }}
+    app.kubernetes.io/component: backup
+    {{- if .labels }}
+    {{- include "common.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if (index $.Values "postgresql-ha" "commonLabels") }}
+    {{- include "common.tplvalues.render" ( dict "value" (index $.Values "postgresql-ha" "commonLabels") "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if (index $.Values "postgresql-ha" "commonAnnotations") }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" (index $.Values "postgresql-ha" "commonAnnotations") "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+  {{- range .accessModes }}
+    - {{ . | quote }}
+  {{- end }}
+  volumeMode: {{ default "Filesystem" .volumeMode | quote }}
+  {{- with .volumeName }}
+  volumeName: {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .size | quote }}
+  {{- if .storageClassName }}
+  storageClassName: {{ .storageClassName | quote }}
+  {{- end }}
+{{- end }}
+{{- end }}
