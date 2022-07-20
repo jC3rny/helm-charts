@@ -286,8 +286,26 @@ entries:
     version: 0.5.3
   grafana:
   - apiVersion: v2
+    appVersion: 9.0.2
+    created: "2022-07-20T23:09:57.375539026Z"
+    dependencies:
+    - name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.32.0
+    description: The leading tool for querying and visualizing time series and metrics.
+    digest: 43afeb1bf7f5b5a79fda8eb7d3da2176855098c639dd5a323fc56dc5dd938ae7
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/grafana/grafana
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: grafana
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/grafana/grafana-0.1.2-6.32.0.tgz
+    version: 0.1.2-6.32.0
+  - apiVersion: v2
     appVersion: 8.5.3
-    created: "2022-07-20T22:57:58.0881572Z"
+    created: "2022-07-20T23:09:57.371266338Z"
     dependencies:
     - name: grafana
       repository: https://grafana.github.io/helm-charts
@@ -305,7 +323,7 @@ entries:
     version: 0.1.2-6.30.3
   - apiVersion: v2
     appVersion: 8.5.0
-    created: "2022-07-20T22:57:58.084796772Z"
+    created: "2022-07-20T23:09:57.368551783Z"
     dependencies:
     - name: grafana
       repository: https://grafana.github.io/helm-charts
@@ -323,7 +341,7 @@ entries:
     version: 0.1.2-6.29.2
   - apiVersion: v2
     appVersion: 8.2.5
-    created: "2022-07-20T22:57:58.082072949Z"
+    created: "2022-07-20T23:09:57.365871328Z"
     dependencies:
     - name: grafana
       repository: https://grafana.github.io/helm-charts
@@ -341,7 +359,7 @@ entries:
     version: 0.1.2-6.17.9
   - apiVersion: v2
     appVersion: 8.2.5
-    created: "2022-07-20T22:57:58.079212425Z"
+    created: "2022-07-20T23:09:57.363310576Z"
     dependencies:
     - name: grafana
       repository: https://grafana.github.io/helm-charts
@@ -670,4 +688,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-07-20T23:04:50.082314626Z"
+generated: "2022-07-20T23:09:57.358936786Z"
