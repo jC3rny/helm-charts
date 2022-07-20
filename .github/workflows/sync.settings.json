@@ -39,7 +39,7 @@
       "remote": {
         "url": "https://github.com/bitnami/charts.git",
         "branch": "master",
-        "commitSHA1": "80686f86446ec2d3ef84e645a075fc7c741c8ad6",
+        "commitSHA1": "740d77bd3d32445d5d102d4e8b7e48ed743ff688",
         "rootPath": "bitnami/postgresql-ha",
         "templates": ""
       },
