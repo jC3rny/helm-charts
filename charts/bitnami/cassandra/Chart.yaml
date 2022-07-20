@@ -10,7 +10,7 @@ dependencies:
     version: 0.5.5
     repository: https://charts.c3rny.ninja
   - name: cassandra
-    version: 9.2.0
+    version: 9.2.8
     repository: https://charts.bitnami.com/bitnami
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -29,4 +29,4 @@ version: 0.3.3
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "4.0.4"
+appVersion: "4.0.5"
