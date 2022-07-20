@@ -107,8 +107,31 @@ entries:
     version: 0.3.4
   cassandra:
   - apiVersion: v2
+    appVersion: 4.0.5
+    created: "2022-07-20T22:27:05.6075691Z"
+    dependencies:
+    - name: common-tpls
+      repository: https://charts.c3rny.ninja
+      version: 0.5.5
+    - name: cassandra
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.2.8
+    description: Apache Cassandra is an open source distributed database management
+      system designed to handle large amounts of data across many servers, providing
+      high availability with no single point of failure.
+    digest: d0c6d9642fbc1a6886dc87c9d640556660192d7f3c25f0bdeffa5f2e9fc32982
+    home: https://github.com/jC3rny/helm-charts/tree/main/charts/bitnami/cassandra
+    maintainers:
+    - email: iam@c3rny.ninja
+      name: jC3rny
+    name: cassandra
+    type: application
+    urls:
+    - https://charts.c3rny.ninja/packages/bitnami/cassandra-0.3.3-9.2.8.tgz
+    version: 0.3.3-9.2.8
+  - apiVersion: v2
     appVersion: 4.0.4
-    created: "2022-07-20T22:26:43.068805048Z"
+    created: "2022-07-20T22:27:05.603775842Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -131,7 +154,7 @@ entries:
     version: 0.3.3-9.2.0
   - apiVersion: v2
     appVersion: 4.0.3
-    created: "2022-07-20T22:26:43.065214468Z"
+    created: "2022-07-20T22:27:05.600015888Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -349,7 +372,7 @@ entries:
     version: 0.0.22-dev
   postgresql-ha:
   - apiVersion: v2
-    created: "2022-07-20T22:26:43.074437917Z"
+    created: "2022-07-20T22:27:05.616376497Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -370,7 +393,7 @@ entries:
     - https://charts.c3rny.ninja/packages/bitnami/postgresql-ha-0.5.2-8.2.7-alpha.tgz
     version: 0.5.2-8.2.7-alpha
   - apiVersion: v2
-    created: "2022-07-20T22:26:43.08104378Z"
+    created: "2022-07-20T22:27:05.622386582Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -393,7 +416,7 @@ entries:
   redis-ha:
   - apiVersion: v2
     appVersion: 6.2.7
-    created: "2022-07-20T22:26:43.088535338Z"
+    created: "2022-07-20T22:27:05.632107113Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -420,7 +443,7 @@ entries:
     version: 0.4.9-16.13.2
   - apiVersion: v2
     appVersion: 6.2.6
-    created: "2022-07-20T22:26:43.096487094Z"
+    created: "2022-07-20T22:27:05.639854254Z"
     dependencies:
     - name: common-tpls
       repository: https://charts.c3rny.ninja
@@ -514,4 +537,4 @@ entries:
     urls:
     - https://charts.c3rny.ninja/packages/jc3rny/web-app-2.5.0.tgz
     version: 2.5.0
-generated: "2022-07-20T22:26:43.060033797Z"
+generated: "2022-07-20T22:27:05.595598638Z"
