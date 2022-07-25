@@ -9,7 +9,7 @@ maintainers:
 
 dependencies:
   - name: cert-manager
-    version: v1.6.3
+    version: v1.8.2
     repository: https://charts.jetstack.io
 
 # A chart can be either an 'application' or a 'library' chart.
