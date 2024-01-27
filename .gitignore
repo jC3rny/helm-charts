@@ -1,0 +1,8 @@
+# ignore IDE workspace settings
+.vscode
+
+# ignore TMP folder
+**/tmp/**
+
+# ignore backup files
+**/*.bak
