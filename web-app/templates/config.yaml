@@ -1,0 +1,14 @@
+{{- $fullName := include "web-app.fullname" . -}}
+{{- if .Values.envFrom.configMap }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "web-app.envFrom.configMapName" . }}
+  labels:
+    {{- include "web-app.labels" . | nindent 4 }}
+data:
+{{- range $key, $value := .Values.envFrom.configMap -}}
+  {{ $key | nindent 2 }}: {{ $value | quote }}
+{{- end -}}
+{{- end }}

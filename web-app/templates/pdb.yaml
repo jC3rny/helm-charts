@@ -1,0 +1,13 @@
+{{ if gt (.Values.replicaCount | int) 1 }}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "web-app.fullname" . }}-pdb
+spec:
+  selector:
+    matchLabels:
+      {{- include "web-app.selectorLabels" . | nindent 6 }}
+  {{- with .Values.pdb }}
+  {{ toYaml . }}
+  {{- end }}
+{{ end }}
