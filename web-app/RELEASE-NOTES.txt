@@ -1,4 +1,9 @@
-2.1.0 [ latest ]
+2.2.0 [ latest ]
+  - added ability to provide pod labels
+  - option to configure rbac
+
+
+2.1.0 [ 39ccd9d32c7cc4b38c3dedc503d0ef1dd6b431b6 ]
   - option to configure dnsPolicy
   - option to configure hostNetwork
   - option to configure job's ttlSecondsAfterFinished

@@ -76,6 +76,8 @@ customLabels: {}
   #   environment: dev
   #   tier: frontend
 
+podLabels: {}
+
 podAnnotations: {}
 
 podManagementPolicy: ""
@@ -301,6 +303,13 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
+
+
+rbac:
+  isClusterRole: no
+  roleName: ""
+  apiGroup: ""
+  rules: []
 
 
 job:

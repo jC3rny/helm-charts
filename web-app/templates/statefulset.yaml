@@ -24,6 +24,9 @@ spec:
     metadata:
       labels:
         {{- include "common.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- if or .Values.podAnnotations $.Values.global.configRollout }}
       annotations:
         {{- with .Values.podAnnotations }}
