@@ -1,4 +1,5 @@
-2.4.0 [ latest ]
+2.4.1 [ latest ]
+  - added ability to configure deployment annotations
   - option to configure multiple ports in service
   - option to add additional entries to the hosts file (hostAliases)
 

@@ -6,6 +6,10 @@ metadata:
   namespace: {{ include "common.namespace" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -131,11 +135,6 @@ spec:
             - name: {{ .portName }}
               containerPort: {{ default .portNumber .containerPort }}
               protocol: {{ default "TCP" .protocol }}
-            {{- range .additionalPorts }}
-            - name: {{ .name }}
-              containerPort: {{ default .port .containerPort }}
-              protocol: {{ default "TCP" .protocol }}
-            {{- end }}
             {{- end }}
             {{- end }}
             {{- range .Values.additionalPorts  }}

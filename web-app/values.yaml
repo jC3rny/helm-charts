@@ -77,6 +77,8 @@ customLabels: {}
   #   environment: dev
   #   tier: frontend
 
+annotations: {}
+
 podLabels: {}
 
 podAnnotations: {}
@@ -209,6 +211,7 @@ service:
   # containerPort: 3000
   # protocol: TCP
   additionalPorts: []
+    # Add additional ports published in Pod (main container or in additionalContainers).
     # - name:
     #   port:
     #   containerPort:
