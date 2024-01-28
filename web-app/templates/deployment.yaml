@@ -154,12 +154,16 @@ spec:
           {{- if or .Values.volumes .Values.persistentVolumes }}
           volumeMounts:
             {{- range .Values.volumes }}
+            {{- if hasKey . "mountOptions" }}
             - name: {{ .name }}
               {{- toYaml .mountOptions | nindent 14 }}
             {{- end }}
+            {{- end }}
             {{- range .Values.persistentVolumes }}
+            {{- if hasKey . "mountOptions" }}
             - name: {{ .name }}
               {{- toYaml .mountOptions | nindent 14 }}
+            {{- end }}
             {{- end }}
           {{- end}}
           {{- with .Values.resources }}
