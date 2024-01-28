@@ -65,6 +65,11 @@ rewriteLabels: {}
   # component: ""
   # partOf: ""
 
+additionalLabels: {}
+  ## This will extend the recommended labels starting with app.kubernetes.io/*
+  # metadata.organization/name: "Example ltd."
+  # metadata.organization/manager: "john.doe@example.com"
+
 customLabels: {}
   ## This will replace the recommended labels with the following.
   ## All these labels are also used in the selector.
@@ -219,6 +224,21 @@ service:
     #   port:
     #   containerPort:
     #   protocol: 
+  additionalServices: []
+    ## Add additional services.
+    # - name: headless
+    #   spec:
+    #     type: ClusterIP
+    #     clusterIP: "None"
+    #   ports:
+    #     - port: 8080
+    # - name: metrics
+    #   annotations:
+    #     prometheus.io/scrape: "true"
+    #     prometheus.io/port: "9080"
+    #   ports:
+    #     - port: 9080
+
 
 minReadySeconds: 
 

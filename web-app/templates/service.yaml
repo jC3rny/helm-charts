@@ -46,4 +46,38 @@ spec:
       protocol: {{ default "TCP" .protocol }}
     {{- end }}
 {{- end }}
+{{- range .Values.service.additionalServices }}
+{{- $serviceName := .name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-%s" (include "common.serviceName" $) (required "key .name is missing" $serviceName) }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if hasKey . "spec" }}
+  {{- toYaml .spec | nindent 2 }}
+  {{- if not (hasKey .spec "selector") }}
+  selector:
+    {{- include "common.selectorLabels" $ | nindent 4 }}
+  {{- end }}
+  {{- else }}
+  type: ClusterIP
+  selector:
+    {{- include "common.selectorLabels" $ | nindent 4 }}
+  {{- end }}
+  {{- range .ports }}
+  ports:
+    - name: {{ default $serviceName .name }}
+      port: {{ .port }}
+      targetPort: {{ default .port .containerPort }}
+      protocol: {{ default "TCP" .protocol }}
+  {{- end }}
+{{- end }}
 {{- end }}
