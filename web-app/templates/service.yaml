@@ -7,13 +7,22 @@ metadata:
   namespace: {{ include "common.namespace" $ }}
   labels:
     {{- include "common.labels" $ | nindent 4 }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
-  type: {{ default "ClusterIP" .type }}
+  type: {{ .type }}
+  {{- if (and (eq .type "ClusterIP") .headless (not .clusterIP)) }}
+  clusterIP: ""
+  {{- else if .clusterIP }}
+  clusterIP: {{ .clusterIP }}
+  {{- end }}
+  {{- if (and (eq .type "LoadBalancer") .loadBalancerIP) }}
+  loadBalancerIP: {{ .loadBalancerIP }}
+  {{- end }}
   selector:
     {{- include "common.selectorLabels" $ | nindent 4 }}
-  {{- if .headless }}
-  clusterIP: ""
-  {{- end }}
   ports:
     - name: {{ .portName }}
       port: {{ .portNumber }}

@@ -10,11 +10,21 @@ metadata:
     checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
     checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     checksum/sealedSecret: {{ include (print $.Template.BasePath "/sealedsecret.yaml") . | sha256sum }}
+    checksum/global-config: {{ toJson $.Values.global.envFrom.configMap | sha256sum }}
+    checksum/global-secret: {{ toJson $.Values.global.envFrom.secret | sha256sum }}
+    checksum/global-sealedSecret: {{ toJson $.Values.global.envFrom.sealedSecret | sha256sum }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- with .Values.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.minReadySeconds }}
+  minReadySeconds: {{ . }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "common.selectorLabels" . | nindent 6 }}
@@ -30,8 +40,8 @@ spec:
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-        {{- if $.Values.global.configRollout }}
-        rollout/global-config: {{ randAlphaNum 10 | quote }}
+        {{- if $.Values.global.rollout }}
+        checksum/global-rollout: {{ randAlphaNum 10 | quote }}
         {{- end }}
       {{- end }}
     spec:
@@ -166,4 +176,5 @@ spec:
             claimName: {{ (printf "%s-%s-%s" (include "common.fullname" $) .name "pvc") | quote }}
         {{- end }}
       {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
 {{- end }}

@@ -10,11 +10,23 @@ metadata:
     checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
     checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     checksum/sealedSecret: {{ include (print $.Template.BasePath "/sealedsecret.yaml") . | sha256sum }}
+    checksum/global-config: {{ toJson $.Values.global.envFrom.configMap | sha256sum }}
+    checksum/global-secret: {{ toJson $.Values.global.envFrom.secret | sha256sum }}
+    checksum/global-sealedSecret: {{ toJson $.Values.global.envFrom.sealedSecret | sha256sum }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- with .Values.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if semverCompare ">=1.22-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride) -}}
+  {{- with .Values.minReadySeconds }}
+  minReadySeconds: {{ . }}
+  {{- end }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "common.selectorLabels" . | nindent 6 }}
@@ -32,8 +44,8 @@ spec:
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-        {{- if $.Values.global.configRollout }}
-        rollout/global-config: {{ randAlphaNum 10 | quote }}
+        {{- if $.Values.global.rollout }}
+        checksum/global-rollout: {{ randAlphaNum 10 | quote }}
         {{- end }}
       {{- end }}
     spec:
@@ -163,6 +175,7 @@ spec:
           {{- toYaml .volumeOptions | nindent 10 }}
         {{- end }}
       {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
   {{- if .Values.persistentVolumes }}
   volumeClaimTemplates:
     {{- range .Values.persistentVolumes }}

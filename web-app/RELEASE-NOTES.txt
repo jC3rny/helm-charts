@@ -1,4 +1,14 @@
-2.2.0 [ latest ]
+2.3.1 [ latest ]
+  - option to configure service annotations
+  - option to configure service type LoadBalancer
+  - optioin to set annotations for imagePullSecret
+  - fix ability to rollout deployment with global config
+  - option to configure terminationGracePeriodSeconds (default 180s)
+  - option to configure minReadySeconds for deployment and statefulset
+  - option to configure update strategy
+
+
+2.2.0 [ f5f8def50f4ea26acc45e76e7f3772e13a14e35c ]
   - added ability to provide pod labels
   - option to configure rbac
 
