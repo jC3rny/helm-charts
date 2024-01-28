@@ -1,9 +1,10 @@
 {{- if and (not .Values.statefulApp) .Values.persistentVolumes }}
 {{- range .Values.persistentVolumes }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ (printf "%s-%s-%s" (include "common.fullname" $) .name "pvc") | quote }}
+  name: {{ (printf "%s-%s" (include "common.fullname" $) .name) | quote }}
   namespace: {{ include "common.namespace" $ }}
   labels:
     {{- include "common.labels" $ | nindent 4 }}

@@ -182,7 +182,7 @@ spec:
         {{- range .Values.persistentVolumes }}
         - name: {{ .name }}
           persistentVolumeClaim:
-            claimName: {{ (printf "%s-%s-%s" (include "common.fullname" $) .name "pvc") | quote }}
+            claimName: {{ (printf "%s-%s" (include "common.fullname" $) .name) | quote }}
         {{- end }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
