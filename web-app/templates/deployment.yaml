@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "web-app.fullname" . }}
+  namespace: {{ include "web-app.namespace" . }}
   labels:
     {{- include "web-app.labels" . | nindent 4 }}
 spec:
@@ -34,7 +35,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.imagePullSecrets.url }}/{{ .Values.image.repository | trimPrefix "/" | trimSuffix "/" }}:{{ default .Chart.AppVersion .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if or (.Values.envFrom.configmap) (.Values.envFrom.secret) (.Values.envFrom.sealedsecret) }}
+          {{- if or .Values.envFrom.configMap .Values.envFrom.secret .Values.envFrom.sealedSecret }}
           envFrom:
             {{- if .Values.envFrom.configMap }}
             - configMapRef:

@@ -26,6 +26,18 @@ If release name contains chart name it will be used as a full name.
 
 
 {{/*
+Create release namespace.
+*/}}
+{{- define "web-app.namespace" -}}
+{{- if .Values.namespaceOverride -}}
+{{- .Values.namespaceOverride }}
+{{- else }}
+{{- .Release.Namespace }}
+{{- end -}}
+{{- end }}
+
+
+{{/*
 Create a default app instance name.
 */}}
 {{- define "web-app.instance" -}}
@@ -108,6 +120,12 @@ Create the name of the common secrets
 {{- define "web-app.containerRegistryName" -}}
 {{- if .Values.imagePullSecrets }}
 {{- printf "%s-%s" (regexReplaceAll "\\W+" .Values.imagePullSecrets.url "-" | trimSuffix "-") "registry-secret" }}
+{{- end }}
+{{- end }}
+
+{{- define "web-app.tls.secretName" -}}
+{{- if and .Values.ingress.tls.enabled .Values.ingress.tls.certificate }}
+{{- include "web-app.fullname" . }}-tls
 {{- end }}
 {{- end }}
 

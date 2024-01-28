@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "web-app.fullname" . }}
+  namespace: {{ include "web-app.namespace" . }}
   labels:
     {{- include "web-app.labels" . | nindent 4 }}
 spec:

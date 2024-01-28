@@ -3,6 +3,7 @@ apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "web-app.fullname" . }}-pdb
+  namespace: {{ include "web-app.namespace" . }}
 spec:
   selector:
     matchLabels:
