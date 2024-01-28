@@ -21,7 +21,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "common.selectorLabels" -}}
-{{- if .Values.customLabels }}
+{{- if hasKey .Values.customLabels "selector" -}}
 {{- toYaml .Values.customLabels.selector }}
 {{- else -}}
 app.kubernetes.io/name: {{ .Release.Name }}
@@ -38,10 +38,8 @@ app.kubernetes.io/instance: {{ include "common.instance" . }}
 App labels
 */}}
 {{- define "common.appLabels" -}}
-{{- if .Values.customLabels }}
-{{- with .Values.customLabels.others }}
-{{- toYaml . }}
-{{- end }}
+{{- if hasKey .Values.customLabels "others" }}
+{{- toYaml .Values.customLabels.others }}
 {{- else -}}
 {{- $component := default .Chart.Name (splitList "/" .Chart.Home | last) -}}
 {{- if hasKey .Values "rewriteLabels" -}}
@@ -61,6 +59,9 @@ app.kubernetes.io/version: {{ .Values.image.useGlobal | ternary .Values.global.i
 {{- else }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
+{{- end }}
+{{- range $key, $value := .Values.additionalLabels }}
+{{ $key }}: {{ ($value | regexMatch "@") | ternary ($value | replace "@" "_at-sign_") $value }}
 {{- end }}
 {{- end }}
 {{- end }}

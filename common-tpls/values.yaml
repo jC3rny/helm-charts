@@ -14,6 +14,11 @@ rewriteLabels: {}
   # component: ""
   # partOf: ""
 
+additionalLabels: {}
+  ## This will extend the recommended labels starting with app.kubernetes.io/*
+  # metadata.organization/name: "Example ltd."
+  # metadata.organization/manager: "john.doe@example.com"
+
 customLabels: {}
   ## This will replace the recommended labels with the following.
   ## All these labels are also used in the selector.
