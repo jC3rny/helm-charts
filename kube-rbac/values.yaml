@@ -1,0 +1,77 @@
+## Default values for kube-rbac.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+
+kubeConfig:
+  enabled: no
+  cluster:
+    name: ""
+    server: ""
+    certificateAuthorityData: ""
+  user:
+    name: ""
+    token: ""
+
+
+keyVault:
+  provider: ""
+    # values: azure
+  subscription: ""
+  resourceGroup: ""
+  location: "West Europe"
+  vaultName: ""
+  secretsOfficer: []
+    ## Users who will be assigned to resources (in .groups.example-group.users) without an email address (example-username)
+
+
+clusterRole:
+  aggregateToView: [] 
+    ## Aggregate additional cluster roles into default cluster role "view"
+    # - secrets
+    # - sealedsecrets
+  prefix: "default"
+  roles: []
+    ## secret-view
+    # - name: "secret-view"
+    #   rules:
+    #     - apiGroups: [ "" ]
+    #       resources: [ "secrets" ]
+    #       verbs: [ "get", "watch", "list" ]
+    # 
+    ## sealedsecrets-view
+    # - name: "sealedsecrets-view"
+    #   rules:
+    #     - apiGroups: [ "bitnami.com" ]
+    #       resources: [ "sealedsecrets" ]
+    #       verbs: [ "get", "watch", "list" ]
+
+
+
+serviceAccount:
+  # Annotations to add to the service account
+  annotations: {}
+  # The namespace of the service account to use.
+  namespaceOverride: "default"
+
+
+roleBinding:
+  enabled: no
+  prefix: custom
+
+
+groups: {}
+  # example-group:
+  #   users:
+  #     - example-username
+  #     - firstname.surname@example.com
+  #   namespaces:
+  #     example-namespace:
+  #       clusterRoles:
+  #         - view
+  #         - custom:secret-view
+  #       roles:
+  #         - special-role
