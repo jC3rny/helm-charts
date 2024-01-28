@@ -58,6 +58,14 @@ Create the name of the service account to use
 
 
 {{/*
+Create the name of the main container
+*/}}
+{{- define "common.containerName" -}}
+  {{- empty .Values.containerName | ternary (default .Chart.Name .Values.rewriteLabels.component) .Values.containerName }}
+{{- end }}
+
+
+{{/*
 Create the name of the service
 */}}
 {{- define "common.serviceName" -}}
@@ -69,7 +77,7 @@ Create the name of the service
 Create the name of the job.
 */}}
 {{- define "common.job.name" -}}
-  {{- default .Release.Name .Values.job.nameOverride | trunc 63 | trimSuffix "-" }}
+  {{- default (printf "%s-%s" (include "common.fullname" .) .Values.job.nameOverride) .Values.job.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 
@@ -77,7 +85,7 @@ Create the name of the job.
 Create the name of the cronJob.
 */}}
 {{- define "common.cronJob.name" -}}
-  {{- default .Release.Name .Values.cronJob.nameOverride | trunc 63 | trimSuffix "-" }}
+  {{- default (printf "%s-%s" (include "common.fullname" .) .Values.cronJob.nameOverride) .Values.cronJob.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 
@@ -85,5 +93,5 @@ Create the name of the cronJob.
 Create the name of the standalone pod.
 */}}
 {{- define "common.pod.name" -}}
-  {{- default .Release.Name .Values.pod.nameOverride | trunc 63 | trimSuffix "-" }}
+  {{- default (printf "%s-%s" (include "common.fullname" .) .Values.pod.nameOverride) .Values.pod.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
