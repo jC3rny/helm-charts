@@ -1,4 +1,4 @@
-{{ if gt (.Values.replicaCount | int) 1 }}
+{{ if and (gt (.Values.replicaCount | int) 1) (or .Values.statelessApp .Values.statefulApp) }}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:

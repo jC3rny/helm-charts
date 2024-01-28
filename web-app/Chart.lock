@@ -1,6 +1,6 @@
 dependencies:
 - name: common-tpls
   repository: file://../common-tpls
-  version: 0.5.3
-digest: sha256:93d5e2c368d37bce7fdbf95456ca0fbd67a28c0d689fcf3ca2163d4a8d651f26
-generated: "2024-01-28T23:48:16.7509251+01:00"
+  version: 0.5.5
+digest: sha256:af13c636e7d5f61216b18c3779c60b16184dd1c8ad292fe7cc65c46eebbf373f
+generated: "2024-01-28T23:53:44.3911204+01:00"
