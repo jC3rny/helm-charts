@@ -1,0 +1,24 @@
+
+1.2.0 [ latest ]
+  - render templates helpers through the helm chart commont-tpls
+  - option to choose between stateless or stateful app type
+  - option to configure dnsConfig
+  - imagePullSecret and image can be configured locally or globally
+  - option to configure standalone configMap, secret or sealedSecret
+  - option to configure env variables
+  - envFrom can be configured locally or globally
+  - option to configure container's command and args
+  - changed service configuration
+  - added option to set up multiple paths for ingress
+  - persistentVolumeClaim and volumeClaimTemplates can be configured with depends on the type of app
+  - standalone volumes and volumeMounts can be configured for any supported configuration
+  - added ability to configure batch/v1 Job
+
+
+0.2.1 [ e63632d577f9d2da519871a52084b48c2ed1044a ]
+  - Updated secret template to be able to use custom TLS certificate for ingress
+  - Added ability to render namespace
+
+
+0.1.0 [ ee4524bb494e00dc9470274cf1a818c9e3f71525 ]
+  - Initial commit

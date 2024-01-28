@@ -1,0 +1,79 @@
+{{- if or .Values.job.image.repository .Values.job.image.useGlobal }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "common.job.name" . }}
+  namespace: {{ include "common.namespace" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+  {{- with .Values.job.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  backoffLimit: {{ .Values.job.backoffLimit }}
+  template:
+    spec:
+      restartPolicy: {{ .Values.job.restartPolicy }}
+      {{- if or .Values.job.imagePullSecret $.Values.global.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ include "common.job.containerRegistryName" . }}
+      {{- end }}
+      containers:
+        - name: {{ include "common.job.name" . }}
+          image: {{ include "common.job.containerImage" . | quote }}
+          imagePullPolicy: {{ include "common.job.containerImagePullPolicy" . }}
+          {{- with .Values.job.env }}
+          env:
+            {{- range . }}
+            - name: {{ .name }}
+              {{- if .valueFrom }}
+              valueFrom:
+                {{- toYaml .valueFrom | nindent 16 }}
+              {{- else }}
+              value: {{ .value | quote }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if or (or .Values.job.envFrom.configMap .Values.job.envFrom.secret .Values.job.envFrom.sealedSecret) .Values.job.envFrom.useGlobal }}
+          envFrom:
+            {{- if or .Values.job.envFrom.configMap (and .Values.job.envFrom.useGlobal $.Values.global.envFrom.configMap) }}
+            - configMapRef:
+                name: {{ include "common.job.envFrom.configMapName" . }}
+            {{- end }}
+            {{- if or .Values.job.envFrom.secret (and .Values.job.envFrom.useGlobal $.Values.global.envFrom.secret) }}
+            - secretRef:
+                name: {{ include "common.job.envFrom.secretName" . }}
+            {{- end }}
+            {{- if or .Values.job.envFrom.sealedSecret (and .Values.job.envFrom.useGlobal $.Values.global.envFrom.sealedSecret) }}
+            - secretRef:
+                name: {{ include "common.job.envFrom.sealedSecretName" . }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.job.command }}
+          command:
+            {{- range . }}
+            - {{ . | quote }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.job.args }}
+          args:
+            {{- range . }}
+            - {{ . | quote }}
+            {{- end }}
+          {{- end }}
+          {{- if or .Values.job.volumes }}
+          volumeMounts:
+            {{- range .Values.job.volumes }}
+            - name: {{ .name }}
+              {{- toYaml .mountOptions | nindent 14 }}
+            {{- end }}
+          {{- end}}
+      {{- if or .Values.job.volumes }}
+      volumes:
+        {{- range .Values.job.volumes }}
+        - name: {{ .name }}
+          {{- toYaml .volumeOptions | nindent 10 }}
+        {{- end }}
+      {{- end }}
+{{- end }}

@@ -2,20 +2,41 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+global:
+  image: {}
+  imagePullSecret: {}
+  envFrom:
+    configMap: {}
+      # APP_ENV: global-dev
+      # DB_DRIVER: mariadb-10.3.23
+    secret: {}
+      # APP_SECRET: "d3b5cb6479ef3959d1d3fb3ef460c87a"
+    sealedSecret: {}
+      # DB_PASSWORD: "AgCo20XiExXxAvxIOqjnhi1D"
+      # REDIS_PASSWORD: "AgBk6QZPCtElpkDCun1b1F1QjvMKb9mOWqbSqDrv8Evfi+AL+JDfdVA2zgb"
+
+
+statelessApp: yes
+statefulApp: no
+
 replicaCount: 1
 
 revisionHistoryLimit: 3
 
 image:
+  useGlobal: no
   repository: ""
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-imagePullSecrets: {}
-  # url: ""
-  # username: ""
-  # password: ""
+imagePullSecret:
+  useGlobal: no
+  createGlobal: no
+  url: ""
+  username: ""
+  password: ""
+  # sealedDockerConfig: ""
 
 nameOverride: ""
 fullnameOverride: ""
@@ -33,7 +54,7 @@ serviceAccount:
 
 rewriteLabels: {}
   # Overwrites the value of the recommended labels starting with app.kubernetes.io/*
-  # environment: staging
+  # environment: "staging"
   # instance: ""
   # component: ""
   # partOf: ""
@@ -50,6 +71,16 @@ customLabels: {}
 
 podAnnotations: {}
 
+podManagementPolicy: ""
+
+dnsConfig: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
 podSecurityContext: {}
   # fsGroup: 2000
 
@@ -61,7 +92,45 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+configMap: []
+  # - name: sample-prometheus-cm
+  #   data: |
+  #     prometheus.yml: |-
+  #       rule_files:
+  #         - "/prometheus/rules/*.yml"
+  #       global:
+  #         scrape_interval: 10s
+secret: []
+  # Default type is Opaque
+  # - name: common-secret
+  #   type: Opaque
+  #   stringData: |
+  #     namespace: a3ViZS1zeZW0=
+  #     token: ZXlKaGJHY2lV
+sealedSecret: []
+  # Default type is Opaque
+  # - name: standalone-sealed-secret
+  #   type: Opaque
+  #   encryptedData: |
+  #     namespace: a3ViZS1zeZW0=
+  #     token: ZXlKaGJHY2lV
+
+env: []
+  # - name: USERNAME
+  #   value: "admin"
+  # - name: SECRET_TOKEN
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: common-secret
+  #       key: token
+  # - name: POD_NAMESPACE
+  #   valueFrom:
+  #     fieldRef:
+  #       fieldPath: metadata.namespace
+
 envFrom:
+  useGlobal: no
+  createGlobal: no
   configMap: {}
     # APP_ENV: global-dev
     # DB_DRIVER: mariadb-10.3.23
@@ -70,6 +139,16 @@ envFrom:
   sealedSecret: {}
     # DB_PASSWORD: "AgCo20XiExXxAvxIOqjnhi1D"
     # REDIS_PASSWORD: "AgBk6QZPCtElpkDCun1b1F1QjvMKb9mOWqbSqDrv8Evfi+AL+JDfdVA2zgb"
+
+command: []
+  # - "/bin/sh"
+
+args: []
+  # - "-c"
+  # - "bundle"
+  # - "exec"
+  # - "rake"
+  # - "db:migrate"
 
 additionalPorts: []
   # - name: liveness
@@ -80,23 +159,15 @@ additionalPorts: []
   #   protocol: TCP
 
 service:
-  type: ClusterIP
-  name: http
-  port: 80
-  protocol: TCP
-
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  host: chart-example.local
-  tls:
-    enabled: false
-    # certificate: |
-    #   -----BEGIN CERTIFICATE-----
-    # key: |
-    #   -----BEGIN RSA PRIVATE KEY-----
+  # For headless service set clusterIP to empty string.
+  create: yes
+  # name: ""
+  # type: ClusterIP
+  # headless: no
+  portName: http
+  portNumber: 8080
+  # containerPort: 3000
+  # protocol: TCP
 
 livenessProbe: {}
   # httpGet:
@@ -107,6 +178,29 @@ readinessProbe: {}
   # httpGet:
   #   path: /
   #   port: readiness
+
+volumes: []
+  # - name: prometheus-config
+  #   mountOptions:
+  #     mountPath: /prometheus/prometheus.yml
+  #     subPath: prometheus.yml
+  #   volumeOptions:
+  #     configMap:
+  #       name: sample-prometheus-cm
+
+persistentVolumes: []
+  # accessModes, storageClassName and selector are optional
+  # - name: test-data
+  #   accessModes: [ "ReadWriteOnce" ]
+  #   storageClassName: ""
+  #   size: 2Gi
+  #   mountOptions:
+  #     mountPath: /data
+  #   selector:
+  #     matchLabels:
+  #       release: "stable"
+  #     matchExpressions:
+  #       - {key: environment, operator: In, values: [dev]}
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -120,20 +214,81 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
+
+ingress:
+  enabled: no
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  host: chart-example.local
+  tls:
+    enabled: no
+    # certificate: |
+    #   -----BEGIN CERTIFICATE-----
+    # key: |
+    #   -----BEGIN RSA PRIVATE KEY-----
+  paths: []
+    # - path: /v1
+    #   serviceName: "name-of-service-for-path-v1"
+    #   servicePort: 8081
+    # - path: /v2
+    #   serviceName: "name-of-service-for-path-v2"
+    #   servicePort: 8082
+
+
 pdb:
   # Values for minAvailable or maxUnavailable can be expressed as integers or as a percentage.
   minAvailable: 50%
   # maxUnavailable: 50%
 
+
 autoscaling:
-  enabled: false
+  enabled: no
   minReplicas: 1
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-nodeSelector: {}
 
-tolerations: []
+job:
+  nameOverride: ""
 
-affinity: {}
+  annotations: {}
+  
+  backoffLimit: 0
+  
+  restartPolicy: Never
+
+  image:
+    useGlobal: no
+    repository: ""
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  imagePullSecret:
+    useGlobal: no
+    createGlobal: no
+    url: ""
+    username: ""
+    password: ""
+    # sealedDockerConfig: ""
+  
+  env: []
+    # Same configuration as above.
+  
+  envFrom:
+    # Same configuration as above.
+    useGlobal: no
+    createGlobal: no
+    configMap: {}
+    secret: {}
+    sealedSecret: {}
+
+  command: []
+    # Same configuration as above.
+  
+  args: []
+    # Same configuration as above.
+  
+  volumes: []
+    # Same configuration as above.

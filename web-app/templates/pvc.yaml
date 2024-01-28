@@ -1,0 +1,34 @@
+{{- if and (not .Values.statefulApp) .Values.persistentVolumes }}
+{{- range .Values.persistentVolumes }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ (printf "%s-%s-%s" (include "common.fullname" $) .name "pvc") | quote }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+spec:
+  accessModes:
+  {{- if .accessModes }}
+  {{- range .accessModes }}
+    - {{ . | quote }}
+  {{- end }}
+  {{- else }}
+    - {{ print "ReadWriteOnce" | quote }}
+  {{- end }}
+  volumeMode: {{ default "Filesystem" .volumeMode | quote }}
+  {{- with .volumeName }}
+  volumeName: {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .size | quote }}
+  {{- if .storageClassName }}
+  storageClassName: {{ .storageClassName | quote }}
+  {{- end }}
+  {{- with .selector }}
+  selector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

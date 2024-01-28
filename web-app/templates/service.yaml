@@ -1,18 +1,23 @@
+{{- if ne .Values.service.create false }}
+{{- with .Values.service }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "web-app.fullname" . }}
-  namespace: {{ include "web-app.namespace" . }}
+  name: {{ include "common.serviceName" $ }}
+  namespace: {{ include "common.namespace" $ }}
   labels:
-    {{- include "web-app.labels" . | nindent 4 }}
+    {{- include "common.labels" $ | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ default "ClusterIP" .type }}
   selector:
-    {{- include "web-app.selectorLabels" . | nindent 4 }}
+    {{- include "common.selectorLabels" $ | nindent 4 }}
+  {{- if .headless }}
+  clusterIP: ""
+  {{- end }}
   ports:
-    {{- with .Values.service  }}
-    - name: {{ .name }}
-      port: {{ .port }}
-      targetPort: {{ .name }}
-      protocol: {{ .protocol }}
-    {{- end }}
+    - name: {{ .portName }}
+      port: {{ .portNumber }}
+      targetPort: {{ default .portNumber .containerPort }}
+      protocol: {{ default "TCP" .protocol }}
+{{- end }}
+{{- end }}

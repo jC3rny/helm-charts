@@ -1,6 +1,6 @@
-{{- if and .Values.statelessApp (not .Values.statefulApp) }}
+{{- if .Values.statefulApp }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "common.fullname" . }}
   namespace: {{ include "common.namespace" . }}
@@ -18,6 +18,8 @@ spec:
   selector:
     matchLabels:
       {{- include "common.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "common.serviceName" . }}
+  podManagementPolicy: {{ default "OrderedReady" .Values.podManagementPolicy }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -137,16 +139,36 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- if or .Values.volumes .Values.persistentVolumes }}
+      {{- if .Values.volumes }}
       volumes:
         {{- range .Values.volumes }}
         - name: {{ .name }}
           {{- toYaml .volumeOptions | nindent 10 }}
         {{- end }}
-        {{- range .Values.persistentVolumes }}
-        - name: {{ .name }}
-          persistentVolumeClaim:
-            claimName: {{ (printf "%s-%s-%s" (include "common.fullname" $) .name "pvc") | quote }}
-        {{- end }}
       {{- end }}
+  {{- if .Values.persistentVolumes }}
+  volumeClaimTemplates:
+    {{- range .Values.persistentVolumes }}
+    - metadata:
+        name: {{ .name }}
+        namespace: {{ include "common.namespace" $ }}
+        labels:
+          {{- include "common.labels" $ | nindent 10 }}
+      spec:
+        accessModes:
+        {{- if .accessModes }}
+        {{- range .accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        {{- else }}
+          - {{ print "ReadWriteOnce" | quote }}
+        {{- end }}
+        {{- if .storageClassName }}
+        storageClassName: {{ .storageClassName | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .size | quote }}
+    {{- end }}
+  {{- end }}
 {{- end }}

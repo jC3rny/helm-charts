@@ -1,14 +1,42 @@
-{{- if .Values.envFrom.configMap }}
+{{- if or (and .Values.envFrom.configMap (not .Values.envFrom.useGlobal)) (and $.Values.global.envFrom.configMap .Values.envFrom.createGlobal) }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "web-app.envFrom.configMapName" . }}
-  namespace: {{ include "web-app.namespace" . }}
+  name: {{ include "common.envFrom.configMapName" . }}
+  namespace: {{ include "common.namespace" . }}
   labels:
-    {{- include "web-app.labels" . | nindent 4 }}
+    {{- include "common.labels" . | nindent 4 }}
 data:
-{{- range $key, $value := .Values.envFrom.configMap -}}
+{{- range $key, $value := .Values.envFrom.useGlobal | ternary $.Values.global.envFrom.configMap .Values.envFrom.configMap -}}
   {{ $key | nindent 2 }}: {{ $value | quote }}
 {{- end -}}
+{{- end }}
+
+
+{{- range .Values.configMap }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+data:
+{{- .data | nindent 2 }}
+{{- end }}
+
+
+{{- range .Values.job.configMap }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+data:
+{{- .data | nindent 2 }}
 {{- end }}
