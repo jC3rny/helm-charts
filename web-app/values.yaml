@@ -40,7 +40,7 @@ imagePullSecret:
   url: ""
   username: ""
   password: ""
-  # sealedDockerConfig: ""
+  sealedDockerConfig: ""
 
 nameOverride: ""
 fullnameOverride: ""
