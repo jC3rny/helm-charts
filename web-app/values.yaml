@@ -1,9 +1,9 @@
-# Default values for web-app.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+## Default values for web-app.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
 
 global:
-  # Provide ability to rollout deployment.
+  ## Provide ability to rollout deployment.
   rollout: no
   image: {}
   imagePullSecret: {}
@@ -30,7 +30,7 @@ image:
   useGlobal: no
   repository: ""
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
+  ## Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
 imagePullSecret:
@@ -50,24 +50,24 @@ namespaceOverride: ""
 kubeVersionOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
+  ## Specifies whether a service account should be created
   create: false
-  # Annotations to add to the service account
+  ## Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  ## The name of the service account to use.
+  ## If not set and create is true, a name is generated using the fullname template
   name: ""
 
 rewriteLabels: {}
-  # Overwrites the value of the recommended labels starting with app.kubernetes.io/*
+  ## Overwrites the value of the recommended labels starting with app.kubernetes.io/*
   # environment: "staging"
   # instance: ""
   # component: ""
   # partOf: ""
 
 customLabels: {}
-  # This will replace the recommended labels with the following.
-  # All these labels are also used in the selector.
+  ## This will replace the recommended labels with the following.
+  ## All these labels are also used in the selector.
   # selector:
   #   app: web-app
   #   instance: web-app-api-dev
@@ -214,7 +214,7 @@ service:
   # containerPort: 3000
   # protocol: TCP
   additionalPorts: []
-    # Add additional ports published in Pod (main container or in additionalContainers).
+    ## Add additional ports published in Pod (main container or in additionalContainers).
     # - name:
     #   port:
     #   containerPort:
@@ -233,7 +233,7 @@ readinessProbe: {}
   #   port: readiness
 
 additionalContainers: []
-  # Define additional containers (sidecar, adapter, ambassador, etc.)
+  ## Define additional containers (sidecar, adapter, ambassador, etc.)
   # - name: zabbix-agent2
   #   image: zabbix/zabbix-agent2:alpine-5.2-latest
   #   imagePullPolicy: Always
@@ -251,10 +251,8 @@ additionalContainers: []
   #   resources: { requests: { cpu: 100m, memory: 54Mi }, limits: { cpu: 100m, memory: 54Mi } }
 
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  ## If you do want to specify resources, uncomment the following
+  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -274,7 +272,7 @@ volumes: []
   #       name: sample-prometheus-cm
 
 persistentVolumes: []
-  # accessModes, storageClassName and selector are optional
+  ## accessModes, storageClassName and selector are optional
   # - name: storage
   #   accessModes: [ "ReadWriteOnce" ]
   #   storageClassName: ""
@@ -298,8 +296,8 @@ ingress:
       paths:
         - path: /
           pathType: ImplementationSpecific
-        # Create ingress as a part of global-config chart. Then make two deployments (separate charts) 
-        # without ingress, but with specified serviceName (use case: hello-app:1.0, hello-app:2.0).
+        ## Create ingress as a part of global-config chart. Then make two deployments (separate charts) 
+        ## without ingress, but with specified serviceName (use case: hello-app:1.0, hello-app:2.0).
         # - path: /v1
         #   serviceName: "name-of-service-for-path-v1"
         #   servicePort: 8081
@@ -307,7 +305,7 @@ ingress:
         #   serviceName: "name-of-service-for-path-v2"
         #   servicePort: 8082
   tls: []
-    # The secretName is optional
+    ## The secretName is optional
     # - hosts:
     #     - chart-example.local
     #   secretName: chart-example-tls
@@ -318,7 +316,7 @@ ingress:
 
 
 pdb:
-  # Values for minAvailable or maxUnavailable can be expressed as integers or as a percentage.
+  ## Values for minAvailable or maxUnavailable can be expressed as integers or as a percentage.
   minAvailable: 50%
   # maxUnavailable: 50%
 
@@ -363,10 +361,10 @@ job:
     # sealedDockerConfig: ""
   
   env: []
-    # Same configuration as above.
+    ## Same configuration as above.
   
   envFrom:
-    # Same configuration as above.
+    ## Same configuration as above.
     useGlobal: no
     annotations: {}
     configMap: {}
@@ -374,22 +372,22 @@ job:
     sealedSecret: {}
   
   configMap: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
   secret: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
   sealedSecret: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
   command: []
-    # Same configuration as above.
+    ## Same configuration as above.
   
   args: []
-    # Same configuration as above.
+    ## Same configuration as above.
   
   volumes: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
 
 cronJob:
@@ -418,10 +416,10 @@ cronJob:
     # sealedDockerConfig: ""
   
   env: []
-    # Same configuration as above.
+    ## Same configuration as above.
   
   envFrom:
-    # Same configuration as above.
+    ## Same configuration as above.
     useGlobal: no
     annotations: {}
     configMap: {}
@@ -429,22 +427,22 @@ cronJob:
     sealedSecret: {}
   
   configMap: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
   secret: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
   sealedSecret: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
   command: []
-    # Same configuration as above.
+    ## Same configuration as above.
   
   args: []
-    # Same configuration as above.
+    ## Same configuration as above.
   
   volumes: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
 
 pod:
@@ -475,10 +473,10 @@ pod:
     # sealedDockerConfig: ""
   
   env: []
-    # Same configuration as above.
+    ## Same configuration as above.
   
   envFrom:
-    # Same configuration as above.
+    ## Same configuration as above.
     useGlobal: no
     annotations: {}
     configMap: {}
@@ -486,19 +484,19 @@ pod:
     sealedSecret: {}
   
   configMap: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
   secret: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
   sealedSecret: []
-    # Same configuration as above.
+    ## Same configuration as above.
 
   command: []
-    # Same configuration as above.
+    ## Same configuration as above.
   
   args: []
-    # Same configuration as above.
+    ## Same configuration as above.
   
   volumes: []
-    # Same configuration as above.
+    ## Same configuration as above.

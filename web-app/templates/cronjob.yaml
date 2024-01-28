@@ -15,12 +15,12 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  schedule: {{ .Values.job.schedule }}
+  schedule: {{ .Values.cronJob.schedule | quote }}
   {{- if gt (.Values.cronJob.successfulJobsHistoryLimit | int) 0 }}
-  successfulJobsHistoryLimit: {{ .Values.job.successfulJobsHistoryLimit }}
+  successfulJobsHistoryLimit: {{ .Values.cronJob.successfulJobsHistoryLimit }}
   {{- end }}
   {{- if gt (.Values.cronJob.failedJobsHistoryLimit | int) 0 }}
-  failedJobsHistoryLimit: {{ .Values.job.failedJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.cronJob.failedJobsHistoryLimit }}
   {{- end }}
   jobTemplate:
     spec:
