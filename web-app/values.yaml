@@ -200,12 +200,15 @@ additionalPorts: []
 service:
   create: yes
   type: ClusterIP
-  # service types: ClusterIP, LoadBalancer
+  # service types: ClusterIP, LoadBalancer, ExternalName
   name: ""
   annotations: {}
   headless: no
-  # clusterIP:
-  # loadBalancerIP:
+  # clusterIP: 
+  # loadBalancerIP: 
+  # externalName: 
+  # externalTrafficPolicy: 
+  # subsets: []
   portName: http
   portNumber: 8080
   # containerPort: 3000

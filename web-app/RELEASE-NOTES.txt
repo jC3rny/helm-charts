@@ -1,7 +1,9 @@
-2.4.1 [ latest ]
+2.4.2 [ latest ]
   - added ability to configure deployment annotations
   - option to configure multiple ports in service
   - option to add additional entries to the hosts file (hostAliases)
+  - option to configure externalName, externalTrafficPolicy and subsets in service
+  - fix ingress default pathType
 
 
 2.3.1 [ 31a27f2778e5bf870165935f302a7679c05b259f ]
