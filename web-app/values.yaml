@@ -93,6 +93,8 @@ dnsPolicy: ClusterFirst
 
 dnsConfig: {}
 
+hostAliases: []
+
 hostNetwork: no
 
 nodeSelector: {}
@@ -206,6 +208,11 @@ service:
   portNumber: 8080
   # containerPort: 3000
   # protocol: TCP
+  additionalPorts: []
+    # - name:
+    #   port:
+    #   containerPort:
+    #   protocol: 
 
 minReadySeconds: 
 

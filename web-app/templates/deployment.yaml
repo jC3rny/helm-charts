@@ -6,13 +6,6 @@ metadata:
   namespace: {{ include "common.namespace" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
-  annotations:
-    checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
-    checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
-    checksum/sealedSecret: {{ include (print $.Template.BasePath "/sealedsecret.yaml") . | sha256sum }}
-    checksum/global-config: {{ toJson $.Values.global.envFrom.configMap | sha256sum }}
-    checksum/global-secret: {{ toJson $.Values.global.envFrom.secret | sha256sum }}
-    checksum/global-sealedSecret: {{ toJson $.Values.global.envFrom.sealedSecret | sha256sum }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -35,20 +28,28 @@ spec:
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- if or .Values.podAnnotations $.Values.global.configRollout }}
       annotations:
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/sealedSecret: {{ include (print $.Template.BasePath "/sealedsecret.yaml") . | sha256sum }}
+        checksum/global-config: {{ toJson $.Values.global.envFrom.configMap | sha256sum }}
+        checksum/global-secret: {{ toJson $.Values.global.envFrom.secret | sha256sum }}
+        checksum/global-sealedSecret: {{ toJson $.Values.global.envFrom.sealedSecret | sha256sum }}
         {{- if $.Values.global.rollout }}
         checksum/global-rollout: {{ randAlphaNum 10 | quote }}
         {{- end }}
-      {{- end }}
     spec:
       serviceAccountName: {{ include "common.serviceAccountName" . }}
       dnsPolicy: {{ .Values.dnsPolicy }}
       {{- with .Values.dnsConfig }}
       dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.hostAliases }}
+      hostAliases:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       hostNetwork: {{ .Values.hostNetwork }}
@@ -130,6 +131,11 @@ spec:
             - name: {{ .portName }}
               containerPort: {{ default .portNumber .containerPort }}
               protocol: {{ default "TCP" .protocol }}
+            {{- range .additionalPorts }}
+            - name: {{ .name }}
+              containerPort: {{ default .port .containerPort }}
+              protocol: {{ default "TCP" .protocol }}
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- range .Values.additionalPorts  }}

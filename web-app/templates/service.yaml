@@ -28,5 +28,11 @@ spec:
       port: {{ .portNumber }}
       targetPort: {{ default .portNumber .containerPort }}
       protocol: {{ default "TCP" .protocol }}
+    {{- range .additionalPorts }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ default .port .containerPort }}
+      protocol: {{ default "TCP" .protocol }}
+    {{- end }}
 {{- end }}
 {{- end }}
