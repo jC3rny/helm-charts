@@ -96,7 +96,7 @@ strategy: {}
   #   maxSurge: 1
   #   maxUnavailable: 0
 
-dnsPolicy: ClusterFirst
+dnsPolicy: ""
 
 dnsConfig: {}
 
@@ -131,6 +131,32 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
+
+# rewrite main container name
+containerName: ""
+
+command: []
+  # - "/bin/sh"
+
+args: []
+  # - "-c"
+  # - "bundle"
+  # - "exec"
+  # - "rake"
+  # - "db:migrate"
+
+envFrom:
+  useGlobal: no
+  createGlobal: no
+  annotations: {}
+  configMap: {}
+    # APP_ENV: global-dev
+    # DB_DRIVER: mariadb-10.3.23
+  secret: {}
+    # APP_SECRET: "d3b5cb6479ef3959d1d3fb3ef460c87a"
+  sealedSecret: {}
+    # DB_PASSWORD: "AgCo20XiExXxAvxIOqjnhi1D"
+    # REDIS_PASSWORD: "AgBk6QZPCtElpkDCun1b1F1QjvMKb9mOWqbSqDrv8Evfi+AL+JDfdVA2zgb"
 
 configMap: []
   # - name: sample-prometheus-cm
@@ -171,29 +197,6 @@ env: []
   #     fieldRef:
   #       fieldPath: metadata.namespace
 
-envFrom:
-  useGlobal: no
-  createGlobal: no
-  annotations: {}
-  configMap: {}
-    # APP_ENV: global-dev
-    # DB_DRIVER: mariadb-10.3.23
-  secret: {}
-    # APP_SECRET: "d3b5cb6479ef3959d1d3fb3ef460c87a"
-  sealedSecret: {}
-    # DB_PASSWORD: "AgCo20XiExXxAvxIOqjnhi1D"
-    # REDIS_PASSWORD: "AgBk6QZPCtElpkDCun1b1F1QjvMKb9mOWqbSqDrv8Evfi+AL+JDfdVA2zgb"
-
-command: []
-  # - "/bin/sh"
-
-args: []
-  # - "-c"
-  # - "bundle"
-  # - "exec"
-  # - "rake"
-  # - "db:migrate"
-
 additionalPorts: []
   # - name: liveness
   #   port: 1234
@@ -216,16 +219,17 @@ service:
   # subsets: []
   portName: http
   portNumber: 8080
+  # You can skip creating a default port in the main container by explicitly specifying "None" for .containerPort.
   # containerPort: 3000
   # protocol: TCP
   additionalPorts: []
-    ## Add additional ports published in Pod (main container or in additionalContainers).
+    ## Add additional ports
     # - name:
     #   port:
     #   containerPort:
     #   protocol: 
   additionalServices: []
-    ## Add additional services.
+    ## Add additional services
     # - name: headless
     #   spec:
     #     type: ClusterIP
@@ -241,6 +245,9 @@ service:
 
 
 minReadySeconds: 
+
+startupProbe: {}
+  # initialDelaySeconds: 30
 
 livenessProbe: {}
   # httpGet:
@@ -280,7 +287,7 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-terminationGracePeriodSeconds: 180
+terminationGracePeriodSeconds: 
 
 volumes: []
   # - name: prometheus-config
@@ -350,14 +357,16 @@ autoscaling:
 
 
 rbac:
-  isClusterRole: no
+  apiGroup: "rbac.authorization.k8s.io"
   roleName: ""
-  apiGroup: ""
+  clusterRoles: []
+    # - "view"
   rules: []
 
 
 job:
   nameOverride: ""
+  fullnameOverride: ""
 
   annotations: {}
   
@@ -412,6 +421,7 @@ job:
 
 cronJob:
   nameOverride: ""
+  fullnameOverride: ""
 
   annotations: {}
 
@@ -467,6 +477,7 @@ cronJob:
 
 pod:
   nameOverride: ""
+  fullnameOverride: ""
 
   annotations: {}
 

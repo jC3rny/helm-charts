@@ -1,34 +1,4 @@
 {{- if .Values.rbac.rules }}
-{{- if .Values.rbac.isClusterRole }}
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: {{ printf "%s-%s" (include "common.fullname" .) .Values.rbac.roleName }}
-  labels:
-    {{- include "common.labels" . | nindent 4 }}
-rules:
-{{ toYaml .Values.rbac.rules | indent 2 }}
-
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: {{ printf "%s-%s" (include "common.fullname" .) .Values.rbac.roleName }}
-  labels:
-    {{- include "common.labels" . | nindent 4 }}
-roleRef:
-  apiGroup: {{ .Values.rbac.apiGroup | quote }}
-  kind: ClusterRole
-  name: {{ printf "%s-%s" (include "common.fullname" .) .Values.rbac.roleName }}
-subjects:
-  - apiGroup: {{ .Values.rbac.apiGroup }}
-    kind: ServiceAccount
-    name: {{ include "common.serviceAccountName" . }}
-    namespace: {{ include "common.namespace" . }}
-
-{{- else }}
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -49,13 +19,31 @@ metadata:
   labels:
     {{- include "common.labels" . | nindent 4 }}
 roleRef:
-  apiGroup: {{ .Values.rbac.apiGroup | quote }}
+  apiGroup: {{ .Values.rbac.apiGroup }}
   kind: Role
   name: {{ printf "%s-%s" (include "common.fullname" .) .Values.rbac.roleName }}
 subjects:
-  - apiGroup: {{ .Values.rbac.apiGroup }}
-    kind: ServiceAccount
+  - kind: ServiceAccount
     name: {{ include "common.serviceAccountName" . }}
     namespace: {{ include "common.namespace" . }}
+{{- range $role := .Values.rbac.clusterRoles }}
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ printf "%s-%s:%s" (include "common.fullname" $) $.Values.rbac.roleName $role }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+roleRef:
+  apiGroup: {{ $.Values.rbac.apiGroup }}
+  kind: ClusterRole
+  name: {{ $role }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "common.serviceAccountName" $ }}
+    namespace: {{ include "common.namespace" $ }}
 {{- end }}
 {{- end }}

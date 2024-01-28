@@ -51,7 +51,9 @@ spec:
         {{- end }}
     spec:
       serviceAccountName: {{ include "common.serviceAccountName" . }}
-      dnsPolicy: {{ .Values.dnsPolicy }}
+      {{- with .Values.dnsPolicy }}
+      dnsPolicy: {{ . }}
+      {{- end }}
       {{- with .Values.dnsConfig }}
       dnsConfig:
         {{- toYaml . | nindent 8 }}
@@ -60,7 +62,9 @@ spec:
       hostAliases:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.hostNetwork }}
       hostNetwork: {{ .Values.hostNetwork }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -86,7 +90,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ include "common.fullname" . }}
+        - name: {{ include "common.containerName" . }}
           {{- with .Values.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
@@ -132,10 +136,10 @@ spec:
             - {{ . | quote }}
             {{- end }}
           {{- end }}
-          {{- if or .Values.service.create .Values.additionalPorts }}
+          {{- if or (and .Values.service.create (ne (.Values.service.containerPort | toString) "None")) .Values.additionalPorts }}
           ports:
-            {{- if .Values.service.create }}
             {{- with .Values.service  }}
+            {{- if ne (.containerPort | toString) "None" }}
             - name: {{ .portName }}
               containerPort: {{ default .portNumber .containerPort }}
               protocol: {{ default "TCP" .protocol }}
@@ -146,6 +150,10 @@ spec:
               containerPort: {{ .port }}
               protocol: {{ default "TCP" .protocol }}
             {{- end }}
+          {{- end }}
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
@@ -184,7 +192,9 @@ spec:
           {{- toYaml .volumeOptions | nindent 10 }}
         {{- end }}
       {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- with .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
   {{- if .Values.persistentVolumes }}
   volumeClaimTemplates:
     {{- range .Values.persistentVolumes }}

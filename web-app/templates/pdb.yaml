@@ -1,5 +1,9 @@
 {{ if and (gt (.Values.replicaCount | int) 1) (or .Values.statelessApp .Values.statefulApp) }}
+{{- if semverCompare ">=1.21-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride) -}}
+apiVersion: policy/v1
+{{- else -}}
 apiVersion: policy/v1beta1
+{{- end }}
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "common.fullname" . }}-pdb
