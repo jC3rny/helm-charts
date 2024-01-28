@@ -64,6 +64,11 @@ roleBinding:
 
 
 groups: {}
+  # example-system-wide-admin-group:
+  #   users:
+  #     - firstname.surname@example.com
+  #   clusterRoles:
+  #     - view
   # example-group:
   #   users:
   #     - example-username
