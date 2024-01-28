@@ -29,7 +29,7 @@ If release name contains chart name it will be used as a full name.
 Create chart name and version as used by the chart label.
 */}}
 {{- define "common.chart" -}}
-  {{- printf "%s-%s" (default .Chart.Name (splitList "/" .Chart.Home | last)) .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+  {{- printf "%s-%s" (default .Chart.Name (splitList "/" .Chart.Home | last)) .Chart.Version }}
 {{- end }}
 
 
@@ -70,4 +70,20 @@ Create the name of the job.
 */}}
 {{- define "common.job.name" -}}
   {{- default .Release.Name .Values.job.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+
+{{/*
+Create the name of the cronJob.
+*/}}
+{{- define "common.cronJob.name" -}}
+  {{- default .Release.Name .Values.cronJob.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+
+{{/*
+Create the name of the standalone pod.
+*/}}
+{{- define "common.pod.name" -}}
+  {{- default .Release.Name .Values.pod.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}

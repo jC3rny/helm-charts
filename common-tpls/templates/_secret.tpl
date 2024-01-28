@@ -21,6 +21,24 @@
 {{- end }}
 
 
+{{- define "common.cronJob.envFrom.secretName" -}}
+  {{- if .Values.cronJob.envFrom.useGlobal }}
+    {{- printf "%s-%s-%s-%s" .Release.Name "global" "env" "secret" }}
+  {{- else }}
+    {{- printf "%s-%s-%s-%s" (include "common.cronJob.name" .) "cron" "env" "secret" }}
+  {{- end }}
+{{- end }}
+
+
+{{- define "common.pod.envFrom.secretName" -}}
+  {{- if .Values.pod.envFrom.useGlobal }}
+    {{- printf "%s-%s-%s-%s" .Release.Name "global" "env" "secret" }}
+  {{- else }}
+    {{- printf "%s-%s-%s-%s" (include "common.pod.name" .) "job" "env" "secret" }}
+  {{- end }}
+{{- end }}
+
+
 {{- define "common.envFrom.sealedSecretName" -}}
   {{- if .Values.envFrom.useGlobal }}
     {{- printf "%s-%s-%s-%s" .Release.Name "global" "env" "sealed" }}
@@ -35,5 +53,23 @@
     {{- printf "%s-%s-%s-%s" .Release.Name "global" "env" "sealed" }}
   {{- else }}
     {{- printf "%s-%s-%s-%s" (include "common.job.name" .) "job" "env" "sealed" }}
+  {{- end }}
+{{- end }}
+
+
+{{- define "common.cronJob.envFrom.sealedSecretName" -}}
+  {{- if .Values.cronJob.envFrom.useGlobal }}
+    {{- printf "%s-%s-%s-%s" .Release.Name "global" "env" "sealed" }}
+  {{- else }}
+    {{- printf "%s-%s-%s-%s" (include "common.cronJob.name" .) "cron" "env" "sealed" }}
+  {{- end }}
+{{- end }}
+
+
+{{- define "common.pod.envFrom.sealedSecretName" -}}
+  {{- if .Values.pod.envFrom.useGlobal }}
+    {{- printf "%s-%s-%s-%s" .Release.Name "global" "env" "sealed" }}
+  {{- else }}
+    {{- printf "%s-%s-%s-%s" (include "common.pod.name" .) "job" "env" "sealed" }}
   {{- end }}
 {{- end }}

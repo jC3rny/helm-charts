@@ -3,11 +3,12 @@ Common labels
 */}}
 {{- define "common.labels" -}}
 helm.sh/chart: {{ include "common.chart" . }}
-{{- if .Values.customLabels }}
-{{ include "common.customLabels" . }}
-{{- else }}
 {{ include "common.selectorLabels" . }}
-
+{{- if .Values.customLabels }}
+{{- with .Values.customLabels.others }}
+{{ toYaml . }}
+{{- end }}
+{{- else }}
 {{- $component := default .Chart.Name (splitList "/" .Chart.Home | last) }}
 {{- if or (not (contains $component .Chart.Name)) .Values.rewriteLabels.component }}
 app.kubernetes.io/component: {{ default .Chart.Name .Values.rewriteLabels.component }}
@@ -31,7 +32,7 @@ Selector labels
 */}}
 {{- define "common.selectorLabels" -}}
 {{- if .Values.customLabels -}}
-{{ include "common.customLabels" . }}
+{{- toYaml .Values.customLabels.selector }}
 {{- else -}}
 app.kubernetes.io/name: {{ .Release.Name }}
 app.kubernetes.io/instance: {{ default (include "common.instance" .) .Values.rewriteLabels.instance }}
