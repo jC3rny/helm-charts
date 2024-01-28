@@ -1,5 +1,18 @@
+2.1.0 [ latest ]
+  - option to configure dnsPolicy
+  - option to configure hostNetwork
+  - option to configure job's ttlSecondsAfterFinished
+  - option to rollout deployment with global config
+  - added option to configure annotations for envFrom, configmap, secret and sealedSecret
+  - option to configure init containers (initContainers)
+  - option to configure multi-container pod (additionalContainers)
+  - updated customLabels to be able provide specific selector labels
+  - added backward compatibility for older kubernetes
+  - added ability to configure standalone Pod
+  - added ability to configure CronJob
 
-1.2.0 [ latest ]
+
+1.2.0 [ 725dada0f26926bf63463d25c9eae88fd0506218 ]
   - render templates helpers through the helm chart commont-tpls
   - option to choose between stateless or stateful app type
   - option to configure dnsConfig

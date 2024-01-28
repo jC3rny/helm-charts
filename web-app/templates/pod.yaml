@@ -1,0 +1,82 @@
+{{- if or .Values.pod.image.repository .Values.pod.image.useGlobal }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "common.pod.name" . }}
+  namespace: {{ include "common.namespace" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+  {{- with .Values.pod.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  dnsPolicy: {{ .Values.pod.dnsPolicy }}
+  {{- with .Values.pod.dnsConfig }}
+  dnsConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  hostNetwork: {{ .Values.pod.hostNetwork }}
+  restartPolicy: {{ .Values.pod.restartPolicy }}
+  {{- if or .Values.pod.imagePullSecret $.Values.global.imagePullSecret }}
+  imagePullSecrets:
+    - name: {{ include "common.pod.containerRegistryName" . }}
+  {{- end }}
+  containers:
+    - name: {{ include "common.pod.name" . }}
+      image: {{ include "common.pod.containerImage" . | quote }}
+      imagePullPolicy: {{ include "common.pod.containerImagePullPolicy" . }}
+      {{- with .Values.pod.env }}
+      env:
+        {{- range . }}
+        - name: {{ .name }}
+          {{- if .valueFrom }}
+          valueFrom:
+            {{- toYaml .valueFrom | nindent 12 }}
+          {{- else }}
+          value: {{ .value | quote }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- if or (or .Values.pod.envFrom.configMap .Values.pod.envFrom.secret .Values.pod.envFrom.sealedSecret) .Values.pod.envFrom.useGlobal }}
+      envFrom:
+        {{- if or .Values.pod.envFrom.configMap (and .Values.pod.envFrom.useGlobal $.Values.global.envFrom.configMap) }}
+        - configMapRef:
+            name: {{ include "common.pod.envFrom.configMapName" . }}
+        {{- end }}
+        {{- if or .Values.pod.envFrom.secret (and .Values.pod.envFrom.useGlobal $.Values.global.envFrom.secret) }}
+        - secretRef:
+            name: {{ include "common.pod.envFrom.secretName" . }}
+        {{- end }}
+        {{- if or .Values.pod.envFrom.sealedSecret (and .Values.pod.envFrom.useGlobal $.Values.global.envFrom.sealedSecret) }}
+        - secretRef:
+            name: {{ include "common.pod.envFrom.sealedSecretName" . }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.pod.command }}
+      command:
+        {{- range . }}
+        - {{ . | quote }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.pod.args }}
+      args:
+        {{- range . }}
+        - {{ . | quote }}
+        {{- end }}
+      {{- end }}
+      {{- if or .Values.pod.volumes }}
+      volumeMounts:
+        {{- range .Values.pod.volumes }}
+        - name: {{ .name }}
+          {{- toYaml .mountOptions | nindent 10 }}
+        {{- end }}
+      {{- end}}
+  {{- if or .Values.pod.volumes }}
+  volumes:
+    {{- range .Values.pod.volumes }}
+    - name: {{ .name }}
+      {{- toYaml .volumeOptions | nindent 6 }}
+    {{- end }}
+  {{- end }}
+{{- end }}

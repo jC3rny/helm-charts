@@ -2,7 +2,14 @@
 {{- $fullName := include "common.fullname" . -}}
 {{- $namespace := include "common.namespace" . -}}
 {{- $svcPort := .Values.service.portNumber -}}
-{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride))) }}
+  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className }}
+  {{- end }}
+{{- end }}
+{{- if semverCompare ">=1.19-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride) -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride) -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
@@ -19,28 +26,40 @@ metadata:
   {{- end }}
 {{- with .Values.ingress }}
 spec:
-  {{- if .tls.enabled }}
+  {{- if and .className (semverCompare ">=1.18-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride)) }}
+  ingressClassName: {{ .className }}
+  {{- end }}
+  {{- if .tls }}
   tls:
+    {{- range .tls }}
     - hosts:
-        - {{ .host | quote }}
-      secretName: {{ include "common.tls.secretName" $ }}
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ default (include "common.tls.secretName" $) .secretName  }}
+    {{- end }}
   {{- end }}
   rules:
+    {{- range .hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
-          {{- if .paths }}
           {{- range .paths }}
           - path: {{ .path }}
+            {{- if and .pathType (semverCompare ">=1.18-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride)) }}
+            pathType: {{ .pathType }}
+            {{- end }}
             backend:
-              serviceName: {{ .serviceName }}
-              servicePort: {{ .servicePort }}
+              {{- if semverCompare ">=1.19-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride) }}
+              service:
+                name: {{ default $fullName .serviceName }}
+                port:
+                  number: {{ default $svcPort .servicePort }}
+              {{- else }}
+              serviceName: {{ default $fullName .serviceName }}
+              servicePort: {{ default $svcPort .servicePort }}
+              {{- end }}
           {{- end }}
-          {{- else }}
-          - path: /
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPort }}
-          {{- end }}
+    {{- end }}
 {{- end }}
 {{- end }}

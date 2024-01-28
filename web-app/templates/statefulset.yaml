@@ -22,18 +22,25 @@ spec:
   podManagementPolicy: {{ default "OrderedReady" .Values.podManagementPolicy }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
         {{- include "common.selectorLabels" . | nindent 8 }}
+      {{- if or .Values.podAnnotations $.Values.global.configRollout }}
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if $.Values.global.configRollout }}
+        rollout/global-config: {{ randAlphaNum 10 | quote }}
+        {{- end }}
+      {{- end }}
     spec:
       serviceAccountName: {{ include "common.serviceAccountName" . }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
       {{- with .Values.dnsConfig }}
       dnsConfig:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      hostNetwork: {{ .Values.hostNetwork }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -53,6 +60,10 @@ spec:
       {{- if or .Values.imagePullSecret.url $.Values.global.imagePullSecret }}
       imagePullSecrets:
         - name: {{ include "common.containerRegistryName" . }}
+      {{- end }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ include "common.fullname" . }}
@@ -139,6 +150,9 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+      {{- with .Values.additionalContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.volumes }}
       volumes:
         {{- range .Values.volumes }}

@@ -7,8 +7,77 @@ metadata:
   namespace: {{ include "common.namespace" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
+  {{- if or $.Values.global.envFrom.annotations .Values.envFrom.annotations }}
+  annotations:
+    {{- with $.Values.global.envFrom.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.envFrom.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
 data:
 {{- range $key, $value := .Values.envFrom.useGlobal | ternary $.Values.global.envFrom.configMap .Values.envFrom.configMap -}}
+  {{ $key | nindent 2 }}: {{ $value | quote }}
+{{- end -}}
+{{- end }}
+
+
+{{- if and .Values.job.envFrom.configMap (not .Values.job.envFrom.useGlobal) }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.job.envFrom.configMapName" . }}
+  namespace: {{ include "common.namespace" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+  {{- with .Values.job.envFrom.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+{{- range $key, $value := .Values.job.envFrom.configMap -}}
+  {{ $key | nindent 2 }}: {{ $value | quote }}
+{{- end -}}
+{{- end }}
+
+
+{{- if and .Values.cronJob.envFrom.configMap (not .Values.cronJob.envFrom.useGlobal) }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.cronJob.envFrom.configMapName" . }}
+  namespace: {{ include "common.namespace" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+  {{- with .Values.cronJob.envFrom.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+{{- range $key, $value := .Values.cronJob.envFrom.configMap -}}
+  {{ $key | nindent 2 }}: {{ $value | quote }}
+{{- end -}}
+{{- end }}
+
+
+{{- if and .Values.pod.envFrom.configMap (not .Values.pod.envFrom.useGlobal) }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.pod.envFrom.configMapName" . }}
+  namespace: {{ include "common.namespace" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+  {{- with .Values.pod.envFrom.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+{{- range $key, $value := .Values.pod.envFrom.configMap -}}
   {{ $key | nindent 2 }}: {{ $value | quote }}
 {{- end -}}
 {{- end }}
@@ -23,6 +92,10 @@ metadata:
   namespace: {{ include "common.namespace" $ }}
   labels:
     {{- include "common.labels" $ | nindent 4 }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 data:
 {{- .data | nindent 2 }}
 {{- end }}
@@ -37,6 +110,46 @@ metadata:
   namespace: {{ include "common.namespace" $ }}
   labels:
     {{- include "common.labels" $ | nindent 4 }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+{{- .data | nindent 2 }}
+{{- end }}
+
+
+{{- range .Values.cronJob.configMap }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+{{- .data | nindent 2 }}
+{{- end }}
+
+
+{{- range .Values.pod.configMap }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "common.namespace" $ }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 data:
 {{- .data | nindent 2 }}
 {{- end }}

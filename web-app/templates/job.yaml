@@ -12,9 +12,14 @@ metadata:
   {{- end }}
 spec:
   backoffLimit: {{ .Values.job.backoffLimit }}
+  {{- if gt (.Values.job.ttlSecondsAfterFinished | int) 0 }}
+  ttlSecondsAfterFinished: {{ .Values.job.ttlSecondsAfterFinished }}
+  {{- end }}
   template:
     spec:
-      restartPolicy: {{ .Values.job.restartPolicy }}
+      {{- with .Values.job.restartPolicy }}
+      restartPolicy: {{ . }}
+      {{- end }}
       {{- if or .Values.job.imagePullSecret $.Values.global.imagePullSecret }}
       imagePullSecrets:
         - name: {{ include "common.job.containerRegistryName" . }}

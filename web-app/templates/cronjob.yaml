@@ -1,0 +1,93 @@
+{{- if or .Values.cronJob.image.repository .Values.cronJob.image.useGlobal }}
+{{- if semverCompare ">=1.21-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride) -}}
+apiVersion: batch/v1
+{{- else -}}
+apiVersion: batch/v1beta1
+{{- end }}
+kind: CronJob
+metadata:
+  name: {{ include "common.cronJob.name" . }}
+  namespace: {{ include "common.namespace" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+  {{- with .Values.cronJob.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  schedule: {{ .Values.job.schedule }}
+  {{- if gt (.Values.cronJob.successfulJobsHistoryLimit | int) 0 }}
+  successfulJobsHistoryLimit: {{ .Values.job.successfulJobsHistoryLimit }}
+  {{- end }}
+  {{- if gt (.Values.cronJob.failedJobsHistoryLimit | int) 0 }}
+  failedJobsHistoryLimit: {{ .Values.job.failedJobsHistoryLimit }}
+  {{- end }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- with .Values.cronJob.restartPolicy }}
+          restartPolicy: {{ . }}
+          {{- end }}
+          {{- if or .Values.cronJob.imagePullSecret $.Values.global.imagePullSecret }}
+          imagePullSecrets:
+            - name: {{ include "common.cronJob.containerRegistryName" . }}
+          {{- end }}
+          containers:
+            - name: {{ include "common.cronJob.name" . }}
+              image: {{ include "common.cronJob.containerImage" . | quote }}
+              imagePullPolicy: {{ include "common.cronJob.containerImagePullPolicy" . }}
+              {{- with .Values.cronJob.env }}
+              env:
+                {{- range . }}
+                - name: {{ .name }}
+                  {{- if .valueFrom }}
+                  valueFrom:
+                    {{- toYaml .valueFrom | nindent 20 }}
+                  {{- else }}
+                  value: {{ .value | quote }}
+                  {{- end }}
+                {{- end }}
+              {{- end }}
+              {{- if or (or .Values.cronJob.envFrom.configMap .Values.cronJob.envFrom.secret .Values.cronJob.envFrom.sealedSecret) .Values.cronJob.envFrom.useGlobal }}
+              envFrom:
+                {{- if or .Values.cronJob.envFrom.configMap (and .Values.cronJob.envFrom.useGlobal $.Values.global.envFrom.configMap) }}
+                - configMapRef:
+                    name: {{ include "common.cronJob.envFrom.configMapName" . }}
+                {{- end }}
+                {{- if or .Values.cronJob.envFrom.secret (and .Values.cronJob.envFrom.useGlobal $.Values.global.envFrom.secret) }}
+                - secretRef:
+                    name: {{ include "common.cronJob.envFrom.secretName" . }}
+                {{- end }}
+                {{- if or .Values.cronJob.envFrom.sealedSecret (and .Values.cronJob.envFrom.useGlobal $.Values.global.envFrom.sealedSecret) }}
+                - secretRef:
+                    name: {{ include "common.cronJob.envFrom.sealedSecretName" . }}
+                {{- end }}
+              {{- end }}
+              {{- with .Values.cronJob.command }}
+              command:
+                {{- range . }}
+                - {{ . | quote }}
+                {{- end }}
+              {{- end }}
+              {{- with .Values.cronJob.args }}
+              args:
+                {{- range . }}
+                - {{ . | quote }}
+                {{- end }}
+              {{- end }}
+              {{- if or .Values.cronJob.volumes }}
+              volumeMounts:
+                {{- range .Values.cronJob.volumes }}
+                - name: {{ .name }}
+                  {{- toYaml .mountOptions | nindent 18 }}
+                {{- end }}
+              {{- end}}
+          {{- if or .Values.cronJob.volumes }}
+          volumes:
+            {{- range .Values.cronJob.volumes }}
+            - name: {{ .name }}
+              {{- toYaml .volumeOptions | nindent 14 }}
+            {{- end }}
+          {{- end }}
+{{- end }}

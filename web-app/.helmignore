@@ -10,14 +10,16 @@
 .hg/
 .hgignore
 .svn/
-# Common text files
-*.txt
 # Common backup files
 *.swp
 *.bak
 *.tmp
 *.orig
 *~
+# Common script files
+*.sh
+# Common text files
+*.txt
 # Various IDEs
 .project
 .idea/
