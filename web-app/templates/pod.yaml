@@ -17,6 +17,18 @@ spec:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   hostNetwork: {{ .Values.pod.hostNetwork }}
+  {{- if or .Values.pod.nodeSelector $.Values.global.nodeSelector }}
+  nodeSelector:
+    {{- empty .Values.pod.nodeSelector | ternary  (toYaml $.Values.global.nodeSelector) (toYaml .Values.pod.nodeSelector) | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.pod.affinity $.Values.global.affinity }}
+  affinity:
+    {{- empty .Values.pod.affinity | ternary  (toYaml $.Values.global.affinity) (toYaml .Values.pod.affinity) | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.pod.tolerations $.Values.global.tolerations }}
+  tolerations:
+    {{- empty .Values.pod.tolerations | ternary  (toYaml $.Values.global.tolerations) (toYaml .Values.pod.tolerations) | nindent 4 }}
+  {{- end }}
   restartPolicy: {{ .Values.pod.restartPolicy }}
   {{- if or .Values.pod.imagePullSecret $.Values.global.imagePullSecret }}
   imagePullSecrets:

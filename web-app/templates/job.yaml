@@ -17,6 +17,18 @@ spec:
   {{- end }}
   template:
     spec:
+      {{- if or .Values.job.nodeSelector $.Values.global.nodeSelector }}
+      nodeSelector:
+        {{- empty .Values.job.nodeSelector | ternary  (toYaml $.Values.global.nodeSelector) (toYaml .Values.job.nodeSelector) | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.job.affinity $.Values.global.affinity }}
+      affinity:
+        {{- empty .Values.job.affinity | ternary  (toYaml $.Values.global.affinity) (toYaml .Values.job.affinity) | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.job.tolerations $.Values.global.tolerations }}
+      tolerations:
+        {{- empty .Values.job.tolerations | ternary  (toYaml $.Values.global.tolerations) (toYaml .Values.job.tolerations) | nindent 8 }}
+      {{- end }}
       {{- with .Values.job.restartPolicy }}
       restartPolicy: {{ . }}
       {{- end }}

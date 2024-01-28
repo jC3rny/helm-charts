@@ -26,6 +26,18 @@ spec:
     spec:
       template:
         spec:
+          {{- if or .Values.cronJob.nodeSelector $.Values.global.nodeSelector }}
+          nodeSelector:
+            {{- empty .Values.cronJob.nodeSelector | ternary  (toYaml $.Values.global.nodeSelector) (toYaml .Values.cronJob.nodeSelector) | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.cronJob.affinity $.Values.global.affinity }}
+          affinity:
+            {{- empty .Values.cronJob.affinity | ternary  (toYaml $.Values.global.affinity) (toYaml .Values.cronJob.affinity) | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.cronJob.tolerations $.Values.global.tolerations }}
+          tolerations:
+            {{- empty .Values.cronJob.tolerations | ternary  (toYaml $.Values.global.tolerations) (toYaml .Values.cronJob.tolerations) | nindent 12 }}
+          {{- end }}
           {{- with .Values.cronJob.restartPolicy }}
           restartPolicy: {{ . }}
           {{- end }}

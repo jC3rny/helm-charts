@@ -17,6 +17,9 @@ global:
     sealedSecret: {}
       # DB_PASSWORD: "AgCo20XiExXxAvxIOqjnhi1D"
       # REDIS_PASSWORD: "AgBk6QZPCtElpkDCun1b1F1QjvMKb9mOWqbSqDrv8Evfi+AL+JDfdVA2zgb"
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
 
 
 statelessApp: yes
@@ -374,6 +377,12 @@ job:
   
   ttlSecondsAfterFinished: 0
 
+  affinity: {}
+
+  nodeSelector: {}
+
+  tolerations: []
+
   restartPolicy: ""
 
   image:
@@ -429,6 +438,12 @@ cronJob:
 
   successfulJobsHistoryLimit: 0
   failedJobsHistoryLimit: 0
+
+  affinity: {}
+  
+  nodeSelector: {}
+
+  tolerations: []
 
   restartPolicy: ""
 
@@ -486,6 +501,12 @@ pod:
   dnsConfig: {}
 
   hostNetwork: no
+
+  affinity: {}
+  
+  nodeSelector: {}
+
+  tolerations: []
 
   restartPolicy: "Always"
 
