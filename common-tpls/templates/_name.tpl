@@ -37,8 +37,10 @@ Create chart name and version as used by the chart label.
 Create a default app instance name.
 */}}
 {{- define "common.instance" -}}
-  {{- if .Values.rewriteLabels.environment }}
-    {{- printf "%s-%s" (include "common.fullname" .) .Values.rewriteLabels.environment }}
+  {{- if hasKey .Values "rewriteLabels" }}
+    {{- if .Values.rewriteLabels.environment }}
+      {{- printf "%s-%s" (include "common.fullname" .) .Values.rewriteLabels.environment }}
+    {{- end }}
   {{- else }}
     {{- (include "common.fullname" .) }}
   {{- end }}
