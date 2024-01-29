@@ -21,6 +21,7 @@ global:
   nodeSelector: {}
   tolerations: []
 
+extraDeploy: []
 
 statelessApp: yes
 statefulApp: no

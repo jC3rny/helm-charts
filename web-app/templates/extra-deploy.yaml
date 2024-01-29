@@ -1,0 +1,6 @@
+{{/* vim: set filetype=mustache: */}}
+
+{{- range .Values.extraDeploy }}
+---
+{{ tpl (. | toYaml) $ }}
+{{- end }}
