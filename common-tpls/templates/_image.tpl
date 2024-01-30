@@ -3,22 +3,26 @@ Create the name of the container registry secret
 */}}
 {{- define "common.containerRegistryName" -}}
   {{- $url := .Values.imagePullSecret.useGlobal | ternary $.Values.global.imagePullSecret.url .Values.imagePullSecret.url }}
-  {{- printf "%s-%s-%s" (include "common.fullname" .) "registry-secret" (regexReplaceAll "\\W+" $url "-" | trimSuffix "-") }}
+  {{- $repository := .Values.image.useGlobal | ternary .Release.Name (include "common.fullname" .) }}
+  {{- printf "%s-%s-%s" $repository "registry-secret" (regexReplaceAll "\\W+" $url "-" | trimSuffix "-") }}
 {{- end }}
 
 {{- define "common.job.containerRegistryName" -}}
   {{- $url := .Values.job.imagePullSecret.useGlobal | ternary $.Values.global.imagePullSecret.url .Values.job.imagePullSecret.url }}
-  {{- printf "%s-%s-%s" (include "common.fullname" .) "registry-secret" (regexReplaceAll "\\W+" $url "-" | trimSuffix "-") }}
+  {{- $repository := .Values.job.imagePullSecret.useGlobal | ternary .Release.Name (include "common.fullname" .) }}
+  {{- printf "%s-%s-%s" $repository "registry-secret" (regexReplaceAll "\\W+" $url "-" | trimSuffix "-") }}
 {{- end }}
 
 {{- define "common.cronJob.containerRegistryName" -}}
   {{- $url := .Values.cronJob.imagePullSecret.useGlobal | ternary $.Values.global.imagePullSecret.url .Values.cronJob.imagePullSecret.url }}
-  {{- printf "%s-%s-%s" (include "common.fullname" .) "registry-secret" (regexReplaceAll "\\W+" $url "-" | trimSuffix "-") }}
+  {{- $repository := .Values.cronJob.imagePullSecret.useGlobal | ternary .Release.Name (include "common.fullname" .) }}
+  {{- printf "%s-%s-%s" $repository "registry-secret" (regexReplaceAll "\\W+" $url "-" | trimSuffix "-") }}
 {{- end }}
 
 {{- define "common.pod.containerRegistryName" -}}
   {{- $url := .Values.pod.imagePullSecret.useGlobal | ternary $.Values.global.imagePullSecret.url .Values.pod.imagePullSecret.url }}
-  {{- printf "%s-%s-%s" (include "common.fullname" .) "registry-secret" (regexReplaceAll "\\W+" $url "-" | trimSuffix "-") }}
+  {{- $repository := .Values.pod.imagePullSecret.useGlobal | ternary .Release.Name (include "common.fullname" .) }}
+  {{- printf "%s-%s-%s" $repository "registry-secret" (regexReplaceAll "\\W+" $url "-" | trimSuffix "-") }}
 {{- end }}
 
 
