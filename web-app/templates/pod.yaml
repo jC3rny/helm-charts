@@ -11,6 +11,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  serviceAccountName: {{ include "common.pod.serviceAccountName" . }}
   dnsPolicy: {{ .Values.pod.dnsPolicy }}
   {{- with .Values.pod.dnsConfig }}
   dnsConfig:

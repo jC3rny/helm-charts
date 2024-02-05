@@ -202,11 +202,13 @@ spec:
   {{- if .Values.persistentVolumes }}
   volumeClaimTemplates:
     {{- range .Values.persistentVolumes }}
-    - metadata:
+    - apiVersion: v1	
+      kind: PersistentVolumeClaim
+      metadata:
+        labels:
+          {{- include "common.selectorLabels" $ | nindent 10 }}
         name: {{ .name }}
         namespace: {{ include "common.namespace" $ }}
-        labels:
-          {{- include "common.labels" $ | nindent 10 }}
       spec:
         accessModes:
         {{- if .accessModes }}

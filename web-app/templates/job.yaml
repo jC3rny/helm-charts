@@ -17,6 +17,7 @@ spec:
   {{- end }}
   template:
     spec:
+      serviceAccountName: {{ include "common.job.serviceAccountName" . }}
       {{- if or .Values.job.nodeSelector $.Values.global.nodeSelector }}
       nodeSelector:
         {{- empty .Values.job.nodeSelector | ternary  (toYaml $.Values.global.nodeSelector) (toYaml .Values.job.nodeSelector) | nindent 8 }}

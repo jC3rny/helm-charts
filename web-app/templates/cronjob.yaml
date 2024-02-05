@@ -26,6 +26,7 @@ spec:
     spec:
       template:
         spec:
+          serviceAccountName: {{ include "common.cronJob.serviceAccountName" . }}
           {{- if or .Values.cronJob.nodeSelector $.Values.global.nodeSelector }}
           nodeSelector:
             {{- empty .Values.cronJob.nodeSelector | ternary  (toYaml $.Values.global.nodeSelector) (toYaml .Values.cronJob.nodeSelector) | nindent 12 }}
