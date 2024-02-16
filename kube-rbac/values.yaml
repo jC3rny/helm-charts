@@ -70,6 +70,11 @@ groups: {}
   #   clusterRoles:
   #     - view
   # example-group:
+  #   userObjectIds:
+  #     - <user principal name>
+  #   groupObjectIds:
+  #     - <azure EntraId group id>
+  #     - <oidc group name>
   #   users:
   #     - example-username
   #     - firstname.surname@example.com

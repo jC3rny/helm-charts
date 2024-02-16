@@ -1,4 +1,4 @@
-{{- if and .Values.roleBinding.enabled (ne .Values.serviceAccount.namespaceOverride "default") (not .Values.kubeConfig.enabled) }}
+{{- if and .Values.roleBinding.enabled (ne .Values.serviceAccount.namespaceOverride "default") (not .Values.kubeConfig.enabled) (include "kube-rbac.allUsers" . | fromJsonArray) }}
 apiVersion: v1
 kind: Namespace
 metadata:

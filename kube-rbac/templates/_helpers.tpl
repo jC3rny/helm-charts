@@ -66,8 +66,10 @@ Create list of all users
 {{- define "kube-rbac.allUsers" -}}
   {{- $allUsers := list }}
   {{- range $key,$group := .Values.groups }}
+    {{- if hasKey $group "users" }}
     {{- range $user := get $group "users" }}
       {{ $allUsers = append $allUsers $user }}
+    {{- end }}
     {{- end }}
   {{- end }}
   {{- toJson ($allUsers | uniq | sortAlpha) }}

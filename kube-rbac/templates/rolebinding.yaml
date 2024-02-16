@@ -9,16 +9,26 @@ metadata:
   name: {{ printf "%s:%s:%s" $.Values.roleBinding.prefix $groupName (include "kube-rbac.roleName" $clusterRoleName) }}
   labels:
     {{- include "kube-rbac.labels" $ | nindent 4 }}
-subjects:
-{{- range $username := ($group.users | uniq) }}
-  - kind: ServiceAccount
-    name: {{ include "kube-rbac.username" $username }}
-    namespace: {{ include "kube-rbac.serviceAccount.namespace" $ }}
-{{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: {{ $clusterRoleName }}
+subjects:
+{{- range $userObjectId := (default list $group.userObjectIds | uniq) }}
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: {{ $userObjectId }}
+{{- end }}
+{{- range $groupObjectId := (default list $group.groupObjectIds | uniq) }}
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: {{ $groupObjectId }}
+{{- end }}
+{{- range $username := (default list $group.users | uniq) }}
+  - kind: ServiceAccount
+    name: {{ include "kube-rbac.username" $username }}
+    namespace: {{ include "kube-rbac.serviceAccount.namespace" $ }}
+{{- end }}
 {{- end }}
 {{- else }}
 {{- range $namespace,$namespaceValues := $group.namespaces }}
@@ -33,16 +43,26 @@ metadata:
   namespace: {{ $namespace }}
   labels:
     {{- include "kube-rbac.labels" $ | nindent 4 }}
-subjects:
-{{- range $username := ($group.users | uniq) }}
-  - kind: ServiceAccount
-    name: {{ include "kube-rbac.username" $username }}
-    namespace: {{ include "kube-rbac.serviceAccount.namespace" $ }}
-{{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: {{ $roleName }}
+subjects:
+{{- range $userObjectId := (default list $group.userObjectIds | uniq) }}
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: {{ $userObjectId }}
+{{- end }}
+{{- range $groupObjectId := (default list $group.groupObjectIds | uniq) }}
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: {{ $groupObjectId }}
+{{- end }}
+{{- range $username := (default list $group.users | uniq) }}
+  - kind: ServiceAccount
+    name: {{ include "kube-rbac.username" $username }}
+    namespace: {{ include "kube-rbac.serviceAccount.namespace" $ }}
+{{- end }}
 {{- end }}
 {{- else if eq $roleKind "roles" }}
 {{- range $roleName := $roles }}
@@ -54,17 +74,27 @@ metadata:
   namespace: {{ $namespace }}
   labels:
     {{- include "kube-rbac.labels" $ | nindent 4 }}
-subjects:
-{{- range $username := ($group.users | uniq) }}
-  - kind: ServiceAccount
-    name: {{ include "kube-rbac.username" $username }}
-    namespace: {{ include "kube-rbac.serviceAccount.namespace" $ }}
-{{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: {{ $roleName }}
   namespace: {{ $namespace }}
+subjects:
+{{- range $userObjectId := (default list $group.userObjectIds | uniq) }}
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: {{ $userObjectId }}
+{{- end }}
+{{- range $groupObjectId := (default list $group.groupObjectIds | uniq) }}
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: {{ $groupObjectId }}
+{{- end }}
+{{- range $username := (default list $group.users | uniq) }}
+  - kind: ServiceAccount
+    name: {{ include "kube-rbac.username" $username }}
+    namespace: {{ include "kube-rbac.serviceAccount.namespace" $ }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
