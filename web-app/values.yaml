@@ -367,6 +367,78 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+metrics:
+  enabled: false
+  
+  portName: http-metrics
+  portNumber: 8081
+  containerPort:
+  # default value $.metrics.portName
+  protocol: "TCP"
+
+  serviceMonitor:
+    create: false
+    namespace:
+    port:
+    # default value $.metrics.portName
+    path: /metrics
+    scheme: http
+    params: {}
+    interval: 30s
+    scrapeTimeout:
+    tlsConfig: {}
+    honorLabels: false
+    metricRelabelings: []
+    relabelings: []
+    targetLabels: []
+    podTargetLabels: []
+    sampleLimit: false
+    targetLimit: false
+    additionalEndpoints: []
+    # - interval: "30s"
+    #   path: "/scrape"
+    #   port: "metrics"
+    #   params:
+    #     target: ["localhost:12345"]
+    #   metricRelabelings:
+    #     - targetLabel: "app"
+    #       replacement: "wfe"
+
+  podMonitor:
+    create: false
+    namespace:
+    port:
+    # default value $.metrics.portName
+    path: /metrics
+    scheme: http
+    params: {}
+    interval: 30s
+    scrapeTimeout:
+    tlsConfig: {}
+    honorLabels: false
+    metricRelabelings: []
+    relabelings: []
+    targetLabels: []
+    podTargetLabels: []
+    sampleLimit: false
+    targetLimit: false
+    additionalEndpoints: []
+
+  prometheusRule:
+    create: false
+    namespace:
+    rules: []
+    # - alert: NGINXCertificateExpiry
+    #   expr: >-
+    #     (avg(nginx_ingress_controller_ssl_expire_time_seconds{namespace="{{ include "common.namespace" $ }}", host!~"_"}) by (host) - time()) < 604800
+    #   for: 1s
+    #   labels:
+    #     severity: critical
+    #   annotations:
+    #     description: Renew expiring certificates to avoid downtime
+    #     summary: >-
+    #       {{ "{{ $labels.host }}" }} SSL certificate(s) will expire in less then a week
+
 
 rbac:
   apiGroup: "rbac.authorization.k8s.io"

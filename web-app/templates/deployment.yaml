@@ -132,10 +132,10 @@ spec:
             - {{ . | quote }}
             {{- end }}
           {{- end }}
-          {{- if or (and .Values.service.create (ne (.Values.service.containerPort | toString) "None")) .Values.additionalPorts }}
+          {{- if or .Values.service.create .Values.additionalPorts .Values.metrics.enabled }}
           ports:
+            {{- if and .Values.service.create (ne (.Values.service.containerPort | toString) "None") }}
             {{- with .Values.service  }}
-            {{- if ne (.containerPort | toString) "None" }}
             - name: {{ .portName }}
               containerPort: {{ default .portNumber .containerPort }}
               protocol: {{ default "TCP" .protocol }}
@@ -145,6 +145,13 @@ spec:
             - name: {{ .name }}
               containerPort: {{ .port }}
               protocol: {{ default "TCP" .protocol }}
+            {{- end }}
+            {{- if .Values.metrics.enabled }}
+            {{- with .Values.metrics }}
+            - name: {{ .portName }}
+              containerPort: {{ default .portNumber .containerPort }}
+              protocol: {{ .protocol }}
+            {{- end }}
             {{- end }}
           {{- end }}
           {{- with .Values.lifecycle }}

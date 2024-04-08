@@ -1,0 +1,55 @@
+{{- if and .Values.metrics.enabled .Values.metrics.serviceMonitor.create }}
+{{- $labels := mergeOverwrite (include "common.labels" $ | fromYaml) (dict "app.kubernetes.io/component" "metrics") }}
+{{- $selectorLabels := mergeOverwrite (include "common.selectorLabels" $ | fromYaml) (dict "app.kubernetes.io/component" "metrics") }}
+{{- with .Values.metrics.serviceMonitor }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "common.fullname" $ }}
+  namespace: {{ default .namespace (include "common.namespace" $) }}
+  labels:
+    {{- $labels | toYaml | nindent 4 }}
+spec:
+  endpoints:
+  - port: {{ default .port $.Values.metrics.portName }}
+    path: {{ .path }}
+    scheme: {{ .scheme }}
+    {{- with .params }}
+    params: {{- toYaml . | nindent 6 }}
+    {{- end }}
+    interval: {{ .interval }}
+    scrapeTimeout: {{ .scrapeTimeout }}
+    {{- with .tlsConfig }}
+    tlsConfig: {{- toYaml . | nindent 6 }}
+    {{- end }}
+    honorLabels: {{ .honorLabels }}
+    {{- with .metricRelabelings }}
+    metricRelabelings: {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .relabelings }}
+    relabelings: {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with.additionalEndpoints }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  jobLabel: {{ include "common.instance" $ }}
+  {{- with .targetLabels }}
+  targetLabels: {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .podTargetLabels }}
+  podTargetLabels: {{- toYaml . | nindent 2 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- $selectorLabels | toYaml | nindent 6 }}
+  namespaceSelector:
+    matchNames:
+    - {{ include "common.namespace" $ }}
+  {{- with .sampleLimit }}
+  sampleLimit: {{ . }}
+  {{- end }}
+  {{- with .targetLimit }}
+  targetLimit: {{ . }}
+  {{- end }}
+{{- end }}
+{{- end }}
