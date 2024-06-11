@@ -23,6 +23,12 @@ global:
 
 extraDeploy: []
 
+deploymentStrategy:
+  canary:
+    enabled: false
+    imageTag: ""
+    weight: 15
+
 statelessApp: yes
 statefulApp: no
 

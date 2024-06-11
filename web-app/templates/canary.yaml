@@ -1,0 +1,19 @@
+{{/* vim: set filetype=mustache: */}}
+
+{{ if $.Values.deploymentStrategy.canary.enabled -}}
+{{/* {{- $nameOverride := dict "Values" (dict "nameOverride" "canary") -}} */}}
+{{- $nameSuffix := dict "Values" (dict "deploymentStrategy" (dict "canary" (dict "nameSuffix" true))) -}}
+{{- $image := dict "Values" (dict "global" (dict "image" (dict "tag" $.Values.deploymentStrategy.canary.imageTag)) "image" (dict "tag" $.Values.deploymentStrategy.canary.imageTag)) -}}
+{{- $ingressAnnotations := dict "Values" (dict "ingress" (dict "annotations" (dict  "nginx.ingress.kubernetes.io/canary" "true" "nginx.ingress.kubernetes.io/canary-weight" (print $.Values.deploymentStrategy.canary.weight)))) -}}
+{{/* {{- $ingressTls := dict "Values" (dict "ingress" (dict "tls" (list (dict "hosts" (first $.Values.ingress.tls).hosts "secretName" (include "common.tls.secretName" $))))) -}} */}}
+{{- $config := mergeOverwrite . $nameSuffix $image $ingressAnnotations -}}
+---
+{{ include (print $.Template.BasePath "/deployment.yaml") $config }}
+
+---
+{{ include (print $.Template.BasePath "/service.yaml") $config }}
+
+---
+{{ include (print $.Template.BasePath "/ingress.yaml") $config }}
+
+{{ end -}}
