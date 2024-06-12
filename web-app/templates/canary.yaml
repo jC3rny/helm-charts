@@ -3,7 +3,7 @@
 {{ if $.Values.deploymentStrategy.canary.enabled -}}
 {{- $nameSuffix := dict "Values" (dict "deploymentStrategy" (dict "canary" (dict "nameSuffix" true))) -}}
 {{- $image := dict "Values" (dict "global" (dict "image" (dict "tag" $.Values.deploymentStrategy.canary.imageTag)) "image" (dict "tag" $.Values.deploymentStrategy.canary.imageTag)) -}}
-{{- $ingressAnnotations := dict "Values" (dict "ingress" (dict "annotations" (dict "nginx.ingress.kubernetes.io/affinity" "cookie" "nginx.ingress.kubernetes.io/affinity-canary-behavior" "sticky" "nginx.ingress.kubernetes.io/canary" "true" "nginx.ingress.kubernetes.io/canary-weight" (print $.Values.deploymentStrategy.canary.weight)))) -}}
+{{- $ingressAnnotations := dict "Values" (dict "ingress" (dict "annotations" (dict "nginx.ingress.kubernetes.io/affinity" "cookie" "nginx.ingress.kubernetes.io/affinity-canary-behavior" "sticky" "nginx.ingress.kubernetes.io/canary" "true" "nginx.ingress.kubernetes.io/canary-weight" (print $.Values.deploymentStrategy.canary.weight) "nginx.ingress.kubernetes.io/session-cookie-name" "INGRESSCANARYCOOKIE"))) -}}
 {{- $config := mergeOverwrite . $nameSuffix $image $ingressAnnotations -}}
 ---
 {{ include (print $.Template.BasePath "/deployment.yaml") $config }}
