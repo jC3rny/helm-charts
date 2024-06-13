@@ -33,15 +33,4 @@
 ---
 {{ include (print $.Template.BasePath "/ingress.yaml") $config }}
 
----
-{{ toYaml $canaryDefault }}
----
-{{ toYaml $canaryAffinity }}
----
-{{ toYaml $canaryByHeader }}
----
-{{ toYaml $canaryByWeight }}
----
-{{ toYaml (merge $canaryDefault $canaryAffinity $canarySession $canaryByWeight) }}
-
 {{ end -}}
