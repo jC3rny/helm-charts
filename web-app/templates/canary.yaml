@@ -1,9 +1,28 @@
 {{/* vim: set filetype=mustache: */}}
 
 {{ if $.Values.deploymentStrategy.canary.enabled -}}
+{{/*
+    # https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#canary
+
+    Canary rules are evaluated in order of precedence. Precedence is as follows: canary-by-header -> canary-by-cookie -> canary-weight
+    
+    Note that when you mark an ingress as canary, then all the other non-canary annotations will be ignored (inherited from the corresponding
+    main ingress) except nginx.ingress.kubernetes.io/load-balance, nginx.ingress.kubernetes.io/upstream-hash-by, and annotations
+    related to session affinity. If you want to restore the original behavior of canaries when session affinity was ignored, set
+    nginx.ingress.kubernetes.io/affinity-canary-behavior annotation with value legacy on the canary ingress definition.
+
+    Known Limitations
+    Currently a maximum of one canary ingress can be applied per Ingress rule.
+
+*/}}
+{{- $canaryDefault := dict "nginx.ingress.kubernetes.io/canary" "true" -}}
+{{- $canaryAffinity := dict "nginx.ingress.kubernetes.io/affinity" "cookie" "nginx.ingress.kubernetes.io/affinity-canary-behavior" "sticky" -}}
+{{- $canarySession := dict "nginx.ingress.kubernetes.io/session-cookie-name" "INGRESSCANARYCOOKIE" "nginx.ingress.kubernetes.io/session-cookie-expires" 172800 "nginx.ingress.kubernetes.io/session-cookie-max-age" 172800 -}}
+{{- $canaryByHeader := dict "nginx.ingress.kubernetes.io/canary-by-header" "X-Canary" "nginx.ingress.kubernetes.io/canary-by-header-value" "true" -}}
+{{- $canaryByWeight := dict "nginx.ingress.kubernetes.io/canary-weight" (print $.Values.deploymentStrategy.canary.weight) -}}
 {{- $nameSuffix := dict "Values" (dict "deploymentStrategy" (dict "canary" (dict "nameSuffix" true))) -}}
 {{- $image := dict "Values" (dict "global" (dict "image" (dict "tag" $.Values.deploymentStrategy.canary.imageTag)) "image" (dict "tag" $.Values.deploymentStrategy.canary.imageTag)) -}}
-{{- $ingressAnnotations := dict "Values" (dict "ingress" (dict "annotations" (dict "nginx.ingress.kubernetes.io/affinity" "cookie" "nginx.ingress.kubernetes.io/affinity-canary-behavior" "sticky" "nginx.ingress.kubernetes.io/canary" "true" "nginx.ingress.kubernetes.io/canary-weight" (print $.Values.deploymentStrategy.canary.weight) "nginx.ingress.kubernetes.io/canary-by-header" "x-canary" "nginx.ingress.kubernetes.io/canary-by-header-value" "true"))) -}}
+{{- $ingressAnnotations := dict "Values" (dict "ingress" (dict "annotations" (merge $canaryDefault $canaryAffinity $canarySession $canaryByWeight))) -}}
 {{- $config := mergeOverwrite . $nameSuffix $image $ingressAnnotations -}}
 ---
 {{ include (print $.Template.BasePath "/deployment.yaml") $config }}
