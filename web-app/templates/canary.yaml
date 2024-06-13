@@ -17,7 +17,7 @@
 */}}
 {{- $canaryDefault := dict "nginx.ingress.kubernetes.io/canary" "true" -}}
 {{- $canaryAffinity := dict "nginx.ingress.kubernetes.io/affinity" "cookie" "nginx.ingress.kubernetes.io/affinity-canary-behavior" "sticky" -}}
-{{- $canarySession := dict "nginx.ingress.kubernetes.io/session-cookie-name" "INGRESSCANARYCOOKIE" "nginx.ingress.kubernetes.io/session-cookie-expires" 172800 "nginx.ingress.kubernetes.io/session-cookie-max-age" 172800 -}}
+{{- $canarySession := dict "nginx.ingress.kubernetes.io/session-cookie-name" "INGRESSCANARYCOOKIE" "nginx.ingress.kubernetes.io/session-cookie-expires" "172800" "nginx.ingress.kubernetes.io/session-cookie-max-age" "172800" -}}
 {{- $canaryByHeader := dict "nginx.ingress.kubernetes.io/canary-by-header" "X-Canary" "nginx.ingress.kubernetes.io/canary-by-header-value" "true" -}}
 {{- $canaryByWeight := dict "nginx.ingress.kubernetes.io/canary-weight" (print $.Values.deploymentStrategy.canary.weight) -}}
 {{- $nameSuffix := dict "Values" (dict "deploymentStrategy" (dict "canary" (dict "nameSuffix" true))) -}}
@@ -32,5 +32,16 @@
 
 ---
 {{ include (print $.Template.BasePath "/ingress.yaml") $config }}
+
+---
+{{ toYaml $canaryDefault }}
+---
+{{ toYaml $canaryAffinity }}
+---
+{{ toYaml $canaryByHeader }}
+---
+{{ toYaml $canaryByWeight }}
+---
+{{ toYaml (merge $canaryDefault $canaryAffinity $canarySession $canaryByWeight) }}
 
 {{ end -}}
