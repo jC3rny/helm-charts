@@ -16,14 +16,16 @@
 
 */}}
 {{- $canaryDefault := dict "nginx.ingress.kubernetes.io/canary" "true" -}}
-{{- $canaryAffinity := dict "nginx.ingress.kubernetes.io/affinity" "cookie" "nginx.ingress.kubernetes.io/affinity-canary-behavior" "sticky" -}}
-{{- $canarySession := dict "nginx.ingress.kubernetes.io/session-cookie-name" "INGRESSCANARYCOOKIE" "nginx.ingress.kubernetes.io/session-cookie-expires" "172800" "nginx.ingress.kubernetes.io/session-cookie-max-age" "172800" -}}
 {{- $canaryByHeader := dict "nginx.ingress.kubernetes.io/canary-by-header" "X-Canary" "nginx.ingress.kubernetes.io/canary-by-header-value" "true" -}}
 {{- $canaryByWeight := dict "nginx.ingress.kubernetes.io/canary-weight" (print $.Values.deploymentStrategy.canary.weight) -}}
+{{- $canarySwitch := dict "Values" (dict "deploymentStrategy" (dict "canary" (dict "enabled" false))) -}}
+{{/* because of condition in Ingress annotations (./ingress.yaml#L24), the value of .deploymentStrategy.canary.enable has to be set to "false" */}}
 {{- $nameSuffix := dict "Values" (dict "deploymentStrategy" (dict "canary" (dict "nameSuffix" true))) -}}
+{{/* the value .deploymentStrategy.canary.nameSuffix is omitted on purpose in values.yaml file, see the common-tpls Helm chart (templates/_name.tpl#L27). */}}
 {{- $image := dict "Values" (dict "global" (dict "image" (dict "tag" $.Values.deploymentStrategy.canary.imageTag)) "image" (dict "tag" $.Values.deploymentStrategy.canary.imageTag)) -}}
-{{- $ingressAnnotations := dict "Values" (dict "ingress" (dict "annotations" (merge $canaryDefault $canaryAffinity $canarySession $canaryByWeight))) -}}
-{{- $config := mergeOverwrite . $nameSuffix $image $ingressAnnotations -}}
+{{- $ingressAnnotations := dict "Values" (dict "ingress" (dict "annotations" (merge $canaryDefault $canaryByHeader $canaryByWeight))) -}}
+{{- $config := mergeOverwrite . $canarySwitch $nameSuffix $image $ingressAnnotations -}}
+{{- $_ := omit $config.Values.ingress.annotations "nginx.ingress.kubernetes.io/affinity" "nginx.ingress.kubernetes.io/session-cookie-name" "nginx.ingress.kubernetes.io/session-cookie-expires" "nginx.ingress.kubernetes.io/session-cookie-max-age" -}}
 ---
 {{ include (print $.Template.BasePath "/deployment.yaml") $config }}
 
