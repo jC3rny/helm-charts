@@ -24,6 +24,13 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
+Create the name of the deployment.
+*/}}
+{{- define "common.deployment.name" -}}
+  {{- hasKey .Values.deploymentStrategy.canary "nameSuffix" | ternary (printf "%s-%s" (include "common.fullname" .) "canary") (include "common.fullname" .) }}
+{{- end }}
+
+{{/*
 Create the name of the job.
 */}}
 {{- define "common.job.name" -}}
@@ -58,9 +65,9 @@ Create a default app instance name.
 */}}
 {{- define "common.instance" -}}
   {{- if hasKey .Values "rewriteLabels" }}
-    {{- empty .Values.rewriteLabels.environment | ternary (include "common.fullname" .) (printf "%s-%s" (include "common.fullname" .) .Values.rewriteLabels.environment) }}
+    {{- empty .Values.rewriteLabels.environment | ternary (include "common.deployment.name" .) (printf "%s-%s" (include "common.deployment.name" .) .Values.rewriteLabels.environment) }}
   {{- else -}}
-    {{- include "common.fullname" . }}
+    {{- include "common.deployment.name" . }}
   {{- end }}
 {{- end }}
 
@@ -77,7 +84,7 @@ Create the name of the main container
 Create the name of the service
 */}}
 {{- define "common.serviceName" -}}
-  {{- default (include "common.fullname" .) .Values.service.name }}
+  {{- default (include "common.deployment.name" .) .Values.service.name }}
 {{- end }}
 
 

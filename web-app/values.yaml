@@ -23,6 +23,13 @@ global:
 
 extraDeploy: []
 
+deploymentStrategy:
+  canary:
+    enabled: false
+    imageTag: ""
+    sessionCookieExpires: 172800
+    weight: 15
+
 statelessApp: yes
 statefulApp: no
 

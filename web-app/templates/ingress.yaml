@@ -1,6 +1,8 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "common.fullname" . -}}
+{{- $deploymentName := include "common.deployment.name" . -}}
 {{- $namespace := include "common.namespace" . -}}
+{{- $sessionCookieExpires := .Values.deploymentStrategy.canary.sessionCookieExpires -}}
+{{- $sessionAnnotations := dict "nginx.ingress.kubernetes.io/affinity" "cookie" "nginx.ingress.kubernetes.io/session-cookie-expires" (print $sessionCookieExpires) "nginx.ingress.kubernetes.io/session-cookie-max-age" (print $sessionCookieExpires) -}}
 {{- $svcPort := .Values.service.portNumber -}}
 {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride))) }}
   {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
@@ -16,11 +18,11 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ $deploymentName }}
   namespace: {{ $namespace }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
+  {{- with (mergeOverwrite (.Values.deploymentStrategy.canary.enabled | ternary $sessionAnnotations dict) .Values.ingress.annotations) }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -52,11 +54,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride) }}
               service:
-                name: {{ default $fullName .serviceName }}
+                name: {{ default $deploymentName .serviceName }}
                 port:
                   number: {{ default $svcPort .servicePort }}
               {{- else }}
-              serviceName: {{ default $fullName .serviceName }}
+              serviceName: {{ default $deploymentName .serviceName }}
               servicePort: {{ default $svcPort .servicePort }}
               {{- end }}
           {{- end }}

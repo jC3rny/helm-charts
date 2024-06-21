@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "common.fullname" . }}
+  name: {{ include "common.deployment.name" . }}
   namespace: {{ include "common.namespace" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
@@ -201,7 +201,7 @@ spec:
         {{- range .Values.persistentVolumes }}
         - name: {{ .name }}
           persistentVolumeClaim:
-            claimName: {{ (printf "%s-%s" (include "common.fullname" $) .name) | quote }}
+            claimName: {{ (printf "%s-%s" (include "common.deployment.name" $) .name) | quote }}
         {{- end }}
       {{- end }}
       {{- with .Values.terminationGracePeriodSeconds }}
