@@ -27,6 +27,7 @@
 {{- $ingressAnnotations := dict "Values" (dict "ingress" (dict "annotations" (merge $canaryDefault $canaryByHeader $canaryByCookie $canaryByWeight))) -}}
 {{- $config := mergeOverwrite . $canarySwitch $nameSuffix $image $ingressAnnotations -}}
 {{- $_ := omit $config.Values.ingress.annotations "nginx.ingress.kubernetes.io/affinity" "nginx.ingress.kubernetes.io/session-cookie-name" "nginx.ingress.kubernetes.io/session-cookie-expires" "nginx.ingress.kubernetes.io/session-cookie-max-age" -}}
+
 ---
 {{ include (print $.Template.BasePath "/deployment.yaml") $config }}
 

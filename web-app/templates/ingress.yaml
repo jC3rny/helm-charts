@@ -1,7 +1,8 @@
 {{- if .Values.ingress.enabled -}}
 {{- $deploymentName := include "common.deployment.name" . -}}
 {{- $namespace := include "common.namespace" . -}}
-{{- $sessionAnnotations := dict "nginx.ingress.kubernetes.io/affinity" "cookie" "nginx.ingress.kubernetes.io/session-cookie-expires" "172800" "nginx.ingress.kubernetes.io/session-cookie-max-age" "172800" -}}
+{{- $sessionCookieExpires := .Values.deploymentStrategy.canary.sessionCookieExpires -}}
+{{- $sessionAnnotations := dict "nginx.ingress.kubernetes.io/affinity" "cookie" "nginx.ingress.kubernetes.io/session-cookie-expires" (print $sessionCookieExpires) "nginx.ingress.kubernetes.io/session-cookie-max-age" (print $sessionCookieExpires) -}}
 {{- $svcPort := .Values.service.portNumber -}}
 {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" (default $.Capabilities.KubeVersion.GitVersion $.Values.kubeVersionOverride))) }}
   {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
