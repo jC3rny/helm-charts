@@ -17,6 +17,11 @@ global:
     sealedSecret: {}
       # DB_PASSWORD: "AgCo20XiExXxAvxIOqjnhi1D"
       # REDIS_PASSWORD: "AgBk6QZPCtElpkDCun1b1F1QjvMKb9mOWqbSqDrv8Evfi+AL+JDfdVA2zgb"
+    extra: []
+      # - configMapRef:
+      #     name: common-config-cm
+      # - secretRef:
+      #     name: external-secret
   affinity: {}
   nodeSelector: {}
   tolerations: []

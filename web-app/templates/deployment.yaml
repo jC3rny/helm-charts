@@ -119,6 +119,9 @@ spec:
             - secretRef:
                 name: {{ include "common.envFrom.sealedSecretName" . }}
             {{- end }}
+            {{- range $.Values.global.envFrom.extra }}
+            - {{ tpl (. | toYaml) $ | nindent 14 | trim }}
+            {{- end }}
           {{- end }}
           {{- with .Values.command }}
           command:
