@@ -76,6 +76,9 @@ spec:
                 - secretRef:
                     name: {{ include "common.cronJob.envFrom.sealedSecretName" . }}
                 {{- end }}
+                {{- range $.Values.global.envFrom.extra }}
+                - {{ tpl (. | toYaml) $ | nindent 18 | trim }}
+                {{- end }}
               {{- end }}
               {{- with .Values.cronJob.command }}
               command:

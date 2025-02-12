@@ -67,6 +67,9 @@ spec:
             - secretRef:
                 name: {{ include "common.job.envFrom.sealedSecretName" . }}
             {{- end }}
+            {{- range $.Values.global.envFrom.extra }}
+            - {{ tpl (. | toYaml) $ | nindent 14 | trim }}
+            {{- end }}
           {{- end }}
           {{- with .Values.job.command }}
           command:
