@@ -1,0 +1,27 @@
+
+{{ $context := . }}
+{{- range $path, $_ :=  $context.Files.Glob  "files/**.json" }}
+{{- $category := $path | trimPrefix "files/" | dir }}
+{{- $name := (split "." ($path | base))._0 }}
+{{- $tplContext := mergeOverwrite $context (dict "Env" (dict "name" $name)) }}
+{{- $folderName := (get $context.Values.category $category).folder }}
+{{- if (get $context.Values.category $category).enabled }}
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  {{- if $folderName }}
+  annotations:
+    {{- dict $context.Values.folderAnnotation $folderName | toYaml | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "gfdsh.labels" $tplContext | nindent 4 }}
+    {{- dict $context.Values.label $context.Values.labelValue | toYaml | nindent 4 }}
+  name: {{ include "gfdsh.name" $tplContext }}
+  namespace: {{ include "gfdsh.namespace" $tplContext }}
+data:
+  {{ printf "%s%s" (include "gfdsh.name" $tplContext | trimPrefix $context.Values.trimPrefix | trimPrefix "-") ($path | ext) }}: |-
+  {{- $context.Files.Get $path | nindent 4 }}
+{{- end }}
+{{- end }}
