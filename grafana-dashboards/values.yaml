@@ -1,0 +1,91 @@
+# Default values for grafana-dashboards.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: "gfdsh"
+
+namespaceOverride: ""
+
+trimPrefix: "gfdsh"
+
+folderAnnotation: grafana_dashboard_folder
+
+label: grafana_dashboard
+labelValue: "1"
+
+category:
+  argocd:
+    enabled: true
+    folder: "_Platform"
+
+  cassandra:
+    enabled: false
+    folder: "_General"
+
+  cert-manager:
+    enabled: true
+    folder: "_Platform"
+
+  certificates:
+    enabled: true
+    folder: "_Platform"
+
+  external-dns:
+    enabled: true
+    folder: "_Platform"
+
+  ingress-nginx:
+    enabled: true
+    folder: "_Platform"
+
+  jmx-exporter:
+    enabled: false
+    folder: "_General"
+
+  kafka:
+    enabled: false
+    folder: "_General"
+
+  kubernetes:
+    enabled: true
+    folder: "_Kubernetes"
+
+  linux:
+    enabled: true
+    folder: "_Platform"
+
+  loki:
+    enabled: true
+    folder: "_Platform"
+
+  memcached:
+    enabled: false
+    folder: "_General"
+
+  nginx:
+    enabled: false
+    folder: "_General"
+
+  postgresql:
+    enabled: false
+    folder: "_General"
+
+  prometheus:
+    enabled: true
+    folder: "_Platform"
+
+  rabbitmq:
+    enabled: false
+    folder: "_General"
+
+  redis:
+    enabled: false
+    folder: "_General"
+
+  sealed-secrets:
+    enabled: false
+    folder: "_Platform"
+
+  spring-boot:
+    enabled: false
+    folder: "_General"
