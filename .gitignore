@@ -1,4 +1,5 @@
 # ignore IDE workspace settings
+.idea
 .vscode
 
 # ignore TMP folder
@@ -6,3 +7,6 @@
 
 # ignore backup files
 **/*.bak
+
+# ignore Helm cache
+/*.tgz
