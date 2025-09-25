@@ -89,3 +89,7 @@ category:
   spring-boot:
     enabled: false
     folder: "_General"
+
+  trivy-operator:
+    enabled: true
+    folder: "_Platform"
