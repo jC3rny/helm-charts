@@ -6,6 +6,23 @@
 nameOverride: ""
 fullnameOverride: ""
 
+# -- Gateway API CRD installation
+# Use scripts/fetch-crds.sh to download CRDs before packaging.
+crds:
+  # Install standard Gateway API CRDs.
+  enabled: false
+  # Experimental CRDs (only those not included in standard).
+  experimental:
+    # Install experimental CRDs.
+    enabled: false
+    # List of experimental CRDs to install (empty = none).
+    # Available: tcproutes, tlsroutes, udproutes, xbackendtrafficpolicies, xlistenersets, xmeshes
+    list: []
+    # list:
+    # - tcproutes
+    # - tlsroutes
+    # - udproutes
+
 # -- GatewayClass defines a set of Gateways that share a common configuration and behaviour
 # For more information: https://gateway-api.sigs.k8s.io/api-types/gatewayclass/
 gatewayClass:

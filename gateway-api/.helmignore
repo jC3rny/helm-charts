@@ -16,6 +16,10 @@
 *.tmp
 *.orig
 *~
+# Scripts
+scripts/
+# Tmp
+tmp/
 # Various IDEs
 .project
 .idea/
