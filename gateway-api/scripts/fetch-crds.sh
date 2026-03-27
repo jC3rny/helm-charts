@@ -26,14 +26,11 @@ STANDARD_CRDS=(
   "gateway.networking.k8s.io_referencegrants.yaml"
 )
 
-# Experimental-only CRD files (not in standard)
+# Experimental-only CRD files (gateway.networking.k8s.io only, not in standard)
 EXPERIMENTAL_CRDS=(
   "gateway.networking.k8s.io_tcproutes.yaml"
   "gateway.networking.k8s.io_tlsroutes.yaml"
   "gateway.networking.k8s.io_udproutes.yaml"
-  "gateway.networking.x-k8s.io_xbackendtrafficpolicies.yaml"
-  "gateway.networking.x-k8s.io_xlistenersets.yaml"
-  "gateway.networking.x-k8s.io_xmeshes.yaml"
 )
 
 echo "Fetching Gateway API CRDs v${APP_VERSION}..."

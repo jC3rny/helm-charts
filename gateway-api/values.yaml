@@ -11,12 +11,14 @@ fullnameOverride: ""
 crds:
   # Install standard Gateway API CRDs.
   enabled: false
+  # Set to "keep" to prevent CRD deletion on helm uninstall. Set to "" to allow deletion.
+  resourcePolicy: keep
   # Experimental CRDs (only those not included in standard).
   experimental:
     # Install experimental CRDs.
     enabled: false
     # List of experimental CRDs to install (empty = none).
-    # Available: tcproutes, tlsroutes, udproutes, xbackendtrafficpolicies, xlistenersets, xmeshes
+    # Available: tcproutes, tlsroutes, udproutes
     list: []
     # list:
     # - tcproutes
@@ -127,6 +129,124 @@ httpRoute:
   #     - name: version
   #       value: v2
 
+# -- GRPCRoute defines gRPC rules for routing traffic from a Gateway to backend services
+# For more information: https://gateway-api.sigs.k8s.io/api-types/grpcroute/
+grpcRoute:
+  # GRPCRoute enabled.
+  enabled: false
+  # GRPCRoute annotations.
+  annotations: {}
+  # GRPCRoute labels.
+  labels: {}
+  # Which Gateways this Route is attached to.
+  parentRefs: []
+  # parentRefs:
+  # - name: gateway
+  #   sectionName: grpc
+  # Hostnames matching gRPC header.
+  # hostnames:
+  # - grpc.example.com
+  # List of gRPC routing rules.
+  rules: []
+  # rules:
+  # - matches:
+  #   - method:
+  #       service: my.package.MyService
+  #       method: DoSomething
+  #   backendRefs:
+  #   - name: my-grpc-service
+  #     port: 50051
+
+# -- BackendTLSPolicy defines TLS configuration for backend connections
+# For more information: https://gateway-api.sigs.k8s.io/api-types/backendtlspolicy/
+backendTLSPolicy:
+  # BackendTLSPolicy enabled.
+  enabled: false
+  # BackendTLSPolicy annotations.
+  annotations: {}
+  # BackendTLSPolicy labels.
+  labels: {}
+  # Backend references this policy applies to.
+  targetRefs: []
+  # targetRefs:
+  # - group: ""
+  #   kind: Service
+  #   name: my-service
+  # TLS validation configuration.
+  validation: {}
+  # validation:
+  #   caCertificateRefs:
+  #   - group: ""
+  #     kind: ConfigMap
+  #     name: backend-ca
+  #   hostname: backend.example.com
+
+# -- TCPRoute provides a way to route TCP requests (experimental)
+# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1alpha2.TCPRoute
+tcpRoute:
+  # TCPRoute enabled.
+  enabled: false
+  # TCPRoute annotations.
+  annotations: {}
+  # TCPRoute labels.
+  labels: {}
+  # Which Gateways this Route is attached to.
+  parentRefs: []
+  # parentRefs:
+  # - name: gateway
+  #   sectionName: tcp
+  # List of TCP routing rules.
+  rules: []
+  # rules:
+  # - backendRefs:
+  #   - name: my-tcp-service
+  #     port: 5432
+
+# -- TLSRoute provides a way to route TLS requests (experimental)
+# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1alpha2.TLSRoute
+tlsRoute:
+  # TLSRoute enabled.
+  enabled: false
+  # TLSRoute annotations.
+  annotations: {}
+  # TLSRoute labels.
+  labels: {}
+  # Which Gateways this Route is attached to.
+  parentRefs: []
+  # parentRefs:
+  # - name: gateway
+  #   sectionName: tls
+  # Hostnames for TLS SNI matching.
+  # hostnames:
+  # - tls.example.com
+  # List of TLS routing rules.
+  rules: []
+  # rules:
+  # - backendRefs:
+  #   - name: my-tls-service
+  #     port: 8443
+
+# -- UDPRoute provides a way to route UDP requests (experimental)
+# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1alpha2.UDPRoute
+udpRoute:
+  # UDPRoute enabled.
+  enabled: false
+  # UDPRoute annotations.
+  annotations: {}
+  # UDPRoute labels.
+  labels: {}
+  # Which Gateways this Route is attached to.
+  parentRefs: []
+  # parentRefs:
+  # - name: gateway
+  #   sectionName: udp
+  # List of UDP routing rules.
+  rules: []
+  # rules:
+  # - backendRefs:
+  #   - name: my-udp-service
+  #     port: 53
+
 # -- ReferenceGrant allows resources in one namespace to reference resources in another
 # For more information: https://gateway-api.sigs.k8s.io/api-types/referencegrant/
 referenceGrant:
@@ -147,3 +267,19 @@ referenceGrant:
     kind: Service
   # - group: ""
   #   kind: Secret
+
+# -- Extra manifests to deploy as part of this chart.
+# Useful for resources not covered by dedicated templates (e.g., x-k8s.io experimental resources).
+extraDeploy: []
+# extraDeploy:
+# - apiVersion: gateway.networking.x-k8s.io/v1alpha1
+#   kind: XMesh
+#   metadata:
+#     name: my-mesh
+#   spec: {}
+# - apiVersion: v1
+#   kind: ConfigMap
+#   metadata:
+#     name: extra-config
+#   data:
+#     key: value

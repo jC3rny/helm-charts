@@ -7,7 +7,9 @@ kind: {{ $crd.kind }}
 metadata:
   name: {{ $crd.metadata.name }}
   annotations:
-    helm.sh/resource-policy: keep
+    {{- if $.Values.crds.resourcePolicy }}
+    helm.sh/resource-policy: {{ $.Values.crds.resourcePolicy }}
+    {{- end }}
     {{- with $crd.metadata.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
@@ -23,7 +25,7 @@ spec:
 {{- $expList := .Values.crds.experimental.list }}
 {{- range $path, $_ := .Files.Glob "crds/experimental/**.yaml" }}
 {{- $filename := base $path }}
-{{- $shortName := $filename | trimPrefix "gateway.networking.k8s.io_" | trimPrefix "gateway.networking.x-k8s.io_" | trimSuffix ".yaml" }}
+{{- $shortName := $filename | trimPrefix "gateway.networking.k8s.io_" | trimSuffix ".yaml" }}
 {{- if has $shortName $expList }}
 {{- $crd := $.Files.Get $path | fromYaml }}
 ---
@@ -32,7 +34,9 @@ kind: {{ $crd.kind }}
 metadata:
   name: {{ $crd.metadata.name }}
   annotations:
-    helm.sh/resource-policy: keep
+    {{- if $.Values.crds.resourcePolicy }}
+    helm.sh/resource-policy: {{ $.Values.crds.resourcePolicy }}
+    {{- end }}
     {{- with $crd.metadata.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
