@@ -1,0 +1,132 @@
+# Default values for gateway-api.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# -- GatewayClass defines a set of Gateways that share a common configuration and behaviour
+# For more information: https://gateway-api.sigs.k8s.io/api-types/gatewayclass/
+gatewayClass:
+  # GatewayClass enabled.
+  enabled: true
+  # GatewayClass annotations.
+  annotations: {}
+  # GatewayClass labels.
+  labels: {}
+  # Controller that manages Gateways of this class.
+  controllerName: ""
+  # Parameters for this GatewayClass (optional).
+  # parametersRef:
+  #   group: ""
+  #   kind: ConfigMap
+  #   name: gateway-config
+  #   namespace: default
+  # Description for the GatewayClass.
+  description: ""
+
+# -- Gateway defines a point of access into the cluster
+# For more information: https://gateway-api.sigs.k8s.io/api-types/gateway/
+gateway:
+  # Gateway enabled.
+  enabled: true
+  # Gateway annotations.
+  annotations: {}
+  # Gateway labels.
+  labels: {}
+  # Name of the GatewayClass for this Gateway.
+  # Defaults to the chart fullname if not set.
+  gatewayClassName: ""
+  # Gateway listeners define the ports, protocols, and hostnames.
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+    # hostname: "*.example.com"
+    allowedRoutes:
+      namespaces:
+        from: Same
+  # - name: https
+  #   protocol: HTTPS
+  #   port: 443
+  #   hostname: "*.example.com"
+  #   tls:
+  #     mode: Terminate
+  #     certificateRefs:
+  #     - kind: Secret
+  #       name: example-tls
+  #   allowedRoutes:
+  #     namespaces:
+  #       from: Same
+  # Gateway addresses (optional).
+  # addresses:
+  # - type: IPAddress
+  #   value: "1.2.3.4"
+  # Infrastructure configuration for the Gateway (optional).
+  # infrastructure:
+  #   labels: {}
+  #   annotations: {}
+
+# -- HTTPRoute defines HTTP rules for routing traffic from a Gateway to backend services
+# For more information: https://gateway-api.sigs.k8s.io/api-types/httproute/
+httpRoute:
+  # HTTPRoute enabled.
+  enabled: false
+  # HTTPRoute annotations.
+  annotations: {}
+  # HTTPRoute labels.
+  labels: {}
+  # Which Gateways this Route is attached to.
+  parentRefs:
+  - name: gateway
+    sectionName: http
+    # namespace: default
+  # Hostnames matching HTTP header.
+  hostnames:
+  - chart-example.local
+  # List of rules and filters applied.
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: my-service
+      port: 80
+  #   filters:
+  #   - type: RequestHeaderModifier
+  #     requestHeaderModifier:
+  #       set:
+  #       - name: My-Overwrite-Header
+  #         value: this-is-the-only-value
+  #       remove:
+  #       - User-Agent
+  # - matches:
+  #   - path:
+  #       type: PathPrefix
+  #       value: /echo
+  #     headers:
+  #     - name: version
+  #       value: v2
+
+# -- ReferenceGrant allows resources in one namespace to reference resources in another
+# For more information: https://gateway-api.sigs.k8s.io/api-types/referencegrant/
+referenceGrant:
+  # ReferenceGrant enabled.
+  enabled: false
+  # ReferenceGrant annotations.
+  annotations: {}
+  # ReferenceGrant labels.
+  labels: {}
+  # Namespaces and resources that can reference resources in this namespace.
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: default
+  # Resources in this namespace that can be referenced.
+  to:
+  - group: ""
+    kind: Service
+  # - group: ""
+  #   kind: Secret
