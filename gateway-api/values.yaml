@@ -33,7 +33,7 @@ crds:
 # For more information: https://gateway-api.sigs.k8s.io/api-types/gatewayclass/
 gatewayClass:
   # GatewayClass enabled.
-  enabled: true
+  enabled: false
   # GatewayClass annotations.
   annotations: {}
   # GatewayClass labels.
@@ -53,7 +53,7 @@ gatewayClass:
 # For more information: https://gateway-api.sigs.k8s.io/api-types/gateway/
 gateway:
   # Gateway enabled.
-  enabled: true
+  enabled: false
   # Gateway annotations.
   annotations: {}
   # Gateway labels.
