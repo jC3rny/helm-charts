@@ -1,21 +1,22 @@
 {{- if .Values.envoyGateway.envoyExtensionPolicy.enabled -}}
 {{- $fullName := include "gateway-api.fullname" . -}}
+{{- $envoyExtensionPolicy := .Values.envoyGateway.envoyExtensionPolicy -}}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyExtensionPolicy
 metadata:
-  name: {{ .Values.envoyGateway.envoyExtensionPolicy.nameOverride | default (printf "%s-%s" $fullName (.Values.envoyGateway.envoyExtensionPolicy.name | default "")) | trunc 63 | trimSuffix "-" }}
+  name: {{ $envoyExtensionPolicy.nameOverride | default (printf "%s-%s" $fullName ($envoyExtensionPolicy.name | default "")) | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
-    {{- with .Values.envoyGateway.envoyExtensionPolicy.labels }}
+    {{- with $envoyExtensionPolicy.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.envoyGateway.envoyExtensionPolicy.annotations }}
+  {{- with $envoyExtensionPolicy.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.envoyGateway.envoyExtensionPolicy.spec }}
+  {{- with $envoyExtensionPolicy.spec }}
   {{- tpl (. | toYaml) $ | nindent 2 }}
   {{- end }}
 {{- end }}

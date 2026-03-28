@@ -1,25 +1,26 @@
 {{- if .Values.referenceGrant.enabled -}}
 {{- $fullName := include "gateway-api.fullname" . -}}
+{{- $referenceGrant := .Values.referenceGrant -}}
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
 metadata:
-  name: {{ .Values.referenceGrant.nameOverride | default (printf "%s-%s" $fullName (.Values.referenceGrant.name | default "")) | trunc 63 | trimSuffix "-" }}
+  name: {{ $referenceGrant.nameOverride | default (printf "%s-%s" $fullName ($referenceGrant.name | default "")) | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
-    {{- with .Values.referenceGrant.labels }}
+    {{- with $referenceGrant.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.referenceGrant.annotations }}
+  {{- with $referenceGrant.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.referenceGrant.from }}
+  {{- with $referenceGrant.from }}
   from:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.referenceGrant.to }}
+  {{- with $referenceGrant.to }}
   to:
     {{- toYaml . | nindent 4 }}
   {{- end }}

@@ -1,21 +1,22 @@
 {{- if .Values.envoyGateway.envoyPatchPolicy.enabled -}}
 {{- $fullName := include "gateway-api.fullname" . -}}
+{{- $envoyPatchPolicy := .Values.envoyGateway.envoyPatchPolicy -}}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyPatchPolicy
 metadata:
-  name: {{ .Values.envoyGateway.envoyPatchPolicy.nameOverride | default (printf "%s-%s" $fullName (.Values.envoyGateway.envoyPatchPolicy.name | default "")) | trunc 63 | trimSuffix "-" }}
+  name: {{ $envoyPatchPolicy.nameOverride | default (printf "%s-%s" $fullName ($envoyPatchPolicy.name | default "")) | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
-    {{- with .Values.envoyGateway.envoyPatchPolicy.labels }}
+    {{- with $envoyPatchPolicy.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.envoyGateway.envoyPatchPolicy.annotations }}
+  {{- with $envoyPatchPolicy.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.envoyGateway.envoyPatchPolicy.spec }}
+  {{- with $envoyPatchPolicy.spec }}
   {{- tpl (. | toYaml) $ | nindent 2 }}
   {{- end }}
 {{- end }}

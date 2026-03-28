@@ -1,25 +1,26 @@
 {{- if .Values.tcpRoute.enabled -}}
 {{- $fullName := include "gateway-api.fullname" . -}}
+{{- $tcpRoute := .Values.tcpRoute -}}
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
 metadata:
-  name: {{ .Values.tcpRoute.nameOverride | default (printf "%s-%s" $fullName (.Values.tcpRoute.name | default "")) | trunc 63 | trimSuffix "-" }}
+  name: {{ $tcpRoute.nameOverride | default (printf "%s-%s" $fullName ($tcpRoute.name | default "")) | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
-    {{- with .Values.tcpRoute.labels }}
+    {{- with $tcpRoute.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.tcpRoute.annotations }}
+  {{- with $tcpRoute.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   parentRefs:
-    {{- with .Values.tcpRoute.parentRefs }}
+    {{- with $tcpRoute.parentRefs }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.tcpRoute.rules }}
+  {{- with $tcpRoute.rules }}
   rules:
     {{- toYaml . | nindent 4 }}
   {{- end }}

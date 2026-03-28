@@ -1,21 +1,22 @@
 {{- if .Values.envoyGateway.backendTrafficPolicy.enabled -}}
 {{- $fullName := include "gateway-api.fullname" . -}}
+{{- $backendTrafficPolicy := .Values.envoyGateway.backendTrafficPolicy -}}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
 metadata:
-  name: {{ .Values.envoyGateway.backendTrafficPolicy.nameOverride | default (printf "%s-%s" $fullName (.Values.envoyGateway.backendTrafficPolicy.name | default "")) | trunc 63 | trimSuffix "-" }}
+  name: {{ $backendTrafficPolicy.nameOverride | default (printf "%s-%s" $fullName ($backendTrafficPolicy.name | default "")) | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
-    {{- with .Values.envoyGateway.backendTrafficPolicy.labels }}
+    {{- with $backendTrafficPolicy.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.envoyGateway.backendTrafficPolicy.annotations }}
+  {{- with $backendTrafficPolicy.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.envoyGateway.backendTrafficPolicy.spec }}
+  {{- with $backendTrafficPolicy.spec }}
   {{- tpl (. | toYaml) $ | nindent 2 }}
   {{- end }}
 {{- end }}

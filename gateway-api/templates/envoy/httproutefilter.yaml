@@ -1,21 +1,22 @@
 {{- if .Values.envoyGateway.httpRouteFilter.enabled -}}
 {{- $fullName := include "gateway-api.fullname" . -}}
+{{- $httpRouteFilter := .Values.envoyGateway.httpRouteFilter -}}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: HTTPRouteFilter
 metadata:
-  name: {{ .Values.envoyGateway.httpRouteFilter.nameOverride | default (printf "%s-%s" $fullName (.Values.envoyGateway.httpRouteFilter.name | default "")) | trunc 63 | trimSuffix "-" }}
+  name: {{ $httpRouteFilter.nameOverride | default (printf "%s-%s" $fullName ($httpRouteFilter.name | default "")) | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
-    {{- with .Values.envoyGateway.httpRouteFilter.labels }}
+    {{- with $httpRouteFilter.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.envoyGateway.httpRouteFilter.annotations }}
+  {{- with $httpRouteFilter.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.envoyGateway.httpRouteFilter.spec }}
+  {{- with $httpRouteFilter.spec }}
   {{- tpl (. | toYaml) $ | nindent 2 }}
   {{- end }}
 {{- end }}
