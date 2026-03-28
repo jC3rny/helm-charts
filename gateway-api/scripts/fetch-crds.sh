@@ -48,3 +48,40 @@ echo "$EXPERIMENTAL_CRDS" | while IFS= read -r crd; do
 done
 
 echo "Done. CRDs saved to crds/standard/ (${STANDARD_COUNT}) and crds/experimental/ (${EXP_COUNT})"
+
+# --- Envoy Gateway CRDs ---
+# Read version from values.yaml (envoyGateway.crds.version)
+ENVOY_VERSION=$(grep -A2 '^envoyGateway:' "$CHART_DIR/values.yaml" | grep 'version:' | awk '{print $2}' | tr -d '"')
+
+if [ -z "$ENVOY_VERSION" ]; then
+  echo "WARNING: Could not read envoyGateway.crds.version from values.yaml, skipping Envoy Gateway CRDs" >&2
+  exit 0
+fi
+
+ENVOY_RAW_URL="https://raw.githubusercontent.com/envoyproxy/gateway/${ENVOY_VERSION}/charts/gateway-crds-helm/templates/generated"
+ENVOY_API_URL="https://api.github.com/repos/envoyproxy/gateway/contents/charts/gateway-crds-helm/templates/generated?ref=${ENVOY_VERSION}"
+ENVOY_DIR="$CHART_DIR/crds/envoyproxy"
+
+echo ""
+echo "Fetching Envoy Gateway CRDs ${ENVOY_VERSION}..."
+
+# Discover CRD filenames from GitHub API
+ENVOY_CRDS=$(curl -sSfL "$ENVOY_API_URL" | python3 -c "import sys,json; [print(f['name']) for f in json.load(sys.stdin) if f['name'].endswith('.yaml')]")
+
+# Clean and recreate directory
+rm -rf "$ENVOY_DIR"
+mkdir -p "$ENVOY_DIR"
+
+# Download Envoy Gateway CRDs (strip Helm template wrappers)
+ENVOY_COUNT=$(echo "$ENVOY_CRDS" | wc -l | tr -d ' ')
+echo "Downloading Envoy Gateway CRDs (${ENVOY_COUNT} files)..."
+echo "$ENVOY_CRDS" | while IFS= read -r crd; do
+  echo "  ${crd}"
+  curl -sSfL "${ENVOY_RAW_URL}/${crd}" \
+    | sed '1{/^{{-.*}}$/d;}' \
+    | sed '1{/^---$/d;}' \
+    | tac | sed '1{/^$/d;}' | sed '1{/^{{-.*}}$/d;}' | tac \
+    > "${ENVOY_DIR}/${crd}"
+done
+
+echo "Done. Envoy Gateway CRDs saved to crds/envoyproxy/ (${ENVOY_COUNT})"

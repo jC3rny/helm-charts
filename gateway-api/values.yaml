@@ -277,6 +277,248 @@ referenceGrant:
   # - group: ""
   #   kind: Secret
 
+
+# -- Envoy Gateway resources
+# For more information: https://gateway.envoyproxy.io/
+envoyGateway:
+  # Envoy Gateway CRD installation.
+  # CRDs are fetched from https://github.com/envoyproxy/gateway by scripts/fetch-crds.sh.
+  crds:
+    # Install Envoy Gateway CRDs.
+    enabled: false
+    # Envoy Gateway version to fetch CRDs from.
+    version: v1.7.1
+
+  # -- Backend defines a backend endpoint for routing traffic
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#backend
+  backend:
+    # Backend enabled.
+    enabled: false
+    # Backend name override. Defaults to the chart fullname.
+    name: ""
+    # Backend annotations.
+    annotations: {}
+    # Backend labels.
+    labels: {}
+    # Backend spec.
+    spec: {}
+    # spec:
+    #   endpoints:
+    #   - fqdn:
+    #       hostname: primary.example.com
+    #       port: 3000
+
+  # -- BackendTrafficPolicy defines traffic management rules for backend connections
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#backendtrafficpolicy
+  backendTrafficPolicy:
+    # BackendTrafficPolicy enabled.
+    enabled: false
+    # BackendTrafficPolicy name override. Defaults to the chart fullname.
+    name: ""
+    # BackendTrafficPolicy annotations.
+    annotations: {}
+    # BackendTrafficPolicy labels.
+    labels: {}
+    # BackendTrafficPolicy spec.
+    spec: {}
+    # spec:
+    #   targetRefs:
+    #   - group: gateway.networking.k8s.io
+    #     kind: HTTPRoute
+    #     name: my-route
+    #   rateLimit:
+    #     type: Global
+    #     global:
+    #       rules:
+    #       - limit:
+    #           requests: 100
+    #           unit: Second
+    #   loadBalancer:
+    #     type: RoundRobin
+    #   circuitBreaker:
+    #     maxConnections: 1024
+    #   timeout:
+    #     tcp:
+    #       connectTimeout: 10s
+    #     http:
+    #       requestTimeout: 30s
+
+  # -- ClientTrafficPolicy defines traffic management rules for client connections
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#clienttrafficpolicy
+  clientTrafficPolicy:
+    # ClientTrafficPolicy enabled.
+    enabled: false
+    # ClientTrafficPolicy name override. Defaults to the chart fullname.
+    name: ""
+    # ClientTrafficPolicy annotations.
+    annotations: {}
+    # ClientTrafficPolicy labels.
+    labels: {}
+    # ClientTrafficPolicy spec.
+    spec: {}
+    # spec:
+    #   targetRefs:
+    #   - group: gateway.networking.k8s.io
+    #     kind: Gateway
+    #     name: my-gateway
+    #   tcpKeepalive:
+    #     probes: 3
+    #     idleTime: 60s
+    #     interval: 20s
+    #   http3: {}
+    #   tls:
+    #     minVersion: "1.2"
+    #     maxVersion: "1.3"
+
+  # -- EnvoyExtensionPolicy defines extension points for Envoy proxy
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#envoyextensionpolicy
+  envoyExtensionPolicy:
+    # EnvoyExtensionPolicy enabled.
+    enabled: false
+    # EnvoyExtensionPolicy name override. Defaults to the chart fullname.
+    name: ""
+    # EnvoyExtensionPolicy annotations.
+    annotations: {}
+    # EnvoyExtensionPolicy labels.
+    labels: {}
+    # EnvoyExtensionPolicy spec.
+    spec: {}
+    # spec:
+    #   targetRefs:
+    #   - group: gateway.networking.k8s.io
+    #     kind: HTTPRoute
+    #     name: my-route
+    #   wasm:
+    #   - name: my-wasm-filter
+    #     code:
+    #       type: HTTP
+    #       http:
+    #         url: https://example.com/filter.wasm
+
+  # -- EnvoyPatchPolicy allows patching the generated Envoy xDS configuration
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#envoypatchpolicy
+  envoyPatchPolicy:
+    # EnvoyPatchPolicy enabled.
+    enabled: false
+    # EnvoyPatchPolicy name override. Defaults to the chart fullname.
+    name: ""
+    # EnvoyPatchPolicy annotations.
+    annotations: {}
+    # EnvoyPatchPolicy labels.
+    labels: {}
+    # EnvoyPatchPolicy spec.
+    spec: {}
+    # spec:
+    #   targetRef:
+    #     group: gateway.networking.k8s.io
+    #     kind: Gateway
+    #     name: my-gateway
+    #   type: JSONPatch
+    #   jsonPatches:
+    #   - type: type.googleapis.com/envoy.config.listener.v3.Listener
+    #     name: default/my-gateway/http
+    #     operation:
+    #       op: add
+    #       path: "/per_connection_buffer_limit_bytes"
+    #       value: "1024"
+
+  # -- EnvoyProxy defines the desired state of the Envoy proxy data plane
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#envoyproxy
+  envoyProxy:
+    # EnvoyProxy enabled.
+    enabled: false
+    # EnvoyProxy name override. Defaults to the chart fullname.
+    name: ""
+    # EnvoyProxy annotations.
+    annotations: {}
+    # EnvoyProxy labels.
+    labels: {}
+    # EnvoyProxy spec.
+    spec: {}
+    # spec:
+    #   provider:
+    #     type: Kubernetes
+    #     kubernetes:
+    #       envoyDeployment:
+    #         replicas: 2
+    #         container:
+    #           resources:
+    #             requests:
+    #               cpu: 100m
+    #               memory: 128Mi
+    #         pod:
+    #           annotations: {}
+    #           labels: {}
+    #       envoyService:
+    #         type: LoadBalancer
+    #         annotations: {}
+    #   logging:
+    #     level:
+    #       default: info
+    #   telemetry:
+    #     metrics:
+    #       prometheus: {}
+    #   shutdown:
+    #     drainTimeout: 30s
+
+  # -- HTTPRouteFilter defines custom filters for Envoy Gateway HTTPRoutes
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#httproutefilter
+  httpRouteFilter:
+    # HTTPRouteFilter enabled.
+    enabled: false
+    # HTTPRouteFilter name override. Defaults to the chart fullname.
+    name: ""
+    # HTTPRouteFilter annotations.
+    annotations: {}
+    # HTTPRouteFilter labels.
+    labels: {}
+    # HTTPRouteFilter spec.
+    spec: {}
+    # spec:
+    #   urlRewrite:
+    #     hostname:
+    #       type: Backend
+    #     path:
+    #       type: ReplaceRegexMatch
+    #       replaceRegexMatch:
+    #         pattern: "^/(.+)$"
+    #         substitution: "/api/\\1"
+
+  # -- SecurityPolicy defines security rules for traffic
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#securitypolicy
+  securityPolicy:
+    # SecurityPolicy enabled.
+    enabled: false
+    # SecurityPolicy name override. Defaults to the chart fullname.
+    name: ""
+    # SecurityPolicy annotations.
+    annotations: {}
+    # SecurityPolicy labels.
+    labels: {}
+    # SecurityPolicy spec.
+    spec: {}
+    # spec:
+    #   targetRefs:
+    #   - group: gateway.networking.k8s.io
+    #     kind: Gateway
+    #     name: my-gateway
+    #   cors:
+    #     allowOrigins:
+    #     - type: Exact
+    #       value: "https://example.com"
+    #     allowMethods:
+    #     - GET
+    #     - POST
+    #     allowHeaders:
+    #     - Content-Type
+    #   jwt:
+    #     providers:
+    #     - name: my-jwt
+    #       issuer: "https://auth.example.com"
+    #       remoteJWKS:
+    #         uri: "https://auth.example.com/.well-known/jwks.json"
+
+
 # -- Extra manifests to deploy as part of this chart.
 # Useful for resources not covered by dedicated templates (e.g., x-k8s.io experimental resources).
 extraDeploy: []
