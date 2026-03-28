@@ -22,7 +22,7 @@ spec:
   {{- end }}
   {{- with .Values.gateway.listeners }}
   listeners:
-    {{- toYaml . | nindent 4 }}
+    {{- tpl (. | toYaml) $ | nindent 4 }}
   {{- end }}
   {{- with .Values.gateway.addresses }}
   addresses:
