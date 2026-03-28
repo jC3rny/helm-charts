@@ -6,6 +6,9 @@
 nameOverride: ""
 fullnameOverride: ""
 
+# This is to override the release namespace.
+namespaceOverride: ""
+
 # -- Gateway API CRD installation
 # Use scripts/fetch-crds.sh to download CRDs before packaging.
 crds:

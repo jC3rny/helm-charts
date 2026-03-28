@@ -43,6 +43,13 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
+Namespace override
+*/}}
+{{- define "gateway-api.namespace" -}}
+{{- default .Release.Namespace .Values.namespaceOverride }}
+{{- end }}
+
+{{/*
 Selector labels
 */}}
 {{- define "gateway-api.selectorLabels" -}}
