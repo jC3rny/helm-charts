@@ -4,7 +4,7 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
-  name: {{ $envoyProxy.nameOverride | default (printf "%s-%s" $fullName ($envoyProxy.name | default "")) | trunc 63 | trimSuffix "-" }}
+  name: {{ include "gateway-api.resourceName" (mergeOverwrite . $envoyProxy) }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}

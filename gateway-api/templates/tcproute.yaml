@@ -4,7 +4,7 @@
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
 metadata:
-  name: {{ $tcpRoute.nameOverride | default (printf "%s-%s" $fullName ($tcpRoute.name | default "")) | trunc 63 | trimSuffix "-" }}
+  name: {{ include "gateway-api.resourceName" (mergeOverwrite . $tcpRoute) }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}

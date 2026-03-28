@@ -4,7 +4,7 @@
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
 metadata:
-  name: {{ $referenceGrant.nameOverride | default (printf "%s-%s" $fullName ($referenceGrant.name | default "")) | trunc 63 | trimSuffix "-" }}
+  name: {{ include "gateway-api.resourceName" (mergeOverwrite . $referenceGrant) }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
