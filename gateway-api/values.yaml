@@ -99,6 +99,8 @@ gateway:
 httpRoute:
   # HTTPRoute enabled.
   enabled: false
+  # HTTPRoute name override. Defaults to the chart fullname.
+  name: ""
   # HTTPRoute annotations.
   annotations: {}
   # HTTPRoute labels.
@@ -109,8 +111,8 @@ httpRoute:
     sectionName: http
     # namespace: default
   # Hostnames matching HTTP header.
-  hostnames:
-  - chart-example.local
+  hostnames: []
+  # - chart-example.local
   # List of rules and filters applied.
   rules:
   - matches:
