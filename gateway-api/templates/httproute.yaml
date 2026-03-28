@@ -18,7 +18,7 @@ metadata:
 spec:
   parentRefs:
     {{- with $httpRoute.parentRefs }}
-      {{- toYaml . | nindent 4 }}
+      {{- tpl (. | toYaml) $ | nindent 4 }}
     {{- end }}
   {{- with $httpRoute.hostnames }}
   hostnames:
