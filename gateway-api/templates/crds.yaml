@@ -1,5 +1,14 @@
 {{- if .Values.crds.enabled -}}
+{{- $expEnabled := .Values.crds.experimental.enabled }}
+{{- $expList := .Values.crds.experimental.list }}
+{{/*
+  Standard CRDs: skip any whose short name is in the experimental list
+  (the experimental version will be used instead).
+*/}}
 {{- range $path, $_ := .Files.Glob "crds/standard/**.yaml" }}
+{{- $filename := base $path }}
+{{- $shortName := $filename | trimPrefix "gateway.networking.k8s.io_" | trimPrefix "gateway.networking.x-k8s.io_" | trimSuffix ".yaml" }}
+{{- if not (and $expEnabled (has $shortName $expList)) }}
 {{- $crd := $.Files.Get $path | fromYaml }}
 ---
 apiVersion: {{ $crd.apiVersion }}
@@ -21,11 +30,14 @@ metadata:
 spec:
   {{- toYaml $crd.spec | nindent 2 }}
 {{- end }}
-{{- if .Values.crds.experimental.enabled -}}
-{{- $expList := .Values.crds.experimental.list }}
+{{- end }}
+{{/*
+  Experimental CRDs: install those whose short name is in the experimental list.
+*/}}
+{{- if $expEnabled -}}
 {{- range $path, $_ := .Files.Glob "crds/experimental/**.yaml" }}
 {{- $filename := base $path }}
-{{- $shortName := $filename | trimPrefix "gateway.networking.k8s.io_" | trimSuffix ".yaml" }}
+{{- $shortName := $filename | trimPrefix "gateway.networking.k8s.io_" | trimPrefix "gateway.networking.x-k8s.io_" | trimSuffix ".yaml" }}
 {{- if has $shortName $expList }}
 {{- $crd := $.Files.Get $path | fromYaml }}
 ---

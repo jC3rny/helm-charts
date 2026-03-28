@@ -13,14 +13,18 @@ crds:
   enabled: false
   # Set to "keep" to prevent CRD deletion on helm uninstall. Set to "" to allow deletion.
   resourcePolicy: keep
-  # Experimental CRDs (only those not included in standard).
+  # Experimental CRDs. CRDs listed here use the experimental version (with experimental fields).
+  # For CRDs that also exist in standard, the experimental version replaces the standard one.
   experimental:
-    # Install experimental CRDs.
+    # Enable experimental CRD selection.
     enabled: false
     # List of experimental CRDs to install (empty = none).
-    # Available: tcproutes, tlsroutes, udproutes
+    # Run scripts/fetch-crds.sh to see available CRDs in crds/experimental/.
+    # Short names are derived from filenames (e.g. gateway.networking.k8s.io_tcproutes.yaml -> tcproutes).
     list: []
     # list:
+    # - gateways
+    # - httproutes
     # - tcproutes
     # - tlsroutes
     # - udproutes
