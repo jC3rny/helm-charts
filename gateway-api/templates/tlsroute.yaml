@@ -1,8 +1,9 @@
 {{- if .Values.tlsRoute.enabled -}}
+{{- $fullName := include "gateway-api.fullname" . -}}
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TLSRoute
 metadata:
-  name: {{ include "gateway-api.fullname" . }}
+  name: {{ .Values.tlsRoute.nameOverride | default (printf "%s-%s" $fullName (.Values.tlsRoute.name | default "")) | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}

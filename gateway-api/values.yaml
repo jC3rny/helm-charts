@@ -99,8 +99,10 @@ gateway:
 httpRoute:
   # HTTPRoute enabled.
   enabled: false
-  # HTTPRoute name override. Defaults to the chart fullname.
+  # HTTPRoute name suffix appended to the chart fullname.
   name: ""
+  # HTTPRoute name override. Replaces the full resource name.
+  nameOverride: ""
   # HTTPRoute annotations.
   annotations: {}
   # HTTPRoute labels.
@@ -143,6 +145,10 @@ httpRoute:
 grpcRoute:
   # GRPCRoute enabled.
   enabled: false
+  # GRPCRoute name suffix appended to the chart fullname.
+  name: ""
+  # GRPCRoute name override. Replaces the full resource name.
+  nameOverride: ""
   # GRPCRoute annotations.
   annotations: {}
   # GRPCRoute labels.
@@ -171,6 +177,10 @@ grpcRoute:
 backendTLSPolicy:
   # BackendTLSPolicy enabled.
   enabled: false
+  # BackendTLSPolicy name suffix appended to the chart fullname.
+  name: ""
+  # BackendTLSPolicy name override. Replaces the full resource name.
+  nameOverride: ""
   # BackendTLSPolicy annotations.
   annotations: {}
   # BackendTLSPolicy labels.
@@ -195,6 +205,10 @@ backendTLSPolicy:
 tcpRoute:
   # TCPRoute enabled.
   enabled: false
+  # TCPRoute name suffix appended to the chart fullname.
+  name: ""
+  # TCPRoute name override. Replaces the full resource name.
+  nameOverride: ""
   # TCPRoute annotations.
   annotations: {}
   # TCPRoute labels.
@@ -216,6 +230,10 @@ tcpRoute:
 tlsRoute:
   # TLSRoute enabled.
   enabled: false
+  # TLSRoute name suffix appended to the chart fullname.
+  name: ""
+  # TLSRoute name override. Replaces the full resource name.
+  nameOverride: ""
   # TLSRoute annotations.
   annotations: {}
   # TLSRoute labels.
@@ -240,6 +258,10 @@ tlsRoute:
 udpRoute:
   # UDPRoute enabled.
   enabled: false
+  # UDPRoute name suffix appended to the chart fullname.
+  name: ""
+  # UDPRoute name override. Replaces the full resource name.
+  nameOverride: ""
   # UDPRoute annotations.
   annotations: {}
   # UDPRoute labels.
@@ -261,6 +283,10 @@ udpRoute:
 referenceGrant:
   # ReferenceGrant enabled.
   enabled: false
+  # ReferenceGrant name suffix appended to the chart fullname.
+  name: ""
+  # ReferenceGrant name override. Replaces the full resource name.
+  nameOverride: ""
   # ReferenceGrant annotations.
   annotations: {}
   # ReferenceGrant labels.
@@ -294,8 +320,10 @@ envoyGateway:
   backend:
     # Backend enabled.
     enabled: false
-    # Backend name override. Defaults to the chart fullname.
+    # Backend name suffix appended to the chart fullname.
     name: ""
+    # Backend name override. Replaces the full resource name.
+    nameOverride: ""
     # Backend annotations.
     annotations: {}
     # Backend labels.
@@ -313,8 +341,10 @@ envoyGateway:
   backendTrafficPolicy:
     # BackendTrafficPolicy enabled.
     enabled: false
-    # BackendTrafficPolicy name override. Defaults to the chart fullname.
+    # BackendTrafficPolicy name suffix appended to the chart fullname.
     name: ""
+    # BackendTrafficPolicy name override. Replaces the full resource name.
+    nameOverride: ""
     # BackendTrafficPolicy annotations.
     annotations: {}
     # BackendTrafficPolicy labels.
@@ -348,8 +378,10 @@ envoyGateway:
   clientTrafficPolicy:
     # ClientTrafficPolicy enabled.
     enabled: false
-    # ClientTrafficPolicy name override. Defaults to the chart fullname.
+    # ClientTrafficPolicy name suffix appended to the chart fullname.
     name: ""
+    # ClientTrafficPolicy name override. Replaces the full resource name.
+    nameOverride: ""
     # ClientTrafficPolicy annotations.
     annotations: {}
     # ClientTrafficPolicy labels.
@@ -375,8 +407,10 @@ envoyGateway:
   envoyExtensionPolicy:
     # EnvoyExtensionPolicy enabled.
     enabled: false
-    # EnvoyExtensionPolicy name override. Defaults to the chart fullname.
+    # EnvoyExtensionPolicy name suffix appended to the chart fullname.
     name: ""
+    # EnvoyExtensionPolicy name override. Replaces the full resource name.
+    nameOverride: ""
     # EnvoyExtensionPolicy annotations.
     annotations: {}
     # EnvoyExtensionPolicy labels.
@@ -400,8 +434,10 @@ envoyGateway:
   envoyPatchPolicy:
     # EnvoyPatchPolicy enabled.
     enabled: false
-    # EnvoyPatchPolicy name override. Defaults to the chart fullname.
+    # EnvoyPatchPolicy name suffix appended to the chart fullname.
     name: ""
+    # EnvoyPatchPolicy name override. Replaces the full resource name.
+    nameOverride: ""
     # EnvoyPatchPolicy annotations.
     annotations: {}
     # EnvoyPatchPolicy labels.
@@ -427,8 +463,10 @@ envoyGateway:
   envoyProxy:
     # EnvoyProxy enabled.
     enabled: false
-    # EnvoyProxy name override. Defaults to the chart fullname.
+    # EnvoyProxy name suffix appended to the chart fullname.
     name: ""
+    # EnvoyProxy name override. Replaces the full resource name.
+    nameOverride: ""
     # EnvoyProxy annotations.
     annotations: {}
     # EnvoyProxy labels.
@@ -466,8 +504,10 @@ envoyGateway:
   httpRouteFilter:
     # HTTPRouteFilter enabled.
     enabled: false
-    # HTTPRouteFilter name override. Defaults to the chart fullname.
+    # HTTPRouteFilter name suffix appended to the chart fullname.
     name: ""
+    # HTTPRouteFilter name override. Replaces the full resource name.
+    nameOverride: ""
     # HTTPRouteFilter annotations.
     annotations: {}
     # HTTPRouteFilter labels.
@@ -489,8 +529,10 @@ envoyGateway:
   securityPolicy:
     # SecurityPolicy enabled.
     enabled: false
-    # SecurityPolicy name override. Defaults to the chart fullname.
+    # SecurityPolicy name suffix appended to the chart fullname.
     name: ""
+    # SecurityPolicy name override. Replaces the full resource name.
+    nameOverride: ""
     # SecurityPolicy annotations.
     annotations: {}
     # SecurityPolicy labels.

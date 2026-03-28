@@ -1,8 +1,9 @@
 {{- if .Values.udpRoute.enabled -}}
+{{- $fullName := include "gateway-api.fullname" . -}}
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: UDPRoute
 metadata:
-  name: {{ include "gateway-api.fullname" . }}
+  name: {{ .Values.udpRoute.nameOverride | default (printf "%s-%s" $fullName (.Values.udpRoute.name | default "")) | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}

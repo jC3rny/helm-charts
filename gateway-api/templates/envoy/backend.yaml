@@ -3,7 +3,7 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: Backend
 metadata:
-  name: {{ default $fullName .Values.envoyGateway.backend.name }}
+  name: {{ .Values.envoyGateway.backend.nameOverride | default (printf "%s-%s" $fullName (.Values.envoyGateway.backend.name | default "")) | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}

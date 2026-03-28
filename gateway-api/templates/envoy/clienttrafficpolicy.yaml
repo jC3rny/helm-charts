@@ -3,7 +3,7 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: ClientTrafficPolicy
 metadata:
-  name: {{ default $fullName .Values.envoyGateway.clientTrafficPolicy.name }}
+  name: {{ .Values.envoyGateway.clientTrafficPolicy.nameOverride | default (printf "%s-%s" $fullName (.Values.envoyGateway.clientTrafficPolicy.name | default "")) | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
