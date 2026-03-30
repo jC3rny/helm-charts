@@ -30,6 +30,6 @@ spec:
   {{- end }}
   {{- with .Values.gateway.infrastructure }}
   infrastructure:
-    {{- toYaml . | nindent 4 }}
+    {{- tpl (. | toYaml) $ | nindent 4 }}
   {{- end }}
 {{- end }}
