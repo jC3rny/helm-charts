@@ -1,0 +1,33 @@
+{{- $fullName := include "gateway-api.fullname" . -}}
+{{- range $key, $policy := .Values.networkPolicy }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $policy.name | default (printf "%s-%s" $fullName $key) | trunc 63 | trimSuffix "-" }}
+  namespace: {{ include "gateway-api.namespace" $ }}
+  labels:
+    {{- include "gateway-api.labels" $ | nindent 4 }}
+    {{- with $policy.labels }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
+  {{- with $policy.annotations }}
+  annotations:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+spec:
+  podSelector:
+    {{- tpl (toYaml ($policy.podSelector | default dict)) $ | nindent 4 }}
+  {{- with $policy.policyTypes }}
+  policyTypes:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $policy.ingress }}
+  ingress:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $policy.egress }}
+  egress:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+{{- end }}
