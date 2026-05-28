@@ -607,6 +607,7 @@ networkPolicy: {}
 #       - protocol: TCP
 #         port: 5978
 
+
 # -- Extra manifests to deploy as part of this chart.
 # Useful for resources not covered by dedicated templates (e.g., x-k8s.io experimental resources).
 extraDeploy: []
