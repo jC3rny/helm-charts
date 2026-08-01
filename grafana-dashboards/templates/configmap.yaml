@@ -1,4 +1,4 @@
-
+{{- if eq .Values.kind "ConfigMap" }}
 {{ $context := . }}
 {{- range $path, $_ :=  $context.Files.Glob  "files/**.json" }}
 {{- $category := $path | trimPrefix "files/" | dir }}
@@ -11,9 +11,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  {{- $annotations := merge (dict) $context.Values.annotations }}
   {{- if $folderName }}
+    {{- $_ := set $annotations $context.Values.folderAnnotation $folderName }}
+  {{- end }}
+  {{- if $annotations }}
   annotations:
-    {{- dict $context.Values.folderAnnotation $folderName | toYaml | nindent 4 }}
+    {{- toYaml $annotations | nindent 4 }}
   {{- end }}
   labels:
     {{- include "gfdsh.labels" $tplContext | nindent 4 }}
@@ -23,5 +27,6 @@ metadata:
 data:
   {{ printf "%s%s" (include "gfdsh.name" $tplContext | trimPrefix $context.Values.trimPrefix | trimPrefix "-") ($path | ext) }}: |-
   {{- $context.Files.Get $path | nindent 4 }}
+{{- end }}
 {{- end }}
 {{- end }}

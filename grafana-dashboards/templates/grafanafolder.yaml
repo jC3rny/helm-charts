@@ -1,0 +1,26 @@
+{{- if eq .Values.kind "GrafanaDashboard" }}
+{{- $context := . }}
+{{- $folders := dict }}
+{{- range $category, $cfg := $context.Values.category }}
+  {{- if $cfg.enabled }}
+    {{- $folder := coalesce $cfg.folder $context.Values.grafanaDashboard.folder }}
+    {{- if $folder }}
+      {{- $_ := set $folders $folder true }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- range $folderTitle, $_ := $folders }}
+{{- $folderSlug := include "gfdsh.folderSlug" $folderTitle }}
+---
+
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: {{ $folderSlug }}
+  namespace: {{ include "gfdsh.namespace" $context }}
+spec:
+  instanceSelector:
+    {{- $context.Values.grafanaDashboard.instanceSelector | toYaml | nindent 4 }}
+  title: {{ $folderTitle }}
+{{- end }}
+{{- end }}

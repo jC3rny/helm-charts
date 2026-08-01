@@ -8,12 +8,33 @@ namespaceOverride: ""
 
 trimPrefix: "gfdsh"
 
+annotations: {}
+  # argocd.argoproj.io/sync-options: ServerSideApply=true
+
+# kind -- ConfigMap | GrafanaDashboard
+kind: ConfigMap
+
 folderAnnotation: grafana_dashboard_folder
 
 label: grafana_dashboard
 labelValue: "1"
 
+grafanaDashboard:
+  resyncPeriod: 30m
+  contentCacheDuration: ""
+  folder: ""
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+
 category:
+  # example:
+  #   enabled: true
+  #   folder: "_Platform"
+  #   plugins:
+  #     - name: grafana-clock-panel
+  #       version: 1.3.0
+
   argocd:
     enabled: true
     folder: "_Platform"
@@ -23,7 +44,7 @@ category:
     folder: "_General"
 
   cert-manager:
-    enabled: true
+    enabled: trueno
     folder: "_Platform"
 
   certificates:
