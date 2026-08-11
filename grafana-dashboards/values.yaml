@@ -64,6 +64,10 @@ category:
     enabled: false
     folder: "_General"
 
+  envoy-gateway:
+    enabled: false
+    folder: "_Platform"
+
   external-dns:
     enabled: true
     folder: "_Platform"
