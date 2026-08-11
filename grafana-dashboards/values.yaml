@@ -8,24 +8,29 @@ namespaceOverride: ""
 
 trimPrefix: "gfdsh"
 
-annotations: {}
-  # argocd.argoproj.io/sync-options: ServerSideApply=true
-
-# kind -- ConfigMap | GrafanaDashboard
-kind: ConfigMap
-
 folderAnnotation: grafana_dashboard_folder
 
 label: grafana_dashboard
 labelValue: "1"
 
-grafanaDashboard:
-  resyncPeriod: 30m
-  contentCacheDuration: ""
-  folder: ""
+grafana-operator:
+  enabled: false
+
   instanceSelector:
     matchLabels:
-      dashboards: grafana
+      app.kubernetes.io/instance: grafana
+
+  folder:
+    annotations: {}
+      # argocd.argoproj.io/sync-wave: "-1"
+
+    default: ""
+
+  dashboard:
+    annotations: {}
+      # argocd.argoproj.io/sync-options: ServerSideApply=true
+    resyncPeriod: 30m
+    contentCacheDuration: ""
 
 category:
   # example:
@@ -43,13 +48,21 @@ category:
     enabled: false
     folder: "_General"
 
+  ceph:
+    enabled: false
+    folder: "_Platform"
+
   cert-manager:
-    enabled: trueno
+    enabled: true
     folder: "_Platform"
 
   certificates:
     enabled: true
     folder: "_Platform"
+
+  cloudnative-pg:
+    enabled: false
+    folder: "_General"
 
   external-dns:
     enabled: true
@@ -79,9 +92,17 @@ category:
     enabled: true
     folder: "_Platform"
 
+  mariadb:
+    enabled: false
+    folder: "_General"
+
   memcached:
     enabled: false
     folder: "_General"
+
+  metallb:
+    enabled: false
+    folder: "_Platform"
 
   nginx:
     enabled: false

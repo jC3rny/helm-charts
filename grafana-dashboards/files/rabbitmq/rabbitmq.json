@@ -8367,7 +8367,7 @@
         "datasource": "PBFA97CFB590B2093",
         "hide": 2,
         "includeAll": false,
-        "label": "datasource",
+        "label": "Datasource",
         "multi": false,
         "name": "DS_PROMETHEUS",
         "options": [],

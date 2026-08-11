@@ -1,5 +1,6 @@
-{{- if eq .Values.kind "GrafanaDashboard" }}
+{{- if (index .Values "grafana-operator").enabled }}
 {{ $context := . }}
+{{- $op := index $context.Values "grafana-operator" }}
 {{- range $path, $_ := $context.Files.Glob "files/**.json" }}
 {{- $category := $path | trimPrefix "files/" | dir }}
 {{- $name := (split "." ($path | base))._0 }}
@@ -11,7 +12,7 @@
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
-  {{- with $context.Values.annotations }}
+  {{- with $op.dashboard.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -20,18 +21,18 @@ metadata:
   name: {{ $name | replace "_" "-" | trunc 63 | trimSuffix "-" }}
   namespace: {{ include "gfdsh.namespace" $tplContext }}
 spec:
-  {{- $folder := coalesce $folderName $context.Values.grafanaDashboard.folder }}
+  {{- $folder := coalesce $folderName $op.folder.default }}
   {{- if $folder }}
   folderRef: {{ include "gfdsh.folderSlug" $folder }}
   {{- end }}
-  {{- with $context.Values.grafanaDashboard.resyncPeriod }}
+  {{- with $op.dashboard.resyncPeriod }}
   resyncPeriod: {{ . }}
   {{- end }}
-  {{- with $context.Values.grafanaDashboard.contentCacheDuration }}
+  {{- with $op.dashboard.contentCacheDuration }}
   contentCacheDuration: {{ . }}
   {{- end }}
   instanceSelector:
-    {{- $context.Values.grafanaDashboard.instanceSelector | toYaml | nindent 4 }}
+    {{- $op.instanceSelector | toYaml | nindent 4 }}
   {{- $plugins := (get $context.Values.category $category).plugins }}
   {{- if $plugins }}
   plugins:

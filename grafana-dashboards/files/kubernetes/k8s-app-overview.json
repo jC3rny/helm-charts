@@ -1121,7 +1121,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "\nThe following statistics are only available by kernels from 2.6 \npgfault     –  Number of page faults the system has made per second (minor + major)  \npgmajfault  –  Number of major faults per second the system required loading a memory page from disk",
+      "description": "\nThe following statistics are only available by kernels from 2.6 \npgfault     \u2013  Number of page faults the system has made per second (minor + major)  \npgmajfault  \u2013  Number of major faults per second the system required loading a memory page from disk",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1461,7 +1461,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "当前I/O队列个数及请求等待时间",
+      "description": "\u5f53\u524dI/O\u961f\u5217\u4e2a\u6570\u53ca\u8bf7\u6c42\u7b49\u5f85\u65f6\u95f4",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2380,9 +2380,9 @@
     "list": [
       {
         "current": {
-          "selected": true,
-          "text": "Prometheus",
-          "value": "Prometheus"
+          "selected": false,
+          "text": "default",
+          "value": "default"
         },
         "hide": 0,
         "includeAll": false,

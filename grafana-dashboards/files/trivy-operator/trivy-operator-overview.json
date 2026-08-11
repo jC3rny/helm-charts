@@ -2639,7 +2639,11 @@
     "list": [
       {
         "allowCustomValue": false,
-        "current": {},
+        "current": {
+          "selected": false,
+          "text": "default",
+          "value": "default"
+        },
         "includeAll": false,
         "label": "Datasource",
         "name": "DS_PROMETHEUS",
