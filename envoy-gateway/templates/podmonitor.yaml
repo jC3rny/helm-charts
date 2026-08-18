@@ -1,0 +1,28 @@
+{{- if .Values.metrics.podMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: envoy-proxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: envoy-gateway
+    app.kubernetes.io/component: proxy
+spec:
+  # Proxies are created dynamically in their gateway namespaces — match anywhere.
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+      app.kubernetes.io/managed-by: envoy-gateway
+      app.kubernetes.io/component: proxy
+  podMetricsEndpoints:
+    - portNumber: 19001
+      path: /stats/prometheus
+      interval: {{ .Values.metrics.interval }}
+      # Promote the owning-gateway labels so metrics are distinguishable per gateway.
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_name]
+          targetLabel: gateway
+        - sourceLabels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_namespace]
+          targetLabel: gateway_namespace
+{{- end }}

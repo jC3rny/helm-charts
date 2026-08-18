@@ -1,0 +1,35 @@
+{{- if .Values.envoyProxy }}
+{{- if .Values.envoyProxy.enabled }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: {{ .Values.envoyProxy.name | default "envoy-proxy-config" }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        replicas: {{ .Values.envoyProxy.replicas | default 2 }}
+        pod:
+          {{- if .Values.envoyProxy.nodeSelector }}
+          nodeSelector:
+            {{- toYaml .Values.envoyProxy.nodeSelector | nindent 12 }}
+          {{- end }}
+          {{- if .Values.envoyProxy.tolerations }}
+          tolerations:
+            {{- toYaml .Values.envoyProxy.tolerations | nindent 12 }}
+          {{- end }}
+        container:
+          {{- if .Values.envoyProxy.resources }}
+          resources:
+            {{- toYaml .Values.envoyProxy.resources | nindent 12 }}
+          {{- end }}
+      envoyService:
+        type: {{ .Values.envoyProxy.serviceType | default "LoadBalancer" }}
+        {{- if .Values.envoyProxy.serviceAnnotations }}
+        annotations:
+          {{- toYaml .Values.envoyProxy.serviceAnnotations | nindent 10 }}
+        {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,68 @@
+
+envoy-crds:
+  enabled: false
+
+  crds:
+    gatewayAPI:
+      enabled: false
+      # Available options: standard, experimental
+      channel: experimental
+    envoyGateway:
+      enabled: true
+
+
+envoy-gateway:
+  crds:
+    enabled: false
+
+  deployment:
+    replicas: 2
+
+    pod:
+      # Drop the chart's default prometheus.io/* scrape annotations — metrics are
+      # collected via the ServiceMonitor above, not annotation-based discovery.
+      # (null removes the keys; an empty map would leave the chart defaults intact.)
+      annotations:
+        prometheus.io/scrape: null
+        prometheus.io/port: null
+
+    envoyGateway:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+
+  config:
+    envoyGateway:
+      gateway:
+        controllerName: gateway.envoyproxy.io/gatewayclass-controller
+      provider:
+        type: Kubernetes
+        kubernetes:
+          deploy:
+            type: GatewayNamespace
+          # watch:
+            # type: Namespaces
+            # namespaces:
+            #   - envoy-gateway-system
+            #   - envoy-gateway
+            #   #
+            #   - <app namespace>
+      logging:
+        level:
+          default: debug
+
+
+# ServiceMonitor (control plane) + PodMonitor (data-plane proxies) for Envoy
+# Gateway metrics on port 19001. Scraped by Alloy via CRD discovery — no
+# prometheus.io scrape annotations.
+metrics:
+  interval: 30s
+  # Control-plane controller: svc envoy-gateway, /metrics.
+  serviceMonitor:
+    enabled: true
+  # Data-plane Envoy proxies: pods managed by envoy-gateway, /stats/prometheus.
+  podMonitor:
+    enabled: true
