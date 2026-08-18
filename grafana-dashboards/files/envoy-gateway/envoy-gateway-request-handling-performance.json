@@ -72,7 +72,7 @@
   "description": "Latency and error drill-down for Envoy Gateway. Counterpart to the NGINX / Ingress controller / Request handling performance dashboard. Breakdowns are per Envoy cluster (HTTPRoute rule) because Envoy's default stats have no method/host/path dimension.",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "liveNow": false,
@@ -314,7 +314,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Envoy's default stats carry no method/host/path dimension, so the finest available breakdown is the cluster \u2014 one per HTTPRoute rule.",
+      "description": "Envoy's default stats carry no method/host/path dimension, so the finest available breakdown is the cluster - one per HTTPRoute rule.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -377,7 +377,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -469,7 +469,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -561,7 +561,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -653,7 +653,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -745,7 +745,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -774,7 +774,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "pending_overflow means the circuit breaker's max_pending_requests was hit \u2014 the request never reached the backend.",
+      "description": "pending_overflow means the circuit breaker's max_pending_requests was hit - the request never reached the backend.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -837,7 +837,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -1081,7 +1081,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -1210,7 +1210,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -1263,7 +1263,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "",
+      "description": "Requests Envoy failed immediately because the route had no healthy endpoint (or the cluster was in maintenance mode). Non-zero here means clients got a 503 that never reached a backend - pair it with Healthy Endpoints by Route.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1310,7 +1310,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "ops"
         },
         "overrides": []
       },
@@ -1326,7 +1326,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -1339,11 +1339,11 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum by (envoy_cluster_name)(envoy_cluster_outlier_detection_ejections_active{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"})",
+          "expr": "sum by (envoy_cluster_name)(rate(envoy_cluster_upstream_cx_none_healthy{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[5m]))",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 1,
-          "legendFormat": "active ejections {{ envoy_cluster_name }}",
+          "legendFormat": "no healthy host {{ envoy_cluster_name }}",
           "refId": "A"
         },
         {
@@ -1351,15 +1351,15 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum by (envoy_cluster_name)(rate(envoy_cluster_outlier_detection_ejections_enforced_total{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[5m]))",
+          "expr": "sum by (envoy_cluster_name)(rate(envoy_cluster_upstream_rq_maintenance_mode{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[5m]))",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 1,
-          "legendFormat": "enforced/s {{ envoy_cluster_name }}",
+          "legendFormat": "maintenance mode {{ envoy_cluster_name }}",
           "refId": "B"
         }
       ],
-      "title": "Outlier Detection Ejections",
+      "title": "Requests With No Healthy Upstream",
       "type": "timeseries"
     },
     {
@@ -1370,14 +1370,14 @@
         "x": 0,
         "y": 49
       },
-      "id": 217,
+      "id": 218,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "",
+          "description": "Empty unless EnvoyProxy.telemetry.metrics.prometheus sets enableRequestResponseSizesStats: true.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1493,7 +1493,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "",
+          "description": "Empty unless EnvoyProxy.telemetry.metrics.prometheus sets enableRequestResponseSizesStats: true.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1609,7 +1609,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "",
+          "description": "Empty unless EnvoyProxy.telemetry.metrics.prometheus sets enableRequestResponseSizesStats: true.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1662,7 +1662,7 @@
           },
           "gridPos": {
             "h": 8,
-            "w": 24,
+            "w": 12,
             "x": 0,
             "y": 58
           },
@@ -1707,9 +1707,113 @@
           ],
           "title": "Average Body Size",
           "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "description": "Empty unless passive health checking is enabled via a BackendTrafficPolicy. Envoy only creates the outlier_detection stats when a detector is configured on the cluster, so no policy means no series - not a broken query.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": true,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "links": [],
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 58
+          },
+          "id": 217,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "expr": "sum by (envoy_cluster_name)(envoy_cluster_outlier_detection_ejections_active{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"})",
+              "format": "time_series",
+              "interval": "5m",
+              "intervalFactor": 1,
+              "legendFormat": "active ejections {{ envoy_cluster_name }}",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "expr": "sum by (envoy_cluster_name)(rate(envoy_cluster_outlier_detection_ejections_enforced_total{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[5m]))",
+              "format": "time_series",
+              "interval": "5m",
+              "intervalFactor": 1,
+              "legendFormat": "enforced/s {{ envoy_cluster_name }}",
+              "refId": "B"
+            }
+          ],
+          "title": "Outlier Detection Ejections",
+          "type": "timeseries"
         }
       ],
-      "title": "Body sizes \u2014 requires EnvoyProxy telemetry.metrics.prometheus enableRequestResponseSizesStats: true",
+      "title": "Optional",
       "type": "row"
     }
   ],

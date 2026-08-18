@@ -69,14 +69,27 @@
       }
     ]
   },
-  "description": "Envoy Gateway data plane and control plane overview. Counterpart to the NGINX / Ingress controller dashboard.",
+  "description": "Envoy Gateway data plane and control plane. Counterpart to the NGINX / Ingress controller dashboards, with the overview and nextgen views merged into one.",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "liveNow": false,
   "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "panels": [],
+      "title": "Overview",
+      "type": "row"
+    },
     {
       "datasource": {
         "type": "prometheus",
@@ -117,9 +130,9 @@
         "h": 3,
         "w": 6,
         "x": 0,
-        "y": 0
+        "y": 1
       },
-      "id": 1,
+      "id": 2,
       "links": [],
       "maxDataPoints": 100,
       "options": {
@@ -194,9 +207,9 @@
         "h": 3,
         "w": 6,
         "x": 6,
-        "y": 0
+        "y": 1
       },
-      "id": 2,
+      "id": 3,
       "links": [],
       "maxDataPoints": 100,
       "options": {
@@ -271,9 +284,9 @@
         "h": 3,
         "w": 6,
         "x": 12,
-        "y": 0
+        "y": 1
       },
-      "id": 3,
+      "id": 4,
       "links": [],
       "maxDataPoints": 100,
       "options": {
@@ -313,7 +326,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "CDS updates accepted per minute \u2014 the Envoy analogue of an nginx config reload.",
+      "description": "CDS updates accepted per minute - the Envoy analogue of an nginx config reload.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -348,9 +361,9 @@
         "h": 3,
         "w": 3,
         "x": 18,
-        "y": 0
+        "y": 1
       },
-      "id": 4,
+      "id": 5,
       "links": [],
       "maxDataPoints": 100,
       "options": {
@@ -390,7 +403,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Rejected CDS + LDS updates in the last 5m. Non-zero means the proxy is running stale config.",
+      "description": "Rejected CDS + LDS updates in the last 5m. Non-zero means the proxy is serving stale config.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -402,7 +415,8 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "N/A"
+                  "index": 0,
+                  "text": "0"
                 }
               },
               "type": "special"
@@ -425,9 +439,9 @@
         "h": 3,
         "w": 3,
         "x": 21,
-        "y": 0
+        "y": 1
       },
-      "id": 5,
+      "id": 6,
       "links": [],
       "maxDataPoints": 100,
       "options": {
@@ -463,11 +477,24 @@
       "type": "stat"
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 7,
+      "panels": [],
+      "title": "Traffic",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Per-route request rate. One Envoy cluster == one HTTPRoute rule (httproute/<namespace>/<name>/rule/<n>).",
+      "description": "Per-route request rate. One Envoy cluster == one HTTPRoute rule (httproute/<namespace>/<name>/rule/<n>). Legend is off - there are too many routes to list; hover to identify a line.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -519,18 +546,18 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 12,
         "x": 0,
-        "y": 3
+        "y": 5
       },
-      "id": 6,
+      "id": 8,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -559,7 +586,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Downstream response codes by class. Stacked, so the total height is the overall request rate and each band is one class.",
+      "description": "Downstream response codes by class. Stacked, so total height is the overall request rate and each band is one class.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -687,12 +714,12 @@
         ]
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 12,
         "x": 12,
-        "y": 3
+        "y": 5
       },
-      "id": 7,
+      "id": 9,
       "options": {
         "legend": {
           "calcs": [],
@@ -720,6 +747,98 @@
         }
       ],
       "title": "HTTP Status Classes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "Aggregate request rate across everything currently selected.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(envoy_http_downstream_rq_xx{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[2m]))",
+          "format": "time_series",
+          "interval": "2m",
+          "intervalFactor": 1,
+          "legendFormat": "requests",
+          "refId": "A"
+        }
+      ],
+      "title": "Total HTTP Requests",
       "type": "timeseries"
     },
     {
@@ -792,12 +911,12 @@
         ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 0,
-        "y": 10
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 13
       },
-      "id": 8,
+      "id": 11,
       "options": {
         "legend": {
           "calcs": [],
@@ -840,11 +959,24 @@
       "type": "timeseries"
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 12,
+      "panels": [],
+      "title": "Latency",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Reported by Envoy itself (envoy_server_memory_*), no cAdvisor join required.",
+      "description": "Downstream request time - full client-observed duration, including request upload and response streaming. Envoy's buckets are coarse above 10s, so high percentiles there are interpolated, not measured. The Average series uses _sum/_count rather than bucket interpolation.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -891,17 +1023,17 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "ms"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 8,
-        "y": 10
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 21
       },
-      "id": 9,
+      "id": 13,
       "options": {
         "legend": {
           "calcs": [],
@@ -920,11 +1052,11 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "avg(envoy_server_memory_allocated{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\"})",
+          "expr": "histogram_quantile(0.5, sum by (le)(rate(envoy_http_downstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval])))",
           "format": "time_series",
-          "interval": "2m",
+          "interval": "1m",
           "intervalFactor": 1,
-          "legendFormat": "allocated",
+          "legendFormat": "0.5",
           "refId": "A"
         },
         {
@@ -932,11 +1064,11 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "avg(envoy_server_memory_heap_size{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\"})",
+          "expr": "histogram_quantile(0.75, sum by (le)(rate(envoy_http_downstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval])))",
           "format": "time_series",
-          "interval": "2m",
+          "interval": "1m",
           "intervalFactor": 1,
-          "legendFormat": "heap size",
+          "legendFormat": "0.75",
           "refId": "B"
         },
         {
@@ -944,15 +1076,51 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "avg(envoy_server_memory_physical_size{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\"})",
+          "expr": "histogram_quantile(0.9, sum by (le)(rate(envoy_http_downstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval])))",
           "format": "time_series",
-          "interval": "2m",
+          "interval": "1m",
           "intervalFactor": 1,
-          "legendFormat": "physical size",
+          "legendFormat": "0.9",
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le)(rate(envoy_http_downstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval])))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "0.95",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "histogram_quantile(0.99, sum by (le)(rate(envoy_http_downstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval])))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "0.99",
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(envoy_http_downstream_rq_time_sum{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval])) / sum(rate(envoy_http_downstream_rq_time_count{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval]))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "Average",
+          "refId": "F"
         }
       ],
-      "title": "Average Memory Usage",
+      "title": "Latency (Percentiles)",
       "type": "timeseries"
     },
     {
@@ -960,74 +1128,65 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Envoy exports no process CPU stat, so this comes from cAdvisor (kubelet). Requires container metrics in the same Prometheus.",
+      "description": "Bucket distribution over time. Reveals bimodal latency that percentile lines hide.",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
             }
-          },
-          "links": [],
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 16,
-        "y": 10
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
       },
-      "id": 10,
+      "id": 14,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+        "calculate": false,
+        "calculation": {},
+        "cellGap": 2,
+        "cellValues": {},
+        "color": {
+          "exponent": 0.5,
+          "fill": "#C4162A",
+          "mode": "scheme",
+          "reverse": false,
+          "scale": "exponential",
+          "scheme": "Turbo",
+          "steps": 128
         },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1e-09
+        },
+        "legend": {
+          "show": true
+        },
+        "rowsFrame": {
+          "layout": "auto"
+        },
+        "showValue": "never",
         "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
+          "show": true,
+          "yHistogram": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "decimals": 0,
+          "reverse": false,
+          "unit": "ms"
         }
       },
       "targets": [
@@ -1036,23 +1195,23 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(container_cpu_usage_seconds_total{pod=~\"$pod\", container=\"envoy\"}[2m]))",
-          "format": "time_series",
-          "interval": "2m",
+          "expr": "sum by (le)(increase(envoy_http_downstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval]))",
+          "format": "heatmap",
+          "interval": "1m",
           "intervalFactor": 1,
-          "legendFormat": "envoy",
+          "legendFormat": "{{le}}",
           "refId": "A"
         }
       ],
-      "title": "Average CPU Usage",
-      "type": "timeseries"
+      "title": "Latency Heatmap",
+      "type": "heatmap"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Upstream (backend-facing) latency percentiles per route. Envoy histograms are in milliseconds.",
+      "description": "Upstream (backend-facing) latency percentiles per route, over the selected time range. A dash means the route saw no requests.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1065,7 +1224,18 @@
             },
             "inspect": false
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "match": "nan",
+                "result": {
+                  "index": 0,
+                  "text": "-"
+                }
+              },
+              "type": "special"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1144,9 +1314,9 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 29
       },
-      "id": 11,
+      "id": 15,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1166,7 +1336,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "histogram_quantile(0.50, sum(rate(envoy_cluster_upstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[2m])) by (le, envoy_cluster_name))",
+          "expr": "histogram_quantile(0.50, sum(rate(envoy_cluster_upstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[${__range_s}s])) by (le, envoy_cluster_name))",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -1179,7 +1349,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "histogram_quantile(0.90, sum(rate(envoy_cluster_upstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[2m])) by (le, envoy_cluster_name))",
+          "expr": "histogram_quantile(0.90, sum(rate(envoy_cluster_upstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[${__range_s}s])) by (le, envoy_cluster_name))",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -1192,7 +1362,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(envoy_cluster_upstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[2m])) by (le, envoy_cluster_name))",
+          "expr": "histogram_quantile(0.99, sum(rate(envoy_cluster_upstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[${__range_s}s])) by (le, envoy_cluster_name))",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -1205,7 +1375,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(irate(envoy_cluster_upstream_cx_rx_bytes_total{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[2m])) by (envoy_cluster_name)",
+          "expr": "sum(rate(envoy_cluster_upstream_cx_rx_bytes_total{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[${__range_s}s])) by (envoy_cluster_name)",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -1218,7 +1388,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(irate(envoy_cluster_upstream_cx_tx_bytes_total{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[2m])) by (envoy_cluster_name)",
+          "expr": "sum(rate(envoy_cluster_upstream_cx_tx_bytes_total{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[${__range_s}s])) by (envoy_cluster_name)",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -1264,11 +1434,24 @@
       "type": "table"
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "id": 16,
+      "panels": [],
+      "title": "Connections",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Total client-observed request time, including upstream time.",
+      "description": "New downstream connections per second, per proxy pod.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1315,7 +1498,7 @@
               }
             ]
           },
-          "unit": "ms"
+          "unit": "ops"
         },
         "overrides": []
       },
@@ -1323,9 +1506,9 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 38
       },
-      "id": 12,
+      "id": 17,
       "options": {
         "legend": {
           "calcs": [],
@@ -1344,39 +1527,15 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "histogram_quantile(0.80, sum(rate(envoy_http_downstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[2m])) by (le))",
+          "expr": "sum(rate(envoy_http_downstream_cx_total{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval])) by (pod)",
           "format": "time_series",
-          "interval": "2m",
+          "interval": "1m",
           "intervalFactor": 1,
-          "legendFormat": "P80",
+          "legendFormat": "{{ pod }}",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "histogram_quantile(0.90, sum(rate(envoy_http_downstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[2m])) by (le))",
-          "format": "time_series",
-          "interval": "2m",
-          "intervalFactor": 1,
-          "legendFormat": "P90",
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "histogram_quantile(0.99, sum(rate(envoy_http_downstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[2m])) by (le))",
-          "format": "time_series",
-          "interval": "2m",
-          "intervalFactor": 1,
-          "legendFormat": "P99",
-          "refId": "C"
         }
       ],
-      "title": "Downstream Percentile Response Times",
+      "title": "New Connections Opened (per proxy pod)",
       "type": "timeseries"
     },
     {
@@ -1387,16 +1546,51 @@
       "description": "",
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
-          }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1404,45 +1598,19 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 38
       },
-      "id": 13,
+      "id": 18,
       "options": {
-        "calculate": false,
-        "calculation": {},
-        "cellGap": 2,
-        "cellValues": {},
-        "color": {
-          "exponent": 0.5,
-          "fill": "#C4162A",
-          "mode": "scheme",
-          "reverse": false,
-          "scale": "exponential",
-          "scheme": "Turbo",
-          "steps": 128
-        },
-        "exemplars": {
-          "color": "rgba(255,0,255,0.7)"
-        },
-        "filterValues": {
-          "le": 1e-09
-        },
         "legend": {
-          "show": true
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "rowsFrame": {
-          "layout": "auto"
-        },
-        "showValue": "never",
         "tooltip": {
-          "show": true,
-          "yHistogram": false
-        },
-        "yAxis": {
-          "axisPlacement": "left",
-          "decimals": 0,
-          "reverse": false,
-          "unit": "ms"
+          "mode": "multi",
+          "sort": "desc"
         }
       },
       "targets": [
@@ -1451,23 +1619,501 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(increase(envoy_http_downstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[2m])) by (le)",
-          "format": "heatmap",
-          "interval": "2m",
+          "expr": "sum(avg_over_time(envoy_http_downstream_cx_active{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval])) by (pod)",
+          "format": "time_series",
+          "interval": "1m",
           "intervalFactor": 1,
-          "legendFormat": "{{le}}",
+          "legendFormat": "{{ pod }}",
           "refId": "A"
         }
       ],
-      "title": "Request Latency Heatmap",
-      "type": "heatmap"
+      "title": "Total Connections Open (per proxy pod)",
+      "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "envoy_server_days_until_first_cert_expiring is in days; multiplied by 86400 so Grafana can render it as a duration.",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 40,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 45
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(envoy_http_downstream_cx_http1_total{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval]))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "HTTP/1.1",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(envoy_http_downstream_cx_http2_total{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval]))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "HTTP/2",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(envoy_http_downstream_cx_http3_total{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval]))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "HTTP/3",
+          "refId": "C"
+        }
+      ],
+      "title": "Downstream Protocol Mix",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 45
+      },
+      "id": 20,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(envoy_http_downstream_cx_destroy_remote_active_rq{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval]))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "client aborted with active rq",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(envoy_http_downstream_rq_rx_reset{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval]))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "rx reset",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(envoy_http_downstream_rq_tx_reset{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval]))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "tx reset",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(envoy_http_downstream_cx_overload_disable_keepalive{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_http_conn_manager_prefix=~\"$listener\"}[$__rate_interval]))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "overload: keepalive disabled",
+          "refId": "D"
+        }
+      ],
+      "title": "Connection Errors",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "id": 21,
+      "panels": [],
+      "title": "Proxy resources",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "Reported by Envoy itself, no cAdvisor join required.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 53
+      },
+      "id": 22,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "avg(envoy_server_memory_allocated{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\"})",
+          "format": "time_series",
+          "interval": "2m",
+          "intervalFactor": 1,
+          "legendFormat": "allocated",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "avg(envoy_server_memory_heap_size{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\"})",
+          "format": "time_series",
+          "interval": "2m",
+          "intervalFactor": 1,
+          "legendFormat": "heap size",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "avg(envoy_server_memory_physical_size{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\"})",
+          "format": "time_series",
+          "interval": "2m",
+          "intervalFactor": 1,
+          "legendFormat": "physical size",
+          "refId": "C"
+        }
+      ],
+      "title": "Average Memory Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "Envoy exports no process CPU stat, so this comes from cAdvisor (kubelet) and needs container metrics in the same Prometheus.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 53
+      },
+      "id": 23,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(container_cpu_usage_seconds_total{pod=~\"$pod\", container=\"envoy\"}[2m]))",
+          "format": "time_series",
+          "interval": "2m",
+          "intervalFactor": 1,
+          "legendFormat": "envoy",
+          "refId": "A"
+        }
+      ],
+      "title": "Average CPU Usage",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 59
+      },
+      "id": 24,
+      "panels": [],
+      "title": "TLS and certificates",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "envoy_server_days_until_first_cert_expiring is in days; multiplied by 86400 so Grafana renders it as a duration.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1480,7 +2126,18 @@
             },
             "inspect": false
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "match": "nan",
+                "result": {
+                  "index": 0,
+                  "text": "-"
+                }
+              },
+              "type": "special"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1547,9 +2204,9 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 60
       },
-      "id": 14,
+      "id": 25,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1658,9 +2315,231 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 68
       },
-      "id": 27,
+      "id": 28,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "description": "Legend is off - one series per route is too many to list; hover to identify a line.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": true,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "links": [],
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "percentunit"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 69
+          },
+          "id": 26,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "expr": "sum(rate(envoy_cluster_upstream_rq_xx{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\", envoy_response_code_class!~\"4|5\"}[${__range_s}s])) by (envoy_cluster_name) / sum(rate(envoy_cluster_upstream_rq_xx{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[${__range_s}s])) by (envoy_cluster_name)",
+              "format": "time_series",
+              "interval": "1m",
+              "intervalFactor": 1,
+              "legendFormat": "{{ envoy_cluster_name }}",
+              "refId": "A"
+            }
+          ],
+          "title": "Success Rate (non-4|5xx) by Route",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "description": "Three percentiles per route, so the series count is 3x the route count. Legend is off; hover to identify a line.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": true,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "links": [],
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "ms"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 13,
+            "w": 24,
+            "x": 0,
+            "y": 78
+          },
+          "id": 27,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "expr": "histogram_quantile(0.99, sum(rate(envoy_cluster_upstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[5m])) by (le, envoy_cluster_name))",
+              "format": "time_series",
+              "interval": "5m",
+              "intervalFactor": 1,
+              "legendFormat": "p99 {{ envoy_cluster_name }}",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "expr": "histogram_quantile(0.95, sum(rate(envoy_cluster_upstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[5m])) by (le, envoy_cluster_name))",
+              "format": "time_series",
+              "interval": "5m",
+              "intervalFactor": 1,
+              "legendFormat": "p95 {{ envoy_cluster_name }}",
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "expr": "histogram_quantile(0.90, sum(rate(envoy_cluster_upstream_rq_time_bucket{gateway_namespace=~\"$gateway_namespace\", gateway=~\"$gateway\", pod=~\"$pod\", envoy_cluster_name=~\"$route\"}[5m])) by (le, envoy_cluster_name))",
+              "format": "time_series",
+              "interval": "5m",
+              "intervalFactor": 1,
+              "legendFormat": "p90 {{ envoy_cluster_name }}",
+              "refId": "C"
+            }
+          ],
+          "title": "Latency by Route",
+          "type": "timeseries"
+        }
+      ],
+      "title": "Per-route breakdown (higher cardinality)",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 69
+      },
+      "id": 41,
       "panels": [
         {
           "datasource": {
@@ -1703,9 +2582,9 @@
             "h": 3,
             "w": 6,
             "x": 0,
-            "y": 40
+            "y": 70
           },
-          "id": 15,
+          "id": 29,
           "links": [],
           "maxDataPoints": 100,
           "options": {
@@ -1745,7 +2624,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "Config snapshots pushed to proxies over the selected time range. Each one is a recomputed xDS config.",
+          "description": "Config snapshots pushed to proxies over the selected range.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1781,9 +2660,9 @@
             "h": 3,
             "w": 6,
             "x": 6,
-            "y": 40
+            "y": 70
           },
-          "id": 16,
+          "id": 30,
           "links": [],
           "maxDataPoints": 100,
           "options": {
@@ -1823,7 +2702,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "Kubernetes objects the infrastructure manager wrote over the selected range (Deployments, Services, ConfigMaps for the proxy fleet).",
+          "description": "Kubernetes objects the infrastructure manager wrote - the Deployments, Services and ConfigMaps behind the proxy fleet.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1859,9 +2738,9 @@
             "h": 3,
             "w": 6,
             "x": 12,
-            "y": 40
+            "y": 70
           },
-          "id": 17,
+          "id": 31,
           "links": [],
           "maxDataPoints": 100,
           "options": {
@@ -1901,7 +2780,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "Panics recovered in the watchable infrastructure. Must be 0 \u2014 anything else means the control plane hit a bug and kept running in an unknown state.",
+          "description": "Panics recovered in the watchable infrastructure. Must be 0 - anything else means the control plane hit a bug and kept running in an unknown state.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1937,9 +2816,9 @@
             "h": 3,
             "w": 6,
             "x": 18,
-            "y": 40
+            "y": 70
           },
-          "id": 18,
+          "id": 32,
           "links": [],
           "maxDataPoints": 100,
           "options": {
@@ -1979,7 +2858,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "How long each runner takes to handle a message off its queue. The runners are the control plane's pipeline stages (provider -> gateway-api -> xds -> infrastructure). A rising stage is the bottleneck.",
+          "description": "How long each runner takes to handle a message off its queue. The runners are the pipeline stages (provider -> gateway-api -> xds -> infrastructure); whichever rises is the bottleneck.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2035,9 +2914,9 @@
             "h": 7,
             "w": 12,
             "x": 0,
-            "y": 43
+            "y": 73
           },
-          "id": 19,
+          "id": 33,
           "options": {
             "legend": {
               "calcs": [
@@ -2077,7 +2956,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "Events published per stage. Compare against subscribe duration: high publish volume plus rising duration is where backpressure starts.",
+          "description": "Events published per stage. High publish volume plus rising subscribe duration is where backpressure starts.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2132,9 +3011,9 @@
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 43
+            "y": 73
           },
-          "id": 20,
+          "id": 34,
           "options": {
             "legend": {
               "calcs": [
@@ -2229,9 +3108,9 @@
             "h": 7,
             "w": 12,
             "x": 0,
-            "y": 50
+            "y": 80
           },
-          "id": 21,
+          "id": 35,
           "options": {
             "legend": {
               "calcs": [
@@ -2271,7 +3150,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "Latency of status writes to the API server \u2014 a direct read on API server pressure or admission webhook delay.",
+          "description": "Latency of status writes to the API server - a direct read on API server pressure or admission webhook delay.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2327,9 +3206,9 @@
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 50
+            "y": 80
           },
-          "id": 22,
+          "id": 36,
           "options": {
             "legend": {
               "calcs": [
@@ -2424,9 +3303,9 @@
             "h": 7,
             "w": 12,
             "x": 0,
-            "y": 57
+            "y": 87
           },
-          "id": 23,
+          "id": 37,
           "options": {
             "legend": {
               "calcs": [
@@ -2534,9 +3413,9 @@
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 57
+            "y": 87
           },
-          "id": 24,
+          "id": 38,
           "options": {
             "legend": {
               "calcs": [
@@ -2631,9 +3510,9 @@
             "h": 7,
             "w": 12,
             "x": 0,
-            "y": 64
+            "y": 94
           },
-          "id": 25,
+          "id": 39,
           "options": {
             "legend": {
               "calcs": [
@@ -2673,7 +3552,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "xDS streams are long-lived, so this is normally flat at 0. Repeated closures mean proxies are reconnecting to the control plane \u2014 check control-plane restarts or network policy before trusting any data-plane config.",
+          "description": "xDS streams are long-lived, so this is normally flat at 0. Repeated closures mean proxies are reconnecting to the control plane - check that before trusting any data-plane config.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2728,9 +3607,9 @@
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 64
+            "y": 94
           },
-          "id": 26,
+          "id": 40,
           "options": {
             "legend": {
               "calcs": [],

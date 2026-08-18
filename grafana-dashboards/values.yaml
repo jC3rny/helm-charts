@@ -72,6 +72,10 @@ category:
     enabled: true
     folder: "_Platform"
 
+  gitlab:
+    enabled: false
+    folder: "_General"
+
   ingress-nginx:
     enabled: true
     folder: "_Platform"
