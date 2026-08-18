@@ -8,6 +8,16 @@ PodMonitor rather than a ServiceMonitor.
 
 The `metrics` container port (19001) only exists when the EnvoyProxy resource sets
 spec.telemetry.metrics.prometheus; see metrics.podMonitor in values.yaml.
+
+Proxies are created dynamically in their gateway namespaces, so namespaceSelector
+matches anywhere by default. It is deliberately not defaulted in values.yaml: Helm
+coalesces maps, so a `matchNames` override would merge alongside `any: true` rather
+than replace it, and the Operator ignores matchNames when any is set — the narrowing
+would silently do nothing.
+
+The relabelings promote the owning-gateway labels so metrics are distinguishable per
+gateway. They are also the discriminator against cilium-envoy, which emits the same
+envoy_* metric names but carries neither label.
 */}}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
@@ -25,11 +35,6 @@ metadata:
     {{- tpl (toYaml .) $ | nindent 4 }}
   {{- end }}
 spec:
-  # Proxies are created dynamically in their gateway namespaces — match anywhere
-  # unless the consumer supplies an explicit selector. Not defaulted in values.yaml:
-  # Helm coalesces maps, so a `matchNames` override would merge alongside
-  # `any: true` rather than replace it, and the Operator ignores matchNames when
-  # any is set — the narrowing would silently do nothing.
   namespaceSelector:
     {{- if $pm.namespaceSelector }}
     {{- toYaml $pm.namespaceSelector | nindent 4 }}
@@ -45,9 +50,6 @@ spec:
       path: /stats/prometheus
       interval: {{ $pm.interval | default .Values.metrics.interval }}
       scrapeTimeout: {{ $pm.scrapeTimeout | default .Values.metrics.scrapeTimeout }}
-      # Promote the owning-gateway labels so metrics are distinguishable per gateway.
-      # Also the discriminator against cilium-envoy, which emits the same envoy_*
-      # metric names but carries neither label.
       relabelings:
         - sourceLabels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_name]
           targetLabel: gateway
