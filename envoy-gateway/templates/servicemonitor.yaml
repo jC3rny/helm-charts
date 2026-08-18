@@ -1,4 +1,12 @@
-{{- if .Values.metrics.serviceMonitor.enabled }}
+{{- if .Values.metrics.serviceMonitor.enabled -}}
+{{- $sm := .Values.metrics.serviceMonitor -}}
+{{/*
+Envoy Gateway control plane metrics.
+gateway-helm ships no ServiceMonitor/PodMonitor template — only the pod annotations
+prometheus.io/scrape + prometheus.io/port=19001, which neither kube-prometheus-stack
+nor Alloy consumes. The chart's Service already exposes the `metrics` port (19001),
+so it can be scraped directly.
+*/}}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -7,6 +15,13 @@ metadata:
   labels:
     app.kubernetes.io/name: envoy-gateway
     app.kubernetes.io/component: control-plane
+    {{- with $sm.labels }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
+  {{- with $sm.annotations }}
+  annotations:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
 spec:
   namespaceSelector:
     matchNames:
@@ -17,5 +32,15 @@ spec:
   endpoints:
     - port: metrics
       path: /metrics
-      interval: {{ .Values.metrics.interval }}
+      scheme: http
+      interval: {{ $sm.interval | default .Values.metrics.interval }}
+      scrapeTimeout: {{ $sm.scrapeTimeout | default .Values.metrics.scrapeTimeout }}
+      {{- with $sm.relabelings }}
+      relabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $sm.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}

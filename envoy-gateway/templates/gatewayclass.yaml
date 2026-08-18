@@ -1,7 +1,28 @@
-{{ $values := index .Values "envoy-gateway" }}
+{{- if .Values.gatewayClass.enabled -}}
+{{- $eg := index .Values "envoy-gateway" -}}
+{{- $controllerName := .Values.gatewayClass.controllerName | default (dig "config" "envoyGateway" "gateway" "controllerName" "" $eg) -}}
+{{- if not $controllerName -}}
+{{- fail "gatewayClass.enabled is true but no controllerName resolved: set gatewayClass.controllerName or envoy-gateway.config.envoyGateway.gateway.controllerName" -}}
+{{- end -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
 metadata:
-  name: envoy
+  name: {{ .Values.gatewayClass.name }}
+  {{- with .Values.gatewayClass.labels }}
+  labels:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.gatewayClass.annotations }}
+  annotations:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
 spec:
-  controllerName: {{ $values.config.envoyGateway.gateway.controllerName }}
+  controllerName: {{ $controllerName }}
+  {{- with .Values.gatewayClass.description }}
+  description: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.gatewayClass.parametersRef }}
+  parametersRef:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+{{- end }}

@@ -1,4 +1,14 @@
-{{- if .Values.metrics.podMonitor.enabled }}
+{{- if .Values.metrics.podMonitor.enabled -}}
+{{- $pm := .Values.metrics.podMonitor -}}
+{{/*
+Envoy proxy (data plane) metrics.
+The controller-generated envoy Service is a LoadBalancer carrying only the Gateway
+listener ports — 19001 is never exposed through a Service, so this must be a
+PodMonitor rather than a ServiceMonitor.
+
+The `metrics` container port (19001) only exists when the EnvoyProxy resource sets
+spec.telemetry.metrics.prometheus; see metrics.podMonitor in values.yaml.
+*/}}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
@@ -7,10 +17,25 @@ metadata:
   labels:
     app.kubernetes.io/name: envoy-gateway
     app.kubernetes.io/component: proxy
+    {{- with $pm.labels }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
+  {{- with $pm.annotations }}
+  annotations:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
 spec:
-  # Proxies are created dynamically in their gateway namespaces — match anywhere.
+  # Proxies are created dynamically in their gateway namespaces — match anywhere
+  # unless the consumer supplies an explicit selector. Not defaulted in values.yaml:
+  # Helm coalesces maps, so a `matchNames` override would merge alongside
+  # `any: true` rather than replace it, and the Operator ignores matchNames when
+  # any is set — the narrowing would silently do nothing.
   namespaceSelector:
+    {{- if $pm.namespaceSelector }}
+    {{- toYaml $pm.namespaceSelector | nindent 4 }}
+    {{- else }}
     any: true
+    {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/managed-by: envoy-gateway
@@ -18,11 +43,21 @@ spec:
   podMetricsEndpoints:
     - portNumber: 19001
       path: /stats/prometheus
-      interval: {{ .Values.metrics.interval }}
+      interval: {{ $pm.interval | default .Values.metrics.interval }}
+      scrapeTimeout: {{ $pm.scrapeTimeout | default .Values.metrics.scrapeTimeout }}
       # Promote the owning-gateway labels so metrics are distinguishable per gateway.
+      # Also the discriminator against cilium-envoy, which emits the same envoy_*
+      # metric names but carries neither label.
       relabelings:
         - sourceLabels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_name]
           targetLabel: gateway
         - sourceLabels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_namespace]
           targetLabel: gateway_namespace
+        {{- with $pm.relabelings }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with $pm.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}

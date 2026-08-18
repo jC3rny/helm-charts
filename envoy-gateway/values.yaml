@@ -1,4 +1,7 @@
 
+# -- Envoy Gateway CRDs (gateway-crds-helm).
+# Disabled by default: CRDs are normally installed once per cluster by a
+# dedicated app (e.g. apps/gateway-api/_main) rather than by every consumer.
 envoy-crds:
   enabled: false
 
@@ -11,6 +14,9 @@ envoy-crds:
       enabled: true
 
 
+# -- Envoy Gateway control plane (gateway-helm).
+# Everything under this key is passed straight through to the upstream chart:
+# https://gateway.envoyproxy.io/docs/install/install-helm/
 envoy-gateway:
   crds:
     enabled: false
@@ -20,7 +26,7 @@ envoy-gateway:
 
     pod:
       # Drop the chart's default prometheus.io/* scrape annotations — metrics are
-      # collected via the ServiceMonitor above, not annotation-based discovery.
+      # collected via the ServiceMonitor below, not annotation-based discovery.
       # (null removes the keys; an empty map would leave the chart defaults intact.)
       annotations:
         prometheus.io/scrape: null
@@ -42,6 +48,8 @@ envoy-gateway:
         type: Kubernetes
         kubernetes:
           deploy:
+            # GatewayNamespace: proxy pods are created in the Gateway's own
+            # namespace. The PodMonitor below therefore matches all namespaces.
             type: GatewayNamespace
           # watch:
             # type: Namespaces
@@ -50,19 +58,85 @@ envoy-gateway:
             #   - envoy-gateway
             #   #
             #   - <app namespace>
+
+      # Control plane metrics in pull mode on port 19001 (/metrics).
+      # Enabled upstream by default; pinned so metrics.serviceMonitor can never
+      # end up pointing at a disabled endpoint.
+      telemetry:
+        metrics:
+          prometheus:
+            disable: false
+
       logging:
         level:
+          # NOTE: debug is verbose and expensive on a busy control plane.
+          # Kept as the default only to preserve existing behaviour on adoption —
+          # set to `info` per cluster once migrated.
           default: debug
 
 
-# ServiceMonitor (control plane) + PodMonitor (data-plane proxies) for Envoy
-# Gateway metrics on port 19001. Scraped by Alloy via CRD discovery — no
-# prometheus.io scrape annotations.
+# -- GatewayClass for this Envoy Gateway installation.
+# Cluster-scoped: disable it if a cluster runs more than one release of this
+# chart, or the two releases will fight over ownership of the same object.
+gatewayClass:
+  enabled: true
+  # Name of the GatewayClass. Referenced by `gateway.gatewayClassName` in the
+  # gateway-api chart.
+  name: envoy
+  # Defaults to envoy-gateway.config.envoyGateway.gateway.controllerName.
+  controllerName: ""
+  # Human-readable description (optional).
+  description: ""
+  # parametersRef:
+  #   group: gateway.envoyproxy.io
+  #   kind: EnvoyProxy
+  #   name: proxy-config
+  #   namespace: envoy-gateway
+  parametersRef: {}
+  annotations: {}
+  labels: {}
+
+
+# -- Prometheus Operator monitors for Envoy Gateway metrics on port 19001.
+# Consumed by the Prometheus Operator or by Grafana Alloy
+# (prometheus.operator.servicemonitors / .podmonitors) — both read the same CRDs.
+# Requires the monitoring.coreos.com CRDs to be present in the cluster.
 metrics:
   interval: 30s
-  # Control-plane controller: svc envoy-gateway, /metrics.
+  scrapeTimeout: 10s
+
+  # Control plane: Service `envoy-gateway`, port `metrics`, path /metrics.
   serviceMonitor:
     enabled: true
-  # Data-plane Envoy proxies: pods managed by envoy-gateway, /stats/prometheus.
+    # Override the defaults above for this monitor only.
+    interval: ""
+    scrapeTimeout: ""
+    labels: {}
+    annotations: {}
+    relabelings: []
+    metricRelabelings: []
+
+  # Data plane: Envoy proxy pods, container port 19001, path /stats/prometheus.
+  #
+  # IMPORTANT — cross-chart dependency: Envoy Gateway only declares the `metrics`
+  # container port when the proxy has prometheus telemetry enabled. Every
+  # EnvoyProxy resource (from the gateway-api chart) must therefore set:
+  #   spec.telemetry.metrics.prometheus: {}
+  # Without it the port does not exist and this monitor finds no targets.
   podMonitor:
     enabled: true
+    # Empty => `any: true` (proxies are created dynamically in their gateway
+    # namespaces). Narrow it if a second Envoy Gateway controller shares the
+    # cluster — an explicit value replaces the default rather than merging with it:
+    #   namespaceSelector:
+    #     matchNames: [envoy-gateway, my-app-ns]
+    namespaceSelector: {}
+    interval: ""
+    scrapeTimeout: ""
+    labels: {}
+    annotations: {}
+    # Appended after the built-in gateway / gateway_namespace relabelings.
+    relabelings: []
+    # Envoy exposes a large per-cluster/per-listener histogram set. Drop the
+    # noisiest series here if cardinality becomes a problem.
+    metricRelabelings: []
