@@ -51,9 +51,15 @@ spec:
       interval: {{ $pm.interval | default .Values.metrics.interval }}
       scrapeTimeout: {{ $pm.scrapeTimeout | default .Values.metrics.scrapeTimeout }}
       relabelings:
-        - sourceLabels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_name]
+        # `action` is set explicitly even though replace is the default: the CRD
+        # schema declares `default: replace`, so the API server writes it into the
+        # stored object. Omitting it here leaves the rendered manifest permanently
+        # OutOfSync against live in ArgoCD.
+        - action: replace
+          sourceLabels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_name]
           targetLabel: gateway
-        - sourceLabels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_namespace]
+        - action: replace
+          sourceLabels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_namespace]
           targetLabel: gateway_namespace
         {{- with $pm.relabelings }}
         {{- toYaml . | nindent 8 }}
