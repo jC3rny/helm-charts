@@ -72,7 +72,7 @@ envoy-gateway:
           # NOTE: debug is verbose and expensive on a busy control plane.
           # Kept as the default only to preserve existing behaviour on adoption —
           # set to `info` per cluster once migrated.
-          default: debug
+          default: info
 
 
 # -- GatewayClass for this Envoy Gateway installation.
