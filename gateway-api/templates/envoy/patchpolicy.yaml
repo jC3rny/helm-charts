@@ -1,0 +1,22 @@
+{{- if .Values.envoyGateway.envoyPatchPolicy.enabled -}}
+{{- $fullName := include "gateway-api.fullname" . -}}
+{{- $envoyPatchPolicy := .Values.envoyGateway.envoyPatchPolicy -}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyPatchPolicy
+metadata:
+  name: {{ include "gateway-api.resourceName" (mergeOverwrite . $envoyPatchPolicy) }}
+  namespace: {{ include "gateway-api.namespace" . }}
+  labels:
+    {{- include "gateway-api.labels" . | nindent 4 }}
+    {{- with $envoyPatchPolicy.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $envoyPatchPolicy.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $envoyPatchPolicy.spec }}
+  {{- tpl (. | toYaml) $ | nindent 2 }}
+  {{- end }}
+{{- end }}

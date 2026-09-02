@@ -56,3 +56,18 @@ Selector labels
 app.kubernetes.io/name: {{ include "gateway-api.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Resource name.
+Usage: {{ include "gateway-api.resourceName" (dict "ctx" . "nameOverride" $resource.nameOverride "name" $resource.name) }}
+- nameOverride: replaces the full resource name
+- name: appended as suffix to the chart fullname
+- If neither is set, defaults to chart fullname
+*/}}
+{{- define "gateway-api.resourceName" -}}
+{{- if .nameOverride -}}
+  {{- .nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+  {{- printf "%s-%s" (include "gateway-api.fullname" .) (.name | default "") | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end }}

@@ -1,24 +1,26 @@
 {{- if .Values.udpRoute.enabled -}}
+{{- $fullName := include "gateway-api.fullname" . -}}
+{{- $udpRoute := .Values.udpRoute -}}
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: UDPRoute
 metadata:
-  name: {{ include "gateway-api.fullname" . }}
+  name: {{ include "gateway-api.resourceName" (mergeOverwrite . $udpRoute) }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
-    {{- with .Values.udpRoute.labels }}
+    {{- with $udpRoute.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.udpRoute.annotations }}
+  {{- with $udpRoute.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   parentRefs:
-    {{- with .Values.udpRoute.parentRefs }}
+    {{- with $udpRoute.parentRefs }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.udpRoute.rules }}
+  {{- with $udpRoute.rules }}
   rules:
     {{- toYaml . | nindent 4 }}
   {{- end }}

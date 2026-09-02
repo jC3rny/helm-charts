@@ -1,24 +1,26 @@
 {{- if .Values.backendTLSPolicy.enabled -}}
+{{- $fullName := include "gateway-api.fullname" . -}}
+{{- $backendTLSPolicy := .Values.backendTLSPolicy -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: BackendTLSPolicy
 metadata:
-  name: {{ include "gateway-api.fullname" . }}
+  name: {{ include "gateway-api.resourceName" (mergeOverwrite . $backendTLSPolicy) }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
-    {{- with .Values.backendTLSPolicy.labels }}
+    {{- with $backendTLSPolicy.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.backendTLSPolicy.annotations }}
+  {{- with $backendTLSPolicy.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.backendTLSPolicy.targetRefs }}
+  {{- with $backendTLSPolicy.targetRefs }}
   targetRefs:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.backendTLSPolicy.validation }}
+  {{- with $backendTLSPolicy.validation }}
   validation:
     {{- toYaml . | nindent 4 }}
   {{- end }}

@@ -1,28 +1,30 @@
 {{- if .Values.tlsRoute.enabled -}}
+{{- $fullName := include "gateway-api.fullname" . -}}
+{{- $tlsRoute := .Values.tlsRoute -}}
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TLSRoute
 metadata:
-  name: {{ include "gateway-api.fullname" . }}
+  name: {{ include "gateway-api.resourceName" (mergeOverwrite . $tlsRoute) }}
   namespace: {{ include "gateway-api.namespace" . }}
   labels:
     {{- include "gateway-api.labels" . | nindent 4 }}
-    {{- with .Values.tlsRoute.labels }}
+    {{- with $tlsRoute.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.tlsRoute.annotations }}
+  {{- with $tlsRoute.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   parentRefs:
-    {{- with .Values.tlsRoute.parentRefs }}
+    {{- with $tlsRoute.parentRefs }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.tlsRoute.hostnames }}
+  {{- with $tlsRoute.hostnames }}
   hostnames:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.tlsRoute.rules }}
+  {{- with $tlsRoute.rules }}
   rules:
     {{- toYaml . | nindent 4 }}
   {{- end }}

@@ -1,0 +1,22 @@
+{{- if .Values.envoyGateway.clientTrafficPolicy.enabled -}}
+{{- $fullName := include "gateway-api.fullname" . -}}
+{{- $clientTrafficPolicy := .Values.envoyGateway.clientTrafficPolicy -}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: {{ include "gateway-api.resourceName" (mergeOverwrite . $clientTrafficPolicy) }}
+  namespace: {{ include "gateway-api.namespace" . }}
+  labels:
+    {{- include "gateway-api.labels" . | nindent 4 }}
+    {{- with $clientTrafficPolicy.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $clientTrafficPolicy.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $clientTrafficPolicy.spec }}
+  {{- tpl (. | toYaml) $ | nindent 2 }}
+  {{- end }}
+{{- end }}

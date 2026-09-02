@@ -1,0 +1,22 @@
+{{- if .Values.envoyGateway.backend.enabled -}}
+{{- $fullName := include "gateway-api.fullname" . -}}
+{{- $backend := .Values.envoyGateway.backend -}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: {{ include "gateway-api.resourceName" (mergeOverwrite . $backend) }}
+  namespace: {{ include "gateway-api.namespace" . }}
+  labels:
+    {{- include "gateway-api.labels" . | nindent 4 }}
+    {{- with $backend.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $backend.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $backend.spec }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }}
