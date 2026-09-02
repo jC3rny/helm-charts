@@ -561,6 +561,53 @@ envoyGateway:
     #         uri: "https://auth.example.com/.well-known/jwks.json"
 
 
+# -- NetworkPolicy defines pod-level ingress/egress traffic rules
+# For more information: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+# Map of NetworkPolicy resources. Each map key is appended to the chart fullname
+# as the resource name suffix. Set `name:` on a policy to override the resulting
+# resource name entirely (no fullname prefix).
+networkPolicy: {}
+# networkPolicy:
+#   default-deny-all:
+#     # Name override — resulting resource name is exactly "default-deny-all".
+#     name: "default-deny-all"
+#     # Empty selector matches all pods in the namespace.
+#     podSelector: {}
+#     policyTypes:
+#     - Ingress
+#     - Egress
+#   test-network-policy:
+#     # No `name` set — resource name becomes "<fullname>-test-network-policy".
+#     podSelector:
+#       matchLabels:
+#         role: db
+#     policyTypes:
+#     - Ingress
+#     - Egress
+#     ingress:
+#     - from:
+#       - ipBlock:
+#           cidr: 172.17.0.0/16
+#           except:
+#           - 172.17.1.0/24
+#       - namespaceSelector:
+#           matchLabels:
+#             project: myproject
+#       - podSelector:
+#           matchLabels:
+#             role: frontend
+#       ports:
+#       - protocol: TCP
+#         port: 6379
+#     egress:
+#     - to:
+#       - ipBlock:
+#           cidr: 10.0.0.0/24
+#       ports:
+#       - protocol: TCP
+#         port: 5978
+
+
 # -- Extra manifests to deploy as part of this chart.
 # Useful for resources not covered by dedicated templates (e.g., x-k8s.io experimental resources).
 extraDeploy: []
