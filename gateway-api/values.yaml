@@ -87,6 +87,13 @@ gateway:
   #   allowedRoutes:
   #     namespaces:
   #       from: Same
+  # Which namespaces may attach a ListenerSet to this Gateway (optional).
+  # Unset means None — "only listeners defined in the Gateway's own spec" — so
+  # every ListenerSet is rejected with Accepted=False until this is set.
+  # ListenerSet is standard channel from Gateway API 1.6.
+  # allowedListeners:
+  #   namespaces:
+  #     from: Same        # Same | All | Selector
   # Gateway addresses (optional).
   # addresses:
   # - type: IPAddress

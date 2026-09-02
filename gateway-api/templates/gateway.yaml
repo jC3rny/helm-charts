@@ -24,6 +24,10 @@ spec:
   listeners:
     {{- tpl (. | toYaml) $ | nindent 4 }}
   {{- end }}
+  {{- with .Values.gateway.allowedListeners }}
+  allowedListeners:
+    {{- tpl (. | toYaml) $ | nindent 4 }}
+  {{- end }}
   {{- with .Values.gateway.addresses }}
   addresses:
     {{- toYaml . | nindent 4 }}
