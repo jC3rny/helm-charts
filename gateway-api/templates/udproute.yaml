@@ -1,7 +1,7 @@
 {{- if .Values.udpRoute.enabled -}}
 {{- $fullName := include "gateway-api.fullname" . -}}
 {{- $udpRoute := .Values.udpRoute -}}
-apiVersion: gateway.networking.k8s.io/v1alpha2
+apiVersion: gateway.networking.k8s.io/v1
 kind: UDPRoute
 metadata:
   name: {{ include "gateway-api.resourceName" (mergeOverwrite . $udpRoute) }}

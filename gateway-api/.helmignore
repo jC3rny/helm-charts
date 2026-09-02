@@ -16,12 +16,12 @@
 *.tmp
 *.orig
 *~
-# Scripts
-scripts/
-# Tmp
-tmp/
 # Various IDEs
 .project
 .idea/
 *.tmproj
 .vscode/
+# Custom
+scripts/
+tmp/
+Makefile

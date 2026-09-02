@@ -4,11 +4,11 @@ set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHART_DIR="$(dirname "$SCRIPT_DIR")"
 
-# Read appVersion from Chart.yaml
-APP_VERSION=$(grep '^appVersion:' "$CHART_DIR/Chart.yaml" | awk '{print $2}' | tr -d '"')
+# Read Gateway API version from values.yaml (crds.version)
+APP_VERSION=$(yq '.crds.version // ""' "$CHART_DIR/values.yaml")
 
 if [ -z "$APP_VERSION" ]; then
-  echo "ERROR: Could not read appVersion from Chart.yaml" >&2
+  echo "ERROR: Could not read crds.version from values.yaml" >&2
   exit 1
 fi
 
@@ -16,9 +16,23 @@ RAW_URL="https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v${APP_VE
 STANDARD_DIR="$CHART_DIR/crds/standard"
 EXPERIMENTAL_DIR="$CHART_DIR/crds/experimental"
 
-# Parse resource list from a kustomization.yaml (strips "- " prefix and optional path prefixes)
+# Parse resource list from a kustomization.yaml (strips leading whitespace/"- " and optional path prefixes)
 parse_resources() {
-  grep '^- ' | sed 's/^- //' | sed 's|.*/||'
+  grep -E '^[[:space:]]*- ' | sed -E 's/^[[:space:]]*- //' | sed 's|.*/||'
+}
+
+# Download a URL to a file, then drop it unless it's a CustomResourceDefinition.
+# Helm's crds/ directory convention requires every file there to be a CRD (helm lint
+# and `helm install` both reject anything else), so non-CRD resources bundled upstream
+# (e.g. Gateway API's vap_safeupgrades.yaml ValidatingAdmissionPolicy) must not be stored here.
+fetch_crd_only() {
+  url="$1"
+  dest="$2"
+  curl -sSfL "$url" -o "$dest"
+  if ! grep -q '^kind: CustomResourceDefinition$' "$dest"; then
+    echo "    skipped (not a CustomResourceDefinition, incompatible with Helm's crds/ convention)"
+    rm -f "$dest"
+  fi
 }
 
 echo "Fetching Gateway API CRDs v${APP_VERSION}..."
@@ -36,7 +50,7 @@ STANDARD_COUNT=$(echo "$STANDARD_CRDS" | wc -l | tr -d ' ')
 echo "Downloading standard CRDs (${STANDARD_COUNT} files)..."
 echo "$STANDARD_CRDS" | while IFS= read -r crd; do
   echo "  ${crd}"
-  curl -sSfL "${RAW_URL}/standard/${crd}" -o "${STANDARD_DIR}/${crd}"
+  fetch_crd_only "${RAW_URL}/standard/${crd}" "${STANDARD_DIR}/${crd}"
 done
 
 # Download ALL experimental CRDs (includes enhanced versions of standard CRDs)
@@ -44,14 +58,16 @@ EXP_COUNT=$(echo "$EXPERIMENTAL_CRDS" | wc -l | tr -d ' ')
 echo "Downloading experimental CRDs (${EXP_COUNT} files)..."
 echo "$EXPERIMENTAL_CRDS" | while IFS= read -r crd; do
   echo "  ${crd}"
-  curl -sSfL "${RAW_URL}/experimental/${crd}" -o "${EXPERIMENTAL_DIR}/${crd}"
+  fetch_crd_only "${RAW_URL}/experimental/${crd}" "${EXPERIMENTAL_DIR}/${crd}"
 done
 
-echo "Done. CRDs saved to crds/standard/ (${STANDARD_COUNT}) and crds/experimental/ (${EXP_COUNT})"
+STANDARD_SAVED=$(find "$STANDARD_DIR" -name '*.yaml' | wc -l | tr -d ' ')
+EXP_SAVED=$(find "$EXPERIMENTAL_DIR" -name '*.yaml' | wc -l | tr -d ' ')
+echo "Done. CRDs saved to crds/standard/ (${STANDARD_SAVED}) and crds/experimental/ (${EXP_SAVED})"
 
 # --- Envoy Gateway CRDs ---
 # Read version from values.yaml (envoyGateway.crds.version)
-ENVOY_VERSION=$(grep -A2 '^envoyGateway:' "$CHART_DIR/values.yaml" | grep 'version:' | awk '{print $2}' | tr -d '"')
+ENVOY_VERSION=$(yq '.envoyGateway.crds.version // ""' "$CHART_DIR/values.yaml")
 
 if [ -z "$ENVOY_VERSION" ]; then
   echo "WARNING: Could not read envoyGateway.crds.version from values.yaml, skipping Envoy Gateway CRDs" >&2
@@ -82,6 +98,11 @@ echo "$ENVOY_CRDS" | while IFS= read -r crd; do
     | sed '1{/^---$/d;}' \
     | tac | sed '1{/^$/d;}' | sed '1{/^{{-.*}}$/d;}' | tac \
     > "${ENVOY_DIR}/${crd}"
+  if ! grep -q '^kind: CustomResourceDefinition$' "${ENVOY_DIR}/${crd}"; then
+    echo "    skipped (not a CustomResourceDefinition, incompatible with Helm's crds/ convention)"
+    rm -f "${ENVOY_DIR}/${crd}"
+  fi
 done
 
-echo "Done. Envoy Gateway CRDs saved to crds/envoyproxy/ (${ENVOY_COUNT})"
+ENVOY_SAVED=$(find "$ENVOY_DIR" -name '*.yaml' | wc -l | tr -d ' ')
+echo "Done. Envoy Gateway CRDs saved to crds/envoyproxy/ (${ENVOY_SAVED})"

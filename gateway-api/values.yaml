@@ -14,6 +14,8 @@ namespaceOverride: ""
 crds:
   # Install standard Gateway API CRDs.
   enabled: false
+  # Gateway-API version to fetch CRDs from.
+  version: "1.6.1"
   # Set to "keep" to prevent CRD deletion on helm uninstall. Set to "" to allow deletion.
   resourcePolicy: keep
   # Experimental CRDs. CRDs listed here use the experimental version (with experimental fields).
@@ -200,8 +202,8 @@ backendTLSPolicy:
   #     name: backend-ca
   #   hostname: backend.example.com
 
-# -- TCPRoute provides a way to route TCP requests (experimental)
-# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1alpha2.TCPRoute
+# -- TCPRoute provides a way to route TCP requests
+# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.TCPRoute
 tcpRoute:
   # TCPRoute enabled.
   enabled: false
@@ -225,8 +227,8 @@ tcpRoute:
   #   - name: my-tcp-service
   #     port: 5432
 
-# -- TLSRoute provides a way to route TLS requests (experimental)
-# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1alpha2.TLSRoute
+# -- TLSRoute provides a way to route TLS requests
+# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.TLSRoute
 tlsRoute:
   # TLSRoute enabled.
   enabled: false
@@ -253,8 +255,8 @@ tlsRoute:
   #   - name: my-tls-service
   #     port: 8443
 
-# -- UDPRoute provides a way to route UDP requests (experimental)
-# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1alpha2.UDPRoute
+# -- UDPRoute provides a way to route UDP requests
+# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.UDPRoute
 udpRoute:
   # UDPRoute enabled.
   enabled: false
@@ -313,7 +315,7 @@ envoyGateway:
     # Install Envoy Gateway CRDs.
     enabled: false
     # Envoy Gateway version to fetch CRDs from.
-    version: v1.7.1
+    version: "v1.9.1"
 
   # -- Backend defines a backend endpoint for routing traffic
   # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#backend
