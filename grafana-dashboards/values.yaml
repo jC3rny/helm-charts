@@ -84,6 +84,10 @@ category:
     enabled: false
     folder: "_General"
 
+  k6:
+    enabled: false
+    folder: "_General"
+
   kafka:
     enabled: false
     folder: "_General"
