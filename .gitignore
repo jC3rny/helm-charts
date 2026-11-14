@@ -2,6 +2,9 @@
 .idea
 .vscode
 
+# ignore local secrets
+.env
+
 # ignore TMP folder
 **/tmp/**
 
