@@ -4,14 +4,15 @@
 #   make test                   render every chart with default values and each <chart>/ci/*.yaml
 #   make login                  log in to GHCR with a classic PAT (write:packages scope),
 #                               read from GITHUB_PAT in .env or the environment, else prompted
-#   make release CHART=<name>   package the committed chart and push it to $(REGISTRY)
+#   make package CHART=<name>   package the committed chart into the repository root
+#   make release CHART=<name>   package the chart and push it to $(REGISTRY)
 
 REGISTRY  ?= oci://ghcr.io/jc3rny/helm
 GHCR_USER ?= jc3rny
 CHARTS    := $(patsubst %/Chart.yaml,%,$(shell git ls-files ':(glob)*/Chart.yaml'))
 CHART     ?= $(CHARTS)
 
-.PHONY: lint test login release
+.PHONY: lint test login package release
 
 lint:
 	helm lint --strict $(CHART)
@@ -33,15 +34,17 @@ login:
 		helm registry login ghcr.io -u $(GHCR_USER); \
 	fi
 
-release:
+package:
 	$(if $(filter-out 1,$(words $(CHART))),$(error set CHART to one of: $(CHARTS)))
 	$(if $(filter $(CHART),$(CHARTS)),,$(error unknown chart '$(CHART)', expected one of: $(CHARTS)))
 	@test -z "$$(git status --porcelain -- $(CHART))" || { echo "$(CHART) has uncommitted changes"; exit 1; }
+	@set -e; mkdir -p tmp; d=$$(mktemp -d tmp/package.XXXXXX); trap 'rm -rf "$$d"' EXIT; \
+	git archive HEAD $(CHART) | tar -x -C $$d; \
+	helm package $$d/$(CHART)
+
+release: package
 	@set -e; v=$$(helm show chart $(CHART) | awk '/^version:/ {print $$2}'); \
 	if helm show chart $(REGISTRY)/$(CHART) --version "$$v" > /dev/null 2>&1; then \
 		echo "$(CHART) $$v is already in $(REGISTRY)"; exit 1; \
 	fi; \
-	mkdir -p tmp; d=$$(mktemp -d tmp/release.XXXXXX); trap 'rm -rf "$$d"' EXIT; \
-	git archive HEAD $(CHART) | tar -x -C $$d; \
-	helm package $$d/$(CHART) -d tmp; \
-	helm push tmp/$(CHART)-$$v.tgz $(REGISTRY)
+	helm push $(CHART)-$$v.tgz $(REGISTRY)
