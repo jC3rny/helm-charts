@@ -1,0 +1,1 @@
+Grafana Alloy {{ .Chart.AppVersion }} is running as a {{ .Values.agent.controller.type }} in namespace {{ .Release.Namespace }}.
