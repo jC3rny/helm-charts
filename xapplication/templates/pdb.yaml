@@ -1,0 +1,20 @@
+{{- $v := .Values -}}
+{{- $replicas := $v.autoscaling.enabled | ternary $v.autoscaling.minReplicas $v.replicaCount | int -}}
+{{- if and $v.pdb.enabled (gt $replicas 1) -}}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "xapplication.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "xapplication.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "xapplication.selectorLabels" (dict "root" . "canary" false) | nindent 6 }}
+  {{- if not (kindIs "invalid" $v.pdb.maxUnavailable) }}
+  maxUnavailable: {{ include "xapplication.string" $v.pdb.maxUnavailable }}
+  {{- else }}
+  minAvailable: {{ include "xapplication.string" $v.pdb.minAvailable }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,28 @@
+{{- if ne .Values.kind "StatefulSet" -}}
+{{- range include "xapplication.render" (dict "value" ($.Values.volumes | default list) "context" $) | fromYamlArray }}
+{{- if include "xapplication.ownClaim" . }}
+{{- $claim := .persistentVolumeClaim }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "xapplication.child" (list $ .name) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "xapplication.labels" $ | nindent 4 }}
+  {{- if (hasKey $claim "keep" | ternary $claim.keep true) }}
+  annotations:
+    helm.sh/resource-policy: keep
+  {{- end }}
+spec:
+  accessModes:
+    - {{ $claim.accessMode | default "ReadWriteOnce" }}
+  {{- with $claim.storageClass }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $claim.size }}
+{{- end }}
+{{- end }}
+{{- end }}

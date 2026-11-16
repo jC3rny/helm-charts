@@ -1,0 +1,79 @@
+{{- if .Values.httpRoute.enabled -}}
+{{- $v := .Values -}}
+{{- $fullname := include "xapplication.fullname" . -}}
+{{- $route := include "xapplication.render" (dict "value" $v.httpRoute "context" .) | fromYaml -}}
+{{- $root := list (dict "path" (dict "type" "PathPrefix" "value" "/")) -}}
+{{- $app := dict "name" $fullname "port" (int $v.service.port) -}}
+{{- $canaryName := include "xapplication.child" (list . "canary") -}}
+{{- $weight := int $v.canary.weight -}}
+
+{{- /* A rule without backendRefs goes to the Service, with a canary split by weight; the
+canary's header adds a rule before it, with the header on each match, to the canary only. */ -}}
+{{- $rules := list -}}
+{{- range $rule := $route.rules | default (list (dict "matches" $root)) -}}
+{{- if hasKey $rule "backendRefs" -}}
+{{- $rules = append $rules $rule -}}
+{{- else if $v.canary.enabled -}}
+{{- with $v.canary.header -}}
+{{- if .name -}}
+{{- $header := dict "name" .name "value" (include "xapplication.string" .value) -}}
+{{- $matches := list -}}
+{{- range $rule.matches | default $root -}}
+{{- $match := deepCopy . -}}
+{{- $_ := set $match "headers" (append ($match.headers | default list) $header) -}}
+{{- $matches = append $matches $match -}}
+{{- end -}}
+{{- $headerRule := deepCopy $rule -}}
+{{- $_ := set $headerRule "matches" $matches -}}
+{{- $_ := set $headerRule "backendRefs" (list (dict "name" $canaryName "port" (int $v.service.port))) -}}
+{{- $rules = append $rules $headerRule -}}
+{{- end -}}
+{{- end -}}
+{{- $split := deepCopy $rule -}}
+{{- $_ := set $split "backendRefs" (list
+  (merge (dict "weight" (sub 100 $weight)) $app)
+  (dict "name" $canaryName "port" (int $v.service.port) "weight" $weight)) -}}
+{{- $rules = append $rules $split -}}
+{{- else -}}
+{{- $plain := deepCopy $rule -}}
+{{- $_ := set $plain "backendRefs" (list $app) -}}
+{{- $rules = append $rules $plain -}}
+{{- end -}}
+{{- end -}}
+
+{{- /* At most 16 hostnames per route (the HTTPRoute schema's limit). */ -}}
+{{- $hostnames := $route.hostnames | default list -}}
+{{- $chunks := list -}}
+{{- range $i := until (len $hostnames) -}}
+{{- if eq (mod $i 16) 0 -}}
+{{- $chunks = append $chunks (slice $hostnames $i (min (add $i 16) (len $hostnames) | int)) -}}
+{{- end -}}
+{{- end -}}
+{{- if not $chunks -}}
+{{- $chunks = list list -}}
+{{- end -}}
+
+{{- range $i, $chunk := $chunks }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ gt (len $chunks) 1 | ternary (include "xapplication.child" (list $ (toString (add1 $i)))) $fullname }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "xapplication.labels" $ | nindent 4 }}
+  {{- with $route.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- toYaml $route.parentRefs | nindent 4 }}
+  {{- with $chunk }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- toYaml $rules | nindent 4 }}
+{{- end }}
+{{- end }}

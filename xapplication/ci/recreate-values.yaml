@@ -1,0 +1,16 @@
+## A Deployment with a ReadWriteOnce claim of its own: one replica, strategy Recreate, a
+## ServiceMonitor on http, and a claim that is deleted with the release (keep false).
+image:
+  repository: registry.example.com/team/receiver
+  tag: "2.0.0"
+strategy:
+  type: Recreate
+volumes:
+  - name: data
+    mountPath: /data
+    persistentVolumeClaim: {size: 5Gi, keep: false}
+metrics:
+  enabled: true
+reloader:
+  enabled: false
+topologySpread: []

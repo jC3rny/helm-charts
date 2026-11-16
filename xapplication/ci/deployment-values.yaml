@@ -1,0 +1,134 @@
+## A Deployment with every feature that goes with it: env of every source, envFrom, volumes,
+## a sidecar, extra Services, an HTTPRoute with 18 hostnames and a canary, autoscaling, a declared
+## metrics port next to a sidecar's endpoint, External Secrets, Sealed Secrets and extra manifests.
+commonLabels:
+  team: backend
+image:
+  repository: registry.example.com/team/echo
+  tag: "1.4.2"
+podAnnotations:
+  example.com/owner: '{{ .Release.Name }}'
+podLabels:
+  tier: backend
+serviceAccount:
+  annotations:
+    iam.example.com/role: '{{ .Release.Name }}-role'
+imagePullSecrets:
+  - name: '{{ .Release.Name }}-registry'
+initContainers:
+  - name: migrate
+    image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+    command: [/app/migrate]
+ports:
+  - {name: grpc, port: 9000}
+env:
+  - {name: NODE_ENV, value: production}
+  - {name: WORKERS, value: 4}
+  - {name: BIG, value: 1000000}
+  - {name: DEBUG, value: false}
+  - {name: REDIS_HOST, value: '{{ .Release.Name }}-redis'}
+  - {name: CACHE_URL, value: 'redis://$(REDIS_HOST):6379'}
+  - name: JDBC_URL
+    value: 'jdbc:postgresql://{{ .Release.Name }}-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/app?sslmode=require&applicationName={{ include "xapplication.fullname" . }}'
+  - name: APP_LOG_LEVEL
+    valueFrom:
+      configMapKeyRef: {name: '{{ include "xapplication.fullname" . }}-config', key: LOG_LEVEL}
+  - name: POD_NAME
+    valueFrom:
+      fieldRef: {fieldPath: metadata.name}
+  - {name: DATABASE_URL, remoteRef: {key: database-url}}
+  - {name: REDIS_PASSWORD, encryptedData: AgBy3i4OJSWK+PiTySYZZA==}
+envFrom:
+  - configMapRef: {name: '{{ include "xapplication.fullname" . }}-config'}
+  - secretRef: {name: shared-credentials}
+    prefix: DB_
+lifecycle:
+  preStop:
+    sleep: {seconds: 5}
+sidecars:
+  - name: exporter
+    image: registry.example.com/tools/exporter:1.2.0
+    ports:
+      - {name: exporter, containerPort: 9100}
+volumes:
+  - name: config
+    mountPath: /app/cfg/application.yml
+    subPath: application.yml
+    readOnly: true
+    configMap: {name: '{{ include "xapplication.fullname" . }}-config'}
+  - name: shared
+    mountPath: /shared
+    persistentVolumeClaim: {size: 10Gi, accessMode: ReadWriteMany, storageClass: shared-files}
+  - name: existing
+    mountPath: /existing
+    persistentVolumeClaim: {claimName: other-app-shared}
+service:
+  annotations:
+    service.example.com/internal: "true"
+extraServices:
+  - name: headless
+    clusterIP: None
+    publishNotReadyAddresses: true
+  - name: grpc
+    clusterIP: None
+    ports: [grpc]
+  - name: exporter
+    ports: [exporter]
+httpRoute:
+  enabled: true
+  parentRefs:
+    - {name: public, namespace: gateways, sectionName: https}
+  hostnames: [h01.example.com, h02.example.com, h03.example.com, h04.example.com, h05.example.com,
+              h06.example.com, h07.example.com, h08.example.com, h09.example.com, h10.example.com,
+              h11.example.com, h12.example.com, h13.example.com, h14.example.com, h15.example.com,
+              h16.example.com, h17.example.com, '{{ .Release.Name }}.example.com']
+  rules:
+    - matches:
+        - path: {type: PathPrefix, value: /api}
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set: [{name: X-Forwarded-App, value: '{{ .Release.Name }}'}]
+    - matches:
+        - path: {type: PathPrefix, value: /legacy}
+      backendRefs:
+        - {name: legacy-app, port: 80}
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetMemoryUtilizationPercentage: 75
+canary:
+  enabled: true
+  image: {tag: 1.5.0-rc.1}
+  weight: 20
+  header: {name: X-Canary, value: always}
+externalSecrets:
+  secretStoreRef: {kind: SecretStore, name: app-store}
+sealedSecrets:
+  scope: namespace-wide
+metrics:
+  enabled: true
+  endpoints:
+    - port: 9090
+      path: /actuator/prometheus
+    - port: exporter
+      interval: 60s
+extraManifests:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: '{{ include "xapplication.fullname" . }}-config'
+    data:
+      LOG_LEVEL: info
+      application.yml: |
+        logging:
+          level:
+            root: INFO
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: {{ include "xapplication.fullname" . }}-raw
+    data:
+      release: {{ .Release.Name }}

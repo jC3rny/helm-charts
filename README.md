@@ -1,6 +1,6 @@
 # helm-charts
 
-Helm charts for running platform components on Kubernetes: Gateway API and Envoy Gateway, the Grafana LGTM observability stack (Alloy, dashboards) and RBAC management. Each chart is published as an OCI artifact to the GitHub Container Registry under `oci://ghcr.io/jc3rny/helm`.
+Helm charts for running platform components and applications on Kubernetes: Gateway API and Envoy Gateway, the Grafana LGTM observability stack (Alloy, dashboards), RBAC management and a general-purpose application chart. Each chart is published as an OCI artifact to the GitHub Container Registry under `oci://ghcr.io/jc3rny/helm`.
 
 > **Retired:** `web-app` and `common-tpls` are no longer maintained and were removed from `main` on 2026-11-16. Final versions: [web-app-3.1.1](https://github.com/jC3rny/helm-charts/tree/web-app-3.1.1) and [common-tpls-1.0.1](https://github.com/jC3rny/helm-charts/tree/common-tpls-1.0.1). See [Retired charts](#retired-charts).
 
@@ -13,6 +13,7 @@ Helm charts for running platform components on Kubernetes: Gateway API and Envoy
 | [grafana-alloy](grafana-alloy/) | 0.1.0+1.8.1 | Grafana Alloy DaemonSet with a preconfigured pipeline for logs, metrics, traces and profiles (LGTM) |
 | [grafana-dashboards](grafana-dashboards/) | 0.3.1 | Grafana dashboards, delivered as ConfigMaps for the Grafana sidecar or as `GrafanaDashboard` / `GrafanaFolder` resources for grafana-operator |
 | [kube-rbac](kube-rbac/) | 1.1.0 | Group-based RBAC: ClusterRoles, per-namespace RoleBindings and optional ServiceAccount kubeconfigs |
+| [xapplication](xapplication/) | 0.1.0 | One application: a Deployment or StatefulSet with its Services, optionally an HTTPRoute, a canary, an autoscaler, a PodDisruptionBudget, persistent volumes, secrets through External Secrets or Sealed Secrets, and monitoring |
 
 Versions with a `+` suffix wrap or track an upstream release: `0.1.0+1.9.1` is version `0.1.0` of this chart for upstream `1.9.1`.
 
@@ -38,7 +39,7 @@ The root `Makefile` drives all checks and releases:
 
 ```sh
 make lint                       # helm lint --strict on every chart (or CHART=<name>)
-make test                       # render every chart with default values and each <chart>/ci/*.yaml
+make test                       # render every chart with each <chart>/ci/*.yaml (default values if it has none)
 make login                      # log in to ghcr.io (classic PAT with write:packages, GITHUB_PAT in .env)
 make package CHART=<name>       # package the committed chart into the repository root
 make release CHART=<name>       # package and push to oci://ghcr.io/jc3rny/helm

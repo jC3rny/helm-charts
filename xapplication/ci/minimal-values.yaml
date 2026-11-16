@@ -1,0 +1,4 @@
+## Only what is required: the defaults render a hardened Deployment and its Service.
+image:
+  repository: registry.example.com/team/echo
+  tag: "1.4.2"

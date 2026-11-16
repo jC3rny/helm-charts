@@ -1,0 +1,48 @@
+## A StatefulSet: one disk per pod, the governing headless Service, a partitioned update and a
+## PodMonitor on two paths of a sidecar's port.
+kind: StatefulSet
+replicaCount: 3
+strategy:
+  type: RollingUpdate
+  rollingUpdate: {partition: 0}
+image:
+  repository: registry.example.com/team/store
+  digest: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile: {type: RuntimeDefault}
+  runAsUser: 1000
+  fsGroup: 1000
+ports:
+  - {name: peer, port: 7000}
+sidecars:
+  - name: exporter
+    image: registry.example.com/tools/exporter:1.2.0
+    securityContext: {runAsUser: 2000, allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+    ports:
+      - {name: exporter, containerPort: 9100}
+volumes:
+  - name: data
+    mountPath: /data
+    persistentVolumeClaim: {size: 20Gi, storageClass: fast}
+extraServices:
+  - name: peers
+    clusterIP: None
+    ports: [peer]
+    publishNotReadyAddresses: true
+probes:
+  readiness:
+    httpGet: {path: /ready, port: http}
+  liveness: null
+  startup:
+    httpGet: {path: /ready, port: http}
+    failureThreshold: 120
+pdb:
+  maxUnavailable: 1
+metrics:
+  enabled: true
+  type: PodMonitor
+  endpoints:
+    - port: exporter
+    - port: exporter
+      path: /probe/metrics

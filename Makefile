@@ -1,7 +1,7 @@
 # Lint, render-test and release the Helm charts in this repository.
 #
 #   make lint                   helm lint --strict every chart (or CHART=<name>)
-#   make test                   render every chart with default values and each <chart>/ci/*.yaml
+#   make test                   render every chart with each <chart>/ci/*.yaml, or with default values if it has none
 #   make login                  log in to GHCR with a classic PAT (write:packages scope),
 #                               read from GITHUB_PAT in .env or the environment, else prompted
 #   make package CHART=<name>   package the committed chart into the repository root
@@ -9,7 +9,7 @@
 
 REGISTRY  ?= oci://ghcr.io/jc3rny/helm
 GHCR_USER ?= jc3rny
-CHARTS    := $(patsubst %/Chart.yaml,%,$(shell git ls-files ':(glob)*/Chart.yaml'))
+CHARTS    := $(sort $(patsubst %/Chart.yaml,%,$(shell git ls-files --cached --others --exclude-standard ':(glob)*/Chart.yaml')))
 CHART     ?= $(CHARTS)
 
 .PHONY: lint test login package release
@@ -20,7 +20,9 @@ lint:
 test:
 	@set -e; for c in $(CHART); do \
 		if helm show chart $$c | grep -q '^type: library'; then echo "==> $$c: library chart, skipped"; continue; fi; \
-		for v in '' $$(ls $$c/ci/*.yaml 2> /dev/null); do \
+		vals=$$(ls $$c/ci/*.yaml 2> /dev/null || true); [ -n "$$vals" ] || vals=-; \
+		for v in $$vals; do \
+			[ "$$v" = - ] && v=; \
 			echo "==> $$c $${v:-(default values)}"; \
 			helm template test $$c $${v:+-f $$v} > /dev/null; \
 		done; \

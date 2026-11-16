@@ -1,0 +1,81 @@
+{{- include "xapplication.validate" . -}}
+{{- $v := .Values -}}
+{{- $sts := eq $v.kind "StatefulSet" -}}
+{{- $fullname := include "xapplication.fullname" . -}}
+{{- $app := dict "root" . "canary" false -}}
+apiVersion: apps/v1
+kind: {{ $v.kind }}
+metadata:
+  name: {{ $fullname }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "xapplication.labels" . | nindent 4 }}
+  {{- if $v.reloader.enabled }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+  {{- end }}
+spec:
+  {{- if not $v.autoscaling.enabled }}
+  replicas: {{ $v.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: {{ $v.revisionHistoryLimit }}
+  {{- include "xapplication.strategy" . | nindent 2 }}
+  {{- if $sts }}
+  serviceName: {{ include "xapplication.child" (list . "headless") }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "xapplication.selectorLabels" $app | nindent 6 }}
+  template:
+    {{- include "xapplication.podTemplate" $app | nindent 4 }}
+  {{- if $sts }}
+  {{- $claims := list }}
+  {{- range include "xapplication.render" (dict "value" ($v.volumes | default list) "context" .) | fromYamlArray }}
+  {{- if include "xapplication.ownClaim" . }}
+  {{- $claims = append $claims . }}
+  {{- end }}
+  {{- end }}
+  {{- with $claims }}
+  {{- /* Never changes after creation: only the selector labels, nothing that moves with a release. */}}
+  volumeClaimTemplates:
+    {{- range . }}
+    - metadata:
+        name: {{ .name }}
+        labels:
+          {{- include "xapplication.selectorLabels" $app | nindent 10 }}
+      spec:
+        accessModes:
+          - {{ .persistentVolumeClaim.accessMode | default "ReadWriteOnce" }}
+        {{- with .persistentVolumeClaim.storageClass }}
+        storageClassName: {{ . }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .persistentVolumeClaim.size }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+{{- if $v.canary.enabled }}
+{{- $canary := dict "root" . "canary" true }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xapplication.child" (list . "canary") }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "xapplication.labels" . | nindent 4 }}
+  {{- if $v.reloader.enabled }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+  {{- end }}
+spec:
+  replicas: {{ $v.canary.replicaCount }}
+  revisionHistoryLimit: {{ $v.revisionHistoryLimit }}
+  {{- include "xapplication.strategy" . | nindent 2 }}
+  selector:
+    matchLabels:
+      {{- include "xapplication.selectorLabels" $canary | nindent 6 }}
+  template:
+    {{- include "xapplication.podTemplate" $canary | nindent 4 }}
+{{- end }}

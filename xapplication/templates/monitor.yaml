@@ -1,0 +1,32 @@
+{{- if .Values.metrics.enabled -}}
+{{- $m := .Values.metrics -}}
+apiVersion: monitoring.coreos.com/v1
+kind: {{ $m.type }}
+metadata:
+  name: {{ include "xapplication.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "xapplication.labels" . | nindent 4 }}
+spec:
+  {{- if eq $m.type "ServiceMonitor" }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "xapplication.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: metrics
+  endpoints:
+  {{- else }}
+  {{- /* The app's pods and the canary's. */}}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "xapplication.name" . }}
+  podMetricsEndpoints:
+  {{- end }}
+    {{- range $m.endpoints }}
+    - port: {{ include "xapplication.endpointPort" . }}
+      path: {{ .path | default "/metrics" }}
+      interval: {{ .interval | default $m.interval }}
+    {{- end }}
+  podTargetLabels:
+    - app.kubernetes.io/instance
+{{- end }}

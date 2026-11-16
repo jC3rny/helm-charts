@@ -1,0 +1,533 @@
+## xapplication: one app as a Deployment or StatefulSet and its Services, optionally with an
+## HTTPRoute, a canary, an autoscaler, a PodDisruptionBudget, persistent volumes, secrets through
+## External Secrets or Sealed Secrets, and monitoring.
+##
+## Values marked (tpl) are rendered with tpl against the chart, so they can use
+## {{ .Release.Name }}, {{ .Values.x }} or {{ include "xapplication.fullname" . }};
+## write a literal {{ as {{ `{{` }}.
+##
+## Collections are lists: an environment's values file replaces a list whole, so it repeats every
+## entry it keeps. Nothing from a base file merges into an entry, and nothing needs null to go.
+
+## Every object is named after the release; fullnameOverride replaces that name.
+fullnameOverride: ""
+## app.kubernetes.io/name, the release name by default. Set it once: it is part of the selector,
+## which cannot change. Keep it unique in the namespace: metrics select the pods by it.
+nameOverride: ""
+
+## Labels on every object (never on the selector).
+commonLabels: {}
+  # team: backend
+  # cost-center: "4711"
+
+## ---------------------------------------------------------------------------------------------
+## Kubernetes
+## ---------------------------------------------------------------------------------------------
+
+## Deployment, or StatefulSet for one disk per pod: persistentVolumeClaim size volumes become
+## volumeClaimTemplates (claims <volume>-<fullname>-<n>, kept when the StatefulSet goes), plus a
+## headless governing Service <fullname>-headless (publishNotReadyAddresses, so peers find each
+## other while they start). A StatefulSet's claim size cannot change through the chart.
+## Switching kind does not carry data over.
+kind: Deployment
+# kind: StatefulSet
+
+replicaCount: 1
+revisionHistoryLimit: 3
+
+## Deployment strategy (RollingUpdate | Recreate) or StatefulSet updateStrategy
+## (RollingUpdate | OnDelete). A Deployment with a ReadWriteOnce volume needs Recreate.
+strategy:
+  type: RollingUpdate
+  # rollingUpdate:
+  #   maxSurge: 25%                 # Deployment
+  #   maxUnavailable: 25%           # Deployment and StatefulSet
+  #   partition: 0                  # StatefulSet: only pods with an ordinal >= partition update
+# strategy:
+#   type: Recreate
+
+## (tpl)
+podAnnotations: {}
+  # example.com/owner: '{{ .Release.Name }}'
+podLabels: {}
+  # tier: backend
+
+serviceAccount:
+  create: true
+  ## Empty: the fullname when created, else the namespace's default.
+  name: ""
+  # name: existing-account          # with create: false, an existing ServiceAccount
+  ## e.g. for a cloud workload identity. (tpl)
+  annotations: {}
+    # iam.example.com/role: '{{ .Release.Name }}-role'
+## No API token in the pod; true for an app that calls the Kubernetes API.
+automountServiceAccountToken: false
+
+## Pod Security restricted. Set runAsUser/runAsGroup when the image's USER is a name (the
+## kubelet cannot check runAsNonRoot on a name); fsGroup makes a fresh volume writable.
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile: {type: RuntimeDefault}
+  # runAsUser: 1000
+  # runAsGroup: 1000
+  # fsGroup: 1000
+  # fsGroupChangePolicy: OnRootMismatch
+  # supplementalGroups: [2000]
+
+## Pull secrets of the namespace. (tpl)
+imagePullSecrets: []
+  # - name: '{{ .Release.Name }}-registry'
+  # - name: shared-registry
+
+## Init containers (in list order), as Kubernetes writes them; each gets securityContext unless
+## it sets its own and may mount volumes by name. (tpl)
+initContainers: []
+  # - name: migrate
+  #   image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+  #   command: [/app/migrate]
+  #   envFrom:
+  #     - secretRef: {name: '{{ include "xapplication.fullname" . }}-env'}
+  #   resources:
+  #     requests: {cpu: 50m, memory: 64Mi}
+  #     limits: {memory: 128Mi}
+
+## The app container.
+image:
+  ## Required: registry and repository, e.g. registry.example.com/team/app.
+  repository: ""
+  ## One of tag or digest is required; digest (sha256:...) wins.
+  tag: ""
+  digest: ""
+  # digest: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+  pullPolicy: IfNotPresent
+  # pullPolicy: Always
+
+command: []
+  # - /app/server
+args: []
+  # - --config=/app/cfg/application.yml
+
+## The app's container port, named http; the Service and the HTTPRoute target it.
+port: 8080
+
+## More ports of the app; each is also a port of the main Service, with the same number. A name
+## is unique across the pod (the app, its sidecars) and not http (nor metrics while an endpoint of
+## metrics gives its port as a number).
+ports: []
+  # - {name: grpc, port: 9000}
+
+## Variables in list order, so $(NAME) sees the names above it. Each has name (unique, the chart
+## refuses a duplicate) and exactly one of:
+##   value          a string (numbers and booleans are quoted)
+##   valueFrom      a Kubernetes source (configMapKeyRef, secretKeyRef, fieldRef, resourceFieldRef)
+##   remoteRef      {key}: a key of the secret store, through externalSecrets
+##   encryptedData  a kubeseal --raw ciphertext, through sealedSecrets
+## (tpl)
+env: []
+  # - name: NODE_ENV
+  #   value: production
+  # - name: WORKERS
+  #   value: 4                                  # rendered as "4"
+  # - name: REDIS_HOST
+  #   value: '{{ .Release.Name }}-redis'
+  # - name: CACHE_URL
+  #   value: redis://$(REDIS_HOST):6379         # REDIS_HOST is above
+  # - name: APP_LOG_LEVEL
+  #   valueFrom:
+  #     configMapKeyRef: {name: '{{ include "xapplication.fullname" . }}-config', key: LOG_LEVEL}
+  # - name: API_TOKEN
+  #   valueFrom:
+  #     secretKeyRef: {name: api-token, key: token, optional: false}
+  # - name: POD_NAME
+  #   valueFrom:
+  #     fieldRef: {fieldPath: metadata.name}
+  # - name: MEMORY_LIMIT
+  #   valueFrom:
+  #     resourceFieldRef: {resource: limits.memory, divisor: 1Mi}
+  # - name: DATABASE_URL
+  #   remoteRef: {key: database-url}
+  # - name: REDIS_PASSWORD
+  #   encryptedData: AgBy3i4OJSWK+PiTySYZZA...
+
+## Every key of a ConfigMap or Secret of the namespace as a variable, in list order (a later
+## entry wins on the same name, env wins over all). (tpl)
+envFrom: []
+  # - configMapRef: {name: '{{ include "xapplication.fullname" . }}-config'}
+  # - secretRef: {name: shared-credentials}
+  #   prefix: DB_
+  # - secretRef: {name: optional-overrides, optional: true}
+
+resources:
+  requests: {cpu: 50m, memory: 128Mi}
+  limits: {memory: 256Mi}
+  # limits: {cpu: "1", memory: 256Mi, ephemeral-storage: 500Mi}
+
+## Kubernetes probes; null turns one off. TCP on http by default, as the path is the app's.
+probes:
+  readiness:
+    tcpSocket: {port: http}
+    periodSeconds: 10
+  liveness:
+    tcpSocket: {port: http}
+    periodSeconds: 20
+  startup:
+    tcpSocket: {port: http}
+    periodSeconds: 5
+    failureThreshold: 60
+# probes:
+#   readiness:
+#     httpGet: {path: /healthz/ready, port: http}
+#     periodSeconds: 10
+#     timeoutSeconds: 3
+#     failureThreshold: 3
+#   liveness:
+#     httpGet: {path: /healthz/live, port: http}
+#     periodSeconds: 20
+#   startup:
+#     httpGet: {path: /healthz/live, port: http}
+#     periodSeconds: 5
+#     failureThreshold: 120
+#   # grpc: {port: 9000}                       # a gRPC health check instead
+#   # exec: {command: [/app/healthcheck]}      # or a command
+
+## e.g. a preStop sleep, so the gateway stops routing before the app exits.
+lifecycle: {}
+  # preStop:
+  #   sleep: {seconds: 5}
+  # postStart:
+  #   exec: {command: [/app/warmup]}
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities: {drop: [ALL]}
+
+## Sidecars, as Kubernetes writes them; each gets securityContext unless it sets its own and may
+## mount volumes by name. Their named ports can be used by extraServices and metrics. (tpl)
+sidecars: []
+  # - name: exporter
+  #   image: registry.example.com/tools/exporter:1.2.0
+  #   args: [--target=localhost:8080]
+  #   ports:
+  #     - {name: exporter, containerPort: 9100}
+  #   resources:
+  #     requests: {cpu: 10m, memory: 32Mi}
+  #     limits: {memory: 64Mi}
+
+## A writable /tmp (emptyDir) on the read-only root filesystem; the volume name tmp is reserved.
+tmp:
+  sizeLimit: 256Mi
+
+## Volumes, each with name (unique, not tmp), mountPath (unique, not /tmp; subPath and readOnly
+## optional) and exactly one Kubernetes volume source that references an existing object (of the
+## namespace or from extraManifests). Reloader restarts the pods when a mounted ConfigMap or
+## Secret changes (a subPath mount never sees an update otherwise). (tpl)
+##
+## persistentVolumeClaim takes claimName (an existing claim) or size (a claim of its own:
+## <fullname>-<volume>, or one per pod with kind StatefulSet):
+##   size          may grow, never shrink
+##   accessMode    ReadWriteOnce (default) or ReadWriteMany (the storage class must support it);
+##                 never changes. A Deployment's ReadWriteOnce volume attaches to one node: the
+##                 chart refuses it with more than one replica, autoscaling, strategy
+##                 RollingUpdate or a canary
+##   storageClass  empty: the cluster's default class; never changes
+##   keep          default true: helm.sh/resource-policy keep, the claim outlives an uninstall
+##                 (Deployment only; a StatefulSet always keeps its claims)
+volumes: []
+  # - name: config
+  #   mountPath: /app/cfg/application.yml
+  #   subPath: application.yml
+  #   readOnly: true
+  #   configMap:
+  #     name: '{{ include "xapplication.fullname" . }}-config'
+  #     items: [{key: application.yml, path: application.yml}]
+  #     defaultMode: 0444
+  # - name: certs
+  #   mountPath: /etc/certs
+  #   readOnly: true
+  #   secret:
+  #     secretName: '{{ include "xapplication.fullname" . }}-certs'
+  #     defaultMode: 0400
+  #     optional: false
+  # - name: cache
+  #   mountPath: /cache
+  #   emptyDir: {sizeLimit: 1Gi}
+  # - name: shm
+  #   mountPath: /dev/shm
+  #   emptyDir: {medium: Memory, sizeLimit: 64Mi}
+  # - name: token
+  #   mountPath: /var/run/secrets/tokens
+  #   readOnly: true
+  #   projected:
+  #     sources:
+  #       - serviceAccountToken: {audience: api.example.com, expirationSeconds: 3600, path: token}
+  # - name: vault
+  #   mountPath: /mnt/secrets
+  #   readOnly: true
+  #   csi:
+  #     driver: secrets-store.csi.k8s.io
+  #     readOnly: true
+  #     volumeAttributes: {secretProviderClass: '{{ include "xapplication.fullname" . }}'}
+  # - name: archive
+  #   mountPath: /archive
+  #   nfs: {server: nfs.example.com, path: /exports/archive}
+  # - name: data
+  #   mountPath: /data
+  #   persistentVolumeClaim:
+  #     size: 20Gi
+  #     accessMode: ReadWriteOnce
+  #     storageClass: ""
+  #     keep: true
+  # - name: shared
+  #   mountPath: /shared
+  #   persistentVolumeClaim:
+  #     size: 100Gi
+  #     accessMode: ReadWriteMany
+  #     storageClass: shared-files
+  # - name: existing
+  #   mountPath: /existing
+  #   subPath: app
+  #   persistentVolumeClaim: {claimName: other-app-shared}
+
+terminationGracePeriodSeconds: 30
+
+nodeSelector: {}
+  # kubernetes.io/os: linux
+  # node.example.com/pool: apps
+affinity: {}
+  # nodeAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #     nodeSelectorTerms:
+  #       - matchExpressions:
+  #           - {key: kubernetes.io/arch, operator: In, values: [amd64]}
+tolerations: []
+  # - {key: dedicated, operator: Equal, value: apps, effect: NoSchedule}
+
+## Spread the pods over nodes and zones where possible (maxSkew 1, ScheduleAnyway; any field of
+## a topologySpreadConstraint overrides; the labelSelector is always the app's); [] turns it off.
+topologySpread:
+  - topologyKey: kubernetes.io/hostname
+  - topologyKey: topology.kubernetes.io/zone
+  # - topologyKey: topology.kubernetes.io/zone
+  #   maxSkew: 1
+  #   whenUnsatisfiable: DoNotSchedule
+  #   minDomains: 3
+
+## The main Service <fullname>: http and every entry of ports.
+service:
+  type: ClusterIP
+  # type: NodePort | LoadBalancer
+  ## The Service port of http; it targets the container port http.
+  port: 80
+  ## (tpl)
+  annotations: {}
+    # service.example.com/internal: "true"
+
+## More Services <fullname>-<name> on the app's pods, each with:
+##   name                       unique; not canary, not metrics with a ServiceMonitor, and not
+##                              headless with kind StatefulSet (the chart renders those itself)
+##   type                       default ClusterIP
+##   clusterIP                  None makes it headless (DNS returns the pod IPs)
+##   ports                      names of http, of ports or of a sidecar's ports; default http and
+##                              ports. A Service port has the number of its container port
+##   publishNotReadyAddresses   true: DNS lists pods before they are Ready (cluster discovery)
+##   annotations                (tpl)
+## Ports are only referenced: a name no container declares is refused. The canary's pods are
+## never selected.
+extraServices: []
+  # - name: headless
+  #   clusterIP: None
+  #   publishNotReadyAddresses: true
+  # - name: grpc
+  #   clusterIP: None
+  #   ports: [grpc]
+  # - name: tcp
+  #   type: LoadBalancer
+  #   ports: [grpc]
+  #   annotations:
+  #     service.example.com/load-balancer-internal: "true"
+  # - name: exporter
+  #   ports: [exporter]
+
+## A Gateway API HTTPRoute to the Service; parentRefs is required when enabled. (tpl)
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+    # - group: gateway.networking.k8s.io
+    #   kind: Gateway
+    #   name: <gateway>
+    #   namespace: <gateway namespace>
+    #   sectionName: https
+  ## More than 16 hostnames are split over routes <fullname>-1, -2, ...
+  hostnames: []
+    # - app.example.com
+    # - '{{ .Release.Name }}.example.com'
+  ## Empty: one rule, PathPrefix / to the Service. A rule without backendRefs goes to the Service.
+  rules: []
+    # - matches:
+    #     - path: {type: PathPrefix, value: /api}
+    #       method: GET
+    #       headers:
+    #         - {name: X-Version, value: v2}
+    #       queryParams:
+    #         - {name: debug, value: "true"}
+    #   filters:
+    #     - type: RequestHeaderModifier
+    #       requestHeaderModifier:
+    #         set: [{name: X-Forwarded-App, value: '{{ .Release.Name }}'}]
+    #         remove: [X-Debug]
+    #     - type: URLRewrite
+    #       urlRewrite:
+    #         path: {type: ReplacePrefixMatch, replacePrefixMatch: /}
+    #   timeouts: {request: 30s}
+    # - matches:
+    #     - path: {type: Exact, value: /old}
+    #   filters:
+    #     - type: RequestRedirect
+    #       requestRedirect: {path: {type: ReplaceFullPath, replaceFullPath: /new}, statusCode: 301}
+    # - matches:
+    #     - path: {type: PathPrefix, value: /legacy}
+    #   backendRefs:                              # its own backends: the canary leaves it alone
+    #     - {name: legacy-app, port: 80}
+
+## An autoscaling/v2 HorizontalPodAutoscaler on the workload; replicaCount is then left to it.
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+## A PodDisruptionBudget while more than one replica runs (replicaCount or autoscaling.minReplicas).
+pdb:
+  enabled: true
+  minAvailable: 50%
+  # maxUnavailable: 1                           # when set, replaces minAvailable
+
+## A second Deployment <fullname>-canary (the app's pod with canary.image, pods with
+## app.kubernetes.io/instance <release>-canary, so the app's selector never matches them) and
+## Service <fullname>-canary. The HTTPRoute's rules that go to the Service send weight % of their
+## requests to it (rules with backendRefs of their own are left alone); requests with the header
+## always go to it. The split is per request. Needs httpRoute; Deployment only, and not with a
+## ReadWriteOnce claim of its own (the canary cannot attach the disk); fixed replicaCount, no
+## autoscaler, no PDB. Scraped with the app (see metrics). Promote: set image to the canary's and
+## turn canary off.
+canary:
+  enabled: false
+  image: {tag: "", digest: ""}
+  # image: {tag: 1.5.0-rc.1}
+  replicaCount: 1
+  weight: 10
+  header: {}
+    # name: X-Canary
+    # value: always
+
+## ---------------------------------------------------------------------------------------------
+## Custom: External Secrets, Sealed Secrets, Reloader, Prometheus Operator
+## ---------------------------------------------------------------------------------------------
+
+## env entries with remoteRef render one ExternalSecret <fullname>-env (Argo CD sync wave -1) on
+## this store, writing the Secret <fullname>-env; needs External Secrets. (tpl)
+externalSecrets:
+  secretStoreRef:
+    kind: SecretStore
+    # kind: ClusterSecretStore
+    name: ""
+  refreshInterval: 1h
+
+## env entries with encryptedData render one SealedSecret <fullname>-sealed (Argo CD sync wave
+## -1), which the controller unseals into the Secret <fullname>-sealed; needs Sealed Secrets.
+## A ciphertext only works on the cluster it was sealed for. Its scope also binds it to the
+## namespace (namespace-wide), to the namespace and the name <fullname>-sealed (strict, the
+## default), or to nothing more (cluster-wide). To seal a value with the default scope:
+##   echo -n '<value>' | kubeseal --raw --namespace <ns> --name <fullname>-sealed --from-file=/dev/stdin
+sealedSecrets:
+  scope: strict
+  # scope: namespace-wide | cluster-wide
+
+## Restart the pods when a ConfigMap or Secret they read or mount changes
+## (reloader.stakater.com/auto); harmless where Reloader is not installed.
+reloader:
+  enabled: true
+
+## Scrape the app's metrics; needs the Prometheus Operator CRDs. One monitor with an endpoint per
+## entry of endpoints:
+##   port      a number: the chart declares the app's container port metrics with it (at most one
+##             endpoint; only on the metrics Service, not the main one; the name metrics is then
+##             reserved in ports), or a name: http, a port of ports or a sidecar's port
+##   path      default /metrics
+##   interval  default metrics.interval
+## The same port may appear twice with different paths. Each series carries endpoint (the port
+## name) and container, so the containers stay apart.
+## The app's pods and the canary's are both scraped (selected by app.kubernetes.io/name); each
+## series keeps the pod's app.kubernetes.io/instance (<release> or <release>-canary), so the two
+## versions can be compared:
+##   sum by (app_kubernetes_io_instance) (rate(http_requests_total{code=~"5.."}[5m]))
+##     / sum by (app_kubernetes_io_instance) (rate(http_requests_total[5m]))
+##   ServiceMonitor  through a Service <fullname>-metrics of its own, carrying only the endpoints'
+##                   ports and the label app.kubernetes.io/component: metrics, which the monitor
+##                   selects; the other Services, which may carry the ports too, are never scraped
+##   PodMonitor      the pods directly, without a Service
+metrics:
+  enabled: false
+  type: ServiceMonitor
+  # type: PodMonitor
+  interval: 30s
+  endpoints:
+    - port: http
+      path: /metrics
+    # - port: 9090                      # the app's own metrics port, declared here
+    #   path: /actuator/prometheus
+    # - port: exporter                  # a sidecar's port
+    #   interval: 60s
+
+## ---------------------------------------------------------------------------------------------
+## Extra manifests
+## ---------------------------------------------------------------------------------------------
+
+## More manifests, each a map or a string. Everything is rendered, file content too: write a
+## literal {{ as {{ `{{` }}. (tpl)
+extraManifests: []
+  # - apiVersion: v1
+  #   kind: ConfigMap
+  #   metadata:
+  #     name: '{{ include "xapplication.fullname" . }}-config'
+  #   data:
+  #     LOG_LEVEL: info
+  #     application.yml: |
+  #       logging:
+  #         level:
+  #           root: INFO
+  # - apiVersion: external-secrets.io/v1
+  #   kind: ExternalSecret
+  #   metadata:
+  #     name: '{{ include "xapplication.fullname" . }}-oauth'
+  #     annotations: {argocd.argoproj.io/sync-wave: "-1"}
+  #   spec:
+  #     refreshInterval: '{{ .Values.externalSecrets.refreshInterval }}'
+  #     secretStoreRef:
+  #       kind: '{{ .Values.externalSecrets.secretStoreRef.kind }}'
+  #       name: '{{ .Values.externalSecrets.secretStoreRef.name }}'
+  #     target: {creationPolicy: Owner}
+  #     dataFrom:
+  #       - extract: {key: app-oauth}
+  # - apiVersion: bitnami.com/v1alpha1
+  #   kind: SealedSecret
+  #   metadata:
+  #     name: '{{ include "xapplication.fullname" . }}-smtp'
+  #     annotations: {argocd.argoproj.io/sync-wave: "-1"}
+  #   spec:
+  #     encryptedData:
+  #       SMTP_USER: AgA7kQ...
+  #       SMTP_PASSWORD: AgC1xZ...
+  #     template:
+  #       metadata:
+  #         name: '{{ include "xapplication.fullname" . }}-smtp'
+  # - |
+  #   apiVersion: v1
+  #   kind: ConfigMap
+  #   metadata:
+  #     name: {{ include "xapplication.fullname" . }}-raw
+  #   data:
+  #     release: {{ .Release.Name }}
