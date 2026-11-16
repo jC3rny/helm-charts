@@ -1,0 +1,22 @@
+{{- if .Values.envoyGateway.securityPolicy.enabled -}}
+{{- $fullName := include "gateway-api.fullname" . -}}
+{{- $securityPolicy := .Values.envoyGateway.securityPolicy -}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ include "gateway-api.resourceName" (mergeOverwrite . $securityPolicy) }}
+  namespace: {{ include "gateway-api.namespace" . }}
+  labels:
+    {{- include "gateway-api.labels" . | nindent 4 }}
+    {{- with $securityPolicy.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $securityPolicy.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $securityPolicy.spec }}
+  {{- tpl (. | toYaml) $ | nindent 2 }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,625 @@
+# Default values for gateway-api.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# This is to override the release namespace.
+namespaceOverride: ""
+
+# -- Gateway API CRD installation
+# Use scripts/fetch-crds.sh to download CRDs before packaging.
+crds:
+  # Install standard Gateway API CRDs.
+  enabled: false
+  # Set to "keep" to prevent CRD deletion on helm uninstall. Set to "" to allow deletion.
+  resourcePolicy: keep
+  # Experimental CRDs. CRDs listed here use the experimental version (with experimental fields).
+  # For CRDs that also exist in standard, the experimental version replaces the standard one.
+  experimental:
+    # Enable experimental CRD selection.
+    enabled: false
+    # List of experimental CRDs to install (empty = none).
+    # Run scripts/fetch-crds.sh to see available CRDs in crds/experimental/.
+    # Short names are derived from filenames (e.g. gateway.networking.k8s.io_tcproutes.yaml -> tcproutes).
+    list: []
+    # list:
+    # - gateways
+    # - httproutes
+    # - tcproutes
+    # - tlsroutes
+    # - udproutes
+
+# -- GatewayClass defines a set of Gateways that share a common configuration and behaviour
+# For more information: https://gateway-api.sigs.k8s.io/api-types/gatewayclass/
+gatewayClass:
+  # GatewayClass enabled.
+  enabled: false
+  # GatewayClass annotations.
+  annotations: {}
+  # GatewayClass labels.
+  labels: {}
+  # Controller that manages Gateways of this class.
+  controllerName: ""
+  # Parameters for this GatewayClass (optional).
+  # parametersRef:
+  #   group: ""
+  #   kind: ConfigMap
+  #   name: gateway-config
+  #   namespace: default
+  # Description for the GatewayClass.
+  description: ""
+
+# -- Gateway defines a point of access into the cluster
+# For more information: https://gateway-api.sigs.k8s.io/api-types/gateway/
+gateway:
+  # Gateway enabled.
+  enabled: false
+  # Gateway annotations.
+  annotations: {}
+  # Gateway labels.
+  labels: {}
+  # Name of the GatewayClass for this Gateway.
+  # Defaults to the chart fullname if not set.
+  gatewayClassName: ""
+  # Gateway listeners define the ports, protocols, and hostnames.
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+    # hostname: "*.example.com"
+    allowedRoutes:
+      namespaces:
+        from: Same
+  # - name: https
+  #   protocol: HTTPS
+  #   port: 443
+  #   hostname: "*.example.com"
+  #   tls:
+  #     mode: Terminate
+  #     certificateRefs:
+  #     - kind: Secret
+  #       name: example-tls
+  #   allowedRoutes:
+  #     namespaces:
+  #       from: Same
+  # Gateway addresses (optional).
+  # addresses:
+  # - type: IPAddress
+  #   value: "1.2.3.4"
+  # Infrastructure configuration for the Gateway (optional).
+  # infrastructure:
+  #   labels: {}
+  #   annotations: {}
+
+# -- HTTPRoute defines HTTP rules for routing traffic from a Gateway to backend services
+# For more information: https://gateway-api.sigs.k8s.io/api-types/httproute/
+httpRoute:
+  # HTTPRoute enabled.
+  enabled: false
+  # HTTPRoute name suffix appended to the chart fullname.
+  name: ""
+  # HTTPRoute name override. Replaces the full resource name.
+  nameOverride: ""
+  # HTTPRoute annotations.
+  annotations: {}
+  # HTTPRoute labels.
+  labels: {}
+  # Which Gateways this Route is attached to.
+  parentRefs:
+  - name: gateway
+    sectionName: http
+    # namespace: default
+  # Hostnames matching HTTP header.
+  hostnames: []
+  # - chart-example.local
+  # List of rules and filters applied.
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: my-service
+      port: 80
+  #   filters:
+  #   - type: RequestHeaderModifier
+  #     requestHeaderModifier:
+  #       set:
+  #       - name: My-Overwrite-Header
+  #         value: this-is-the-only-value
+  #       remove:
+  #       - User-Agent
+  # - matches:
+  #   - path:
+  #       type: PathPrefix
+  #       value: /echo
+  #     headers:
+  #     - name: version
+  #       value: v2
+
+# -- GRPCRoute defines gRPC rules for routing traffic from a Gateway to backend services
+# For more information: https://gateway-api.sigs.k8s.io/api-types/grpcroute/
+grpcRoute:
+  # GRPCRoute enabled.
+  enabled: false
+  # GRPCRoute name suffix appended to the chart fullname.
+  name: ""
+  # GRPCRoute name override. Replaces the full resource name.
+  nameOverride: ""
+  # GRPCRoute annotations.
+  annotations: {}
+  # GRPCRoute labels.
+  labels: {}
+  # Which Gateways this Route is attached to.
+  parentRefs: []
+  # parentRefs:
+  # - name: gateway
+  #   sectionName: grpc
+  # Hostnames matching gRPC header.
+  # hostnames:
+  # - grpc.example.com
+  # List of gRPC routing rules.
+  rules: []
+  # rules:
+  # - matches:
+  #   - method:
+  #       service: my.package.MyService
+  #       method: DoSomething
+  #   backendRefs:
+  #   - name: my-grpc-service
+  #     port: 50051
+
+# -- BackendTLSPolicy defines TLS configuration for backend connections
+# For more information: https://gateway-api.sigs.k8s.io/api-types/backendtlspolicy/
+backendTLSPolicy:
+  # BackendTLSPolicy enabled.
+  enabled: false
+  # BackendTLSPolicy name suffix appended to the chart fullname.
+  name: ""
+  # BackendTLSPolicy name override. Replaces the full resource name.
+  nameOverride: ""
+  # BackendTLSPolicy annotations.
+  annotations: {}
+  # BackendTLSPolicy labels.
+  labels: {}
+  # Backend references this policy applies to.
+  targetRefs: []
+  # targetRefs:
+  # - group: ""
+  #   kind: Service
+  #   name: my-service
+  # TLS validation configuration.
+  validation: {}
+  # validation:
+  #   caCertificateRefs:
+  #   - group: ""
+  #     kind: ConfigMap
+  #     name: backend-ca
+  #   hostname: backend.example.com
+
+# -- TCPRoute provides a way to route TCP requests (experimental)
+# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1alpha2.TCPRoute
+tcpRoute:
+  # TCPRoute enabled.
+  enabled: false
+  # TCPRoute name suffix appended to the chart fullname.
+  name: ""
+  # TCPRoute name override. Replaces the full resource name.
+  nameOverride: ""
+  # TCPRoute annotations.
+  annotations: {}
+  # TCPRoute labels.
+  labels: {}
+  # Which Gateways this Route is attached to.
+  parentRefs: []
+  # parentRefs:
+  # - name: gateway
+  #   sectionName: tcp
+  # List of TCP routing rules.
+  rules: []
+  # rules:
+  # - backendRefs:
+  #   - name: my-tcp-service
+  #     port: 5432
+
+# -- TLSRoute provides a way to route TLS requests (experimental)
+# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1alpha2.TLSRoute
+tlsRoute:
+  # TLSRoute enabled.
+  enabled: false
+  # TLSRoute name suffix appended to the chart fullname.
+  name: ""
+  # TLSRoute name override. Replaces the full resource name.
+  nameOverride: ""
+  # TLSRoute annotations.
+  annotations: {}
+  # TLSRoute labels.
+  labels: {}
+  # Which Gateways this Route is attached to.
+  parentRefs: []
+  # parentRefs:
+  # - name: gateway
+  #   sectionName: tls
+  # Hostnames for TLS SNI matching.
+  # hostnames:
+  # - tls.example.com
+  # List of TLS routing rules.
+  rules: []
+  # rules:
+  # - backendRefs:
+  #   - name: my-tls-service
+  #     port: 8443
+
+# -- UDPRoute provides a way to route UDP requests (experimental)
+# For more information: https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1alpha2.UDPRoute
+udpRoute:
+  # UDPRoute enabled.
+  enabled: false
+  # UDPRoute name suffix appended to the chart fullname.
+  name: ""
+  # UDPRoute name override. Replaces the full resource name.
+  nameOverride: ""
+  # UDPRoute annotations.
+  annotations: {}
+  # UDPRoute labels.
+  labels: {}
+  # Which Gateways this Route is attached to.
+  parentRefs: []
+  # parentRefs:
+  # - name: gateway
+  #   sectionName: udp
+  # List of UDP routing rules.
+  rules: []
+  # rules:
+  # - backendRefs:
+  #   - name: my-udp-service
+  #     port: 53
+
+# -- ReferenceGrant allows resources in one namespace to reference resources in another
+# For more information: https://gateway-api.sigs.k8s.io/api-types/referencegrant/
+referenceGrant:
+  # ReferenceGrant enabled.
+  enabled: false
+  # ReferenceGrant name suffix appended to the chart fullname.
+  name: ""
+  # ReferenceGrant name override. Replaces the full resource name.
+  nameOverride: ""
+  # ReferenceGrant annotations.
+  annotations: {}
+  # ReferenceGrant labels.
+  labels: {}
+  # Namespaces and resources that can reference resources in this namespace.
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: default
+  # Resources in this namespace that can be referenced.
+  to:
+  - group: ""
+    kind: Service
+  # - group: ""
+  #   kind: Secret
+
+
+# -- Envoy Gateway resources
+# For more information: https://gateway.envoyproxy.io/
+envoyGateway:
+  # Envoy Gateway CRD installation.
+  # CRDs are fetched from https://github.com/envoyproxy/gateway by scripts/fetch-crds.sh.
+  crds:
+    # Install Envoy Gateway CRDs.
+    enabled: false
+    # Envoy Gateway version to fetch CRDs from.
+    version: v1.7.1
+
+  # -- Backend defines a backend endpoint for routing traffic
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#backend
+  backend:
+    # Backend enabled.
+    enabled: false
+    # Backend name suffix appended to the chart fullname.
+    name: ""
+    # Backend name override. Replaces the full resource name.
+    nameOverride: ""
+    # Backend annotations.
+    annotations: {}
+    # Backend labels.
+    labels: {}
+    # Backend spec.
+    spec: {}
+    # spec:
+    #   endpoints:
+    #   - fqdn:
+    #       hostname: primary.example.com
+    #       port: 3000
+
+  # -- BackendTrafficPolicy defines traffic management rules for backend connections
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#backendtrafficpolicy
+  backendTrafficPolicy:
+    # BackendTrafficPolicy enabled.
+    enabled: false
+    # BackendTrafficPolicy name suffix appended to the chart fullname.
+    name: ""
+    # BackendTrafficPolicy name override. Replaces the full resource name.
+    nameOverride: ""
+    # BackendTrafficPolicy annotations.
+    annotations: {}
+    # BackendTrafficPolicy labels.
+    labels: {}
+    # BackendTrafficPolicy spec.
+    spec: {}
+    # spec:
+    #   targetRefs:
+    #   - group: gateway.networking.k8s.io
+    #     kind: HTTPRoute
+    #     name: my-route
+    #   rateLimit:
+    #     type: Global
+    #     global:
+    #       rules:
+    #       - limit:
+    #           requests: 100
+    #           unit: Second
+    #   loadBalancer:
+    #     type: RoundRobin
+    #   circuitBreaker:
+    #     maxConnections: 1024
+    #   timeout:
+    #     tcp:
+    #       connectTimeout: 10s
+    #     http:
+    #       requestTimeout: 30s
+
+  # -- ClientTrafficPolicy defines traffic management rules for client connections
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#clienttrafficpolicy
+  clientTrafficPolicy:
+    # ClientTrafficPolicy enabled.
+    enabled: false
+    # ClientTrafficPolicy name suffix appended to the chart fullname.
+    name: ""
+    # ClientTrafficPolicy name override. Replaces the full resource name.
+    nameOverride: ""
+    # ClientTrafficPolicy annotations.
+    annotations: {}
+    # ClientTrafficPolicy labels.
+    labels: {}
+    # ClientTrafficPolicy spec.
+    spec: {}
+    # spec:
+    #   targetRefs:
+    #   - group: gateway.networking.k8s.io
+    #     kind: Gateway
+    #     name: my-gateway
+    #   tcpKeepalive:
+    #     probes: 3
+    #     idleTime: 60s
+    #     interval: 20s
+    #   http3: {}
+    #   tls:
+    #     minVersion: "1.2"
+    #     maxVersion: "1.3"
+
+  # -- EnvoyExtensionPolicy defines extension points for Envoy proxy
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#envoyextensionpolicy
+  envoyExtensionPolicy:
+    # EnvoyExtensionPolicy enabled.
+    enabled: false
+    # EnvoyExtensionPolicy name suffix appended to the chart fullname.
+    name: ""
+    # EnvoyExtensionPolicy name override. Replaces the full resource name.
+    nameOverride: ""
+    # EnvoyExtensionPolicy annotations.
+    annotations: {}
+    # EnvoyExtensionPolicy labels.
+    labels: {}
+    # EnvoyExtensionPolicy spec.
+    spec: {}
+    # spec:
+    #   targetRefs:
+    #   - group: gateway.networking.k8s.io
+    #     kind: HTTPRoute
+    #     name: my-route
+    #   wasm:
+    #   - name: my-wasm-filter
+    #     code:
+    #       type: HTTP
+    #       http:
+    #         url: https://example.com/filter.wasm
+
+  # -- EnvoyPatchPolicy allows patching the generated Envoy xDS configuration
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#envoypatchpolicy
+  envoyPatchPolicy:
+    # EnvoyPatchPolicy enabled.
+    enabled: false
+    # EnvoyPatchPolicy name suffix appended to the chart fullname.
+    name: ""
+    # EnvoyPatchPolicy name override. Replaces the full resource name.
+    nameOverride: ""
+    # EnvoyPatchPolicy annotations.
+    annotations: {}
+    # EnvoyPatchPolicy labels.
+    labels: {}
+    # EnvoyPatchPolicy spec.
+    spec: {}
+    # spec:
+    #   targetRef:
+    #     group: gateway.networking.k8s.io
+    #     kind: Gateway
+    #     name: my-gateway
+    #   type: JSONPatch
+    #   jsonPatches:
+    #   - type: type.googleapis.com/envoy.config.listener.v3.Listener
+    #     name: default/my-gateway/http
+    #     operation:
+    #       op: add
+    #       path: "/per_connection_buffer_limit_bytes"
+    #       value: "1024"
+
+  # -- EnvoyProxy defines the desired state of the Envoy proxy data plane
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#envoyproxy
+  envoyProxy:
+    # EnvoyProxy enabled.
+    enabled: false
+    # EnvoyProxy name suffix appended to the chart fullname.
+    name: ""
+    # EnvoyProxy name override. Replaces the full resource name.
+    nameOverride: ""
+    # EnvoyProxy annotations.
+    annotations: {}
+    # EnvoyProxy labels.
+    labels: {}
+    # EnvoyProxy spec.
+    spec: {}
+    # spec:
+    #   provider:
+    #     type: Kubernetes
+    #     kubernetes:
+    #       envoyDeployment:
+    #         replicas: 2
+    #         container:
+    #           resources:
+    #             requests:
+    #               cpu: 100m
+    #               memory: 128Mi
+    #         pod:
+    #           annotations: {}
+    #           labels: {}
+    #       envoyService:
+    #         type: LoadBalancer
+    #         annotations: {}
+    #   logging:
+    #     level:
+    #       default: info
+    #   telemetry:
+    #     metrics:
+    #       prometheus: {}
+    #   shutdown:
+    #     drainTimeout: 30s
+
+  # -- HTTPRouteFilter defines custom filters for Envoy Gateway HTTPRoutes
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#httproutefilter
+  httpRouteFilter:
+    # HTTPRouteFilter enabled.
+    enabled: false
+    # HTTPRouteFilter name suffix appended to the chart fullname.
+    name: ""
+    # HTTPRouteFilter name override. Replaces the full resource name.
+    nameOverride: ""
+    # HTTPRouteFilter annotations.
+    annotations: {}
+    # HTTPRouteFilter labels.
+    labels: {}
+    # HTTPRouteFilter spec.
+    spec: {}
+    # spec:
+    #   urlRewrite:
+    #     hostname:
+    #       type: Backend
+    #     path:
+    #       type: ReplaceRegexMatch
+    #       replaceRegexMatch:
+    #         pattern: "^/(.+)$"
+    #         substitution: "/api/\\1"
+
+  # -- SecurityPolicy defines security rules for traffic
+  # For more information: https://gateway.envoyproxy.io/docs/api/extension_types/#securitypolicy
+  securityPolicy:
+    # SecurityPolicy enabled.
+    enabled: false
+    # SecurityPolicy name suffix appended to the chart fullname.
+    name: ""
+    # SecurityPolicy name override. Replaces the full resource name.
+    nameOverride: ""
+    # SecurityPolicy annotations.
+    annotations: {}
+    # SecurityPolicy labels.
+    labels: {}
+    # SecurityPolicy spec.
+    spec: {}
+    # spec:
+    #   targetRefs:
+    #   - group: gateway.networking.k8s.io
+    #     kind: Gateway
+    #     name: my-gateway
+    #   cors:
+    #     allowOrigins:
+    #     - type: Exact
+    #       value: "https://example.com"
+    #     allowMethods:
+    #     - GET
+    #     - POST
+    #     allowHeaders:
+    #     - Content-Type
+    #   jwt:
+    #     providers:
+    #     - name: my-jwt
+    #       issuer: "https://auth.example.com"
+    #       remoteJWKS:
+    #         uri: "https://auth.example.com/.well-known/jwks.json"
+
+
+# -- NetworkPolicy defines pod-level ingress/egress traffic rules
+# For more information: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+# Map of NetworkPolicy resources. Each map key is appended to the chart fullname
+# as the resource name suffix. Set `name:` on a policy to override the resulting
+# resource name entirely (no fullname prefix).
+networkPolicy: {}
+# networkPolicy:
+#   default-deny-all:
+#     # Name override — resulting resource name is exactly "default-deny-all".
+#     name: "default-deny-all"
+#     # Empty selector matches all pods in the namespace.
+#     podSelector: {}
+#     policyTypes:
+#     - Ingress
+#     - Egress
+#   test-network-policy:
+#     # No `name` set — resource name becomes "<fullname>-test-network-policy".
+#     podSelector:
+#       matchLabels:
+#         role: db
+#     policyTypes:
+#     - Ingress
+#     - Egress
+#     ingress:
+#     - from:
+#       - ipBlock:
+#           cidr: 172.17.0.0/16
+#           except:
+#           - 172.17.1.0/24
+#       - namespaceSelector:
+#           matchLabels:
+#             project: myproject
+#       - podSelector:
+#           matchLabels:
+#             role: frontend
+#       ports:
+#       - protocol: TCP
+#         port: 6379
+#     egress:
+#     - to:
+#       - ipBlock:
+#           cidr: 10.0.0.0/24
+#       ports:
+#       - protocol: TCP
+#         port: 5978
+
+
+# -- Extra manifests to deploy as part of this chart.
+# Useful for resources not covered by dedicated templates (e.g., x-k8s.io experimental resources).
+extraDeploy: []
+# extraDeploy:
+# - apiVersion: gateway.networking.x-k8s.io/v1alpha1
+#   kind: XMesh
+#   metadata:
+#     name: my-mesh
+#   spec: {}
+# - apiVersion: v1
+#   kind: ConfigMap
+#   metadata:
+#     name: extra-config
+#   data:
+#     key: value
