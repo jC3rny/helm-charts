@@ -10,6 +10,7 @@
 {{- $shortName := $filename | trimPrefix "gateway.networking.k8s.io_" | trimPrefix "gateway.networking.x-k8s.io_" | trimSuffix ".yaml" }}
 {{- if not (and $expEnabled (has $shortName $expList)) }}
 {{- $crd := $.Files.Get $path | fromYaml }}
+{{- if eq $crd.kind "CustomResourceDefinition" }}
 ---
 apiVersion: {{ $crd.apiVersion }}
 kind: {{ $crd.kind }}
@@ -29,6 +30,7 @@ metadata:
     {{- end }}
 spec:
   {{- toYaml $crd.spec | nindent 2 }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{/*
@@ -40,6 +42,7 @@ spec:
 {{- $shortName := $filename | trimPrefix "gateway.networking.k8s.io_" | trimPrefix "gateway.networking.x-k8s.io_" | trimSuffix ".yaml" }}
 {{- if has $shortName $expList }}
 {{- $crd := $.Files.Get $path | fromYaml }}
+{{- if eq $crd.kind "CustomResourceDefinition" }}
 ---
 apiVersion: {{ $crd.apiVersion }}
 kind: {{ $crd.kind }}
@@ -59,6 +62,7 @@ metadata:
     {{- end }}
 spec:
   {{- toYaml $crd.spec | nindent 2 }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -69,6 +73,7 @@ spec:
 {{- if .Values.envoyGateway.crds.enabled -}}
 {{- range $path, $_ := .Files.Glob "crds/envoyproxy/**.yaml" }}
 {{- $crd := $.Files.Get $path | fromYaml }}
+{{- if eq $crd.kind "CustomResourceDefinition" }}
 ---
 apiVersion: {{ $crd.apiVersion }}
 kind: {{ $crd.kind }}
@@ -88,5 +93,6 @@ metadata:
     {{- end }}
 spec:
   {{- toYaml $crd.spec | nindent 2 }}
+{{- end }}
 {{- end }}
 {{- end }}

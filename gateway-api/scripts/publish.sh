@@ -15,9 +15,8 @@ fi
 # Login
 helm registry login registry-1.docker.io -u jc3rny --password-stdin < "$PASSWORD_FILE"
 
-# Package
-CHART_VERSION="$(yq '.version + "+" + .appVersion' "$CHART_DIR/Chart.yaml")"
-CHART_PKG="$(helm package "$CHART_DIR" --version "$CHART_VERSION" --destination "$CHART_DIR/tmp" | awk '{print $NF}')"
+# Package (version comes straight from Chart.yaml's `version` field)
+CHART_PKG="$(helm package "$CHART_DIR" --destination "$CHART_DIR/tmp" | awk '{print $NF}')"
 
 echo "Packaged: $CHART_PKG"
 
