@@ -21,7 +21,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The number of certificates in the ready state.",
       "fieldConfig": {
         "defaults": {
@@ -101,7 +101,7 @@
       "type": "stat"
     },
     {
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -175,7 +175,7 @@
       "type": "stat"
     },
     {
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "Status of the certificates. Values are True, False or Unknown.",
       "fieldConfig": {
         "defaults": {
@@ -323,7 +323,7 @@
               "namespace 1": 2
             },
             "renameByName": {
-	      "Time 1": "",
+              "Time 1": "",
               "Value #B": "Valid Until",
               "condition": "Ready Status",
               "exported_namespace": "Certificate Namespace",
@@ -345,7 +345,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The rate of controller sync requests.",
       "fieldConfig": {
         "defaults": {
@@ -444,7 +444,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "Rate of requests to ACME provider.",
       "fieldConfig": {
         "defaults": {
@@ -545,7 +545,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "Average duration of requests to ACME provider. ",
       "fieldConfig": {
         "defaults": {
@@ -648,7 +648,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "CPU Usage and limits, as percent of a vCPU core. ",
       "fieldConfig": {
         "defaults": {
@@ -787,7 +787,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "Percent of the time that the CPU is being throttled. Higher is badderer. ",
       "fieldConfig": {
         "defaults": {
@@ -898,7 +898,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "Memory utilisation and limits.",
       "fieldConfig": {
         "defaults": {
@@ -1035,7 +1035,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "Network ingress/egress.",
       "fieldConfig": {
         "defaults": {
@@ -1159,16 +1159,16 @@
       {
         "current": {
           "selected": false,
-          "text": "prometheus",
-          "value": "prometheus"
+          "text": "default",
+          "value": "default"
         },
         "description": null,
         "error": null,
         "hide": 0,
         "includeAll": false,
-        "label": "Data Source",
+        "label": "Datasource",
         "multi": false,
-        "name": "datasource",
+        "name": "DS_PROMETHEUS",
         "options": [],
         "query": "prometheus",
         "queryValue": "",

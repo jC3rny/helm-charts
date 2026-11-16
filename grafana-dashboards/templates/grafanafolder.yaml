@@ -1,0 +1,31 @@
+{{- if (index .Values "grafana-operator").enabled }}
+{{- $context := . }}
+{{- $op := index $context.Values "grafana-operator" }}
+{{- $folders := dict }}
+{{- range $category, $cfg := $context.Values.category }}
+  {{- if $cfg.enabled }}
+    {{- $folder := coalesce $cfg.folder $op.folder.default }}
+    {{- if $folder }}
+      {{- $_ := set $folders $folder true }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- range $folderTitle, $_ := $folders }}
+{{- $folderSlug := include "gfdsh.folderSlug" $folderTitle }}
+---
+
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  {{- with $op.folder.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: {{ $folderSlug }}
+  namespace: {{ include "gfdsh.namespace" $context }}
+spec:
+  instanceSelector:
+    {{- $op.instanceSelector | toYaml | nindent 4 }}
+  title: {{ $folderTitle }}
+{{- end }}
+{{- end }}

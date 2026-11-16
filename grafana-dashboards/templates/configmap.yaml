@@ -1,4 +1,4 @@
-
+{{- if not (index .Values "grafana-operator").enabled }}
 {{ $context := . }}
 {{- range $path, $_ :=  $context.Files.Glob  "files/**.json" }}
 {{- $category := $path | trimPrefix "files/" | dir }}
@@ -23,5 +23,6 @@ metadata:
 data:
   {{ printf "%s%s" (include "gfdsh.name" $tplContext | trimPrefix $context.Values.trimPrefix | trimPrefix "-") ($path | ext) }}: |-
   {{- $context.Files.Get $path | nindent 4 }}
+{{- end }}
 {{- end }}
 {{- end }}

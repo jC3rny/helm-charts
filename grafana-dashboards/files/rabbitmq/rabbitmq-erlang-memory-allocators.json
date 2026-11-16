@@ -244,7 +244,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Total Size of Allocated Blocks\n\nMemory that is actively used by Erlang data.\n\nThe smallest unit of memory that an allocator can work with is called a `block`. When you call an allocator to allocate a certain amount of memory what you get back is a block. It is also blocks that you give as an argument to the allocator when you want to deallocate memory.\n\nThe allocator does not allocate blocks from the operating system directly though. Instead the allocator allocates a carrier from the operating system, either through `sys_alloc` or through `mseg_alloc`, which in turn uses `malloc` or `mmap`. If `sys_alloc` is used the carrier is placed on the C-heap and if `mseg_alloc` is used the carrier is placed in a segment.\n\nSmall blocks are placed in a multiblock carrier. A multiblock carrier can as the name suggests contain many blocks. Larger blocks are placed in a singleblock carrier, which as the name implies on contains one block.\n\nWhat’s considered a small and a large block is determined by the parameter singleblock carrier threshold (`sbct`).\n\n* [erts_alloc](http://erlang.org/doc/man/erts_alloc.html)\n* [The Memory Subsystem](https://github.com/happi/theBeamBook/blob/master/chapters/memory.asciidoc)",
+      "description": "Total Size of Allocated Blocks\n\nMemory that is actively used by Erlang data.\n\nThe smallest unit of memory that an allocator can work with is called a `block`. When you call an allocator to allocate a certain amount of memory what you get back is a block. It is also blocks that you give as an argument to the allocator when you want to deallocate memory.\n\nThe allocator does not allocate blocks from the operating system directly though. Instead the allocator allocates a carrier from the operating system, either through `sys_alloc` or through `mseg_alloc`, which in turn uses `malloc` or `mmap`. If `sys_alloc` is used the carrier is placed on the C-heap and if `mseg_alloc` is used the carrier is placed in a segment.\n\nSmall blocks are placed in a multiblock carrier. A multiblock carrier can as the name suggests contain many blocks. Larger blocks are placed in a singleblock carrier, which as the name implies on contains one block.\n\nWhat\u2019s considered a small and a large block is determined by the parameter singleblock carrier threshold (`sbct`).\n\n* [erts_alloc](http://erlang.org/doc/man/erts_alloc.html)\n* [The Memory Subsystem](https://github.com/happi/theBeamBook/blob/master/chapters/memory.asciidoc)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2390,7 +2390,7 @@
         "datasource": "PBFA97CFB590B2093",
         "hide": 2,
         "includeAll": false,
-        "label": "datasource",
+        "label": "Datasource",
         "multi": false,
         "name": "DS_PROMETHEUS",
         "options": [],

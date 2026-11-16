@@ -1383,8 +1383,8 @@
       {
         "current": {
           "selected": false,
-          "text": "Prometheus",
-          "value": "9qU3iHcnz"
+          "text": "default",
+          "value": "default"
         },
         "hide": 0,
         "includeAll": false,

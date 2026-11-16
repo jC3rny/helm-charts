@@ -77,7 +77,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "h": 1,
@@ -91,7 +91,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A"
         }
@@ -102,7 +102,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "up",
       "fieldConfig": {
@@ -181,7 +181,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "up{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -197,7 +197,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_Runtime_Uptime",
       "fieldConfig": {
@@ -262,7 +262,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_runtime_uptime{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"} / 1000",
           "format": "time_series",
@@ -277,7 +277,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_Runtime_StartTime",
       "fieldConfig": {
@@ -348,7 +348,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_runtime_starttime{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -363,7 +363,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_OperatingSystem_OpenFileDescriptorCount",
       "fieldConfig": {
@@ -428,7 +428,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_operatingsystem_openfiledescriptorcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -443,7 +443,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_OperatingSystem_SystemCpuLoad",
       "fieldConfig": {
@@ -507,7 +507,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "avg_over_time(java_lang_operatingsystem_systemcpuload{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m]) * 100",
           "format": "time_series",
@@ -522,7 +522,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_OperatingSystem_ProcessCpuLoad",
       "fieldConfig": {
@@ -586,7 +586,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "avg_over_time(java_lang_operatingsystem_processcpuload{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m]) * 100",
           "format": "time_series",
@@ -600,7 +600,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_OperatingSystem_SystemLoadAverage",
       "fieldConfig": {
@@ -665,7 +665,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_operatingsystem_systemloadaverage{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -680,7 +680,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_OperatingSystem_AvailableProcessors",
       "fieldConfig": {
@@ -744,7 +744,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_operatingsystem_availableprocessors{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -760,7 +760,7 @@
       "collapsed": true,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "h": 1,
@@ -777,7 +777,7 @@
           "dashes": false,
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "description": "java_lang_GarbageCollector_CollectionCount",
           "fill": 1,
@@ -821,7 +821,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "${DS_PROMETHEUS}"
               },
               "expr": "increase(java_lang_garbagecollector_collectioncount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m])",
               "format": "time_series",
@@ -868,7 +868,7 @@
           "dashes": false,
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "description": "java_lang_GarbageCollector_CollectionTime",
           "fill": 1,
@@ -911,7 +911,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "${DS_PROMETHEUS}"
               },
               "expr": "rate(java_lang_garbagecollector_collectiontime{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m])",
               "format": "time_series",
@@ -955,7 +955,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A"
         }
@@ -967,7 +967,7 @@
       "collapsed": true,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "h": 1,
@@ -984,7 +984,7 @@
           "dashes": false,
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "description": "java_lang_MemoryPool_Usage_used",
           "fill": 1,
@@ -1027,7 +1027,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "${DS_PROMETHEUS}"
               },
               "expr": "java_lang_memorypool_usage_used{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
               "format": "time_series",
@@ -1073,7 +1073,7 @@
           "dashes": false,
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "description": "java_lang_MemoryPool_Usage_committed",
           "fill": 1,
@@ -1116,7 +1116,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "${DS_PROMETHEUS}"
               },
               "expr": "java_lang_memorypool_usage_committed{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
               "format": "time_series",
@@ -1160,7 +1160,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A"
         }
@@ -1172,7 +1172,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "h": 1,
@@ -1186,7 +1186,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A"
         }
@@ -1201,7 +1201,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_Memory_HeapMemoryUsage_used /  java_lang_Memory_NonHeapMemoryUsage_used",
       "fill": 1,
@@ -1244,7 +1244,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_memory_heapmemoryusage_used{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1255,7 +1255,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_memory_nonheapmemoryusage_used{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1301,7 +1301,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_Memory_HeapMemoryUsage_committed /  java_lang_Memory_NonHeapMemoryUsage_committed",
       "fill": 1,
@@ -1344,7 +1344,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_memory_heapmemoryusage_committed{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1355,7 +1355,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_memory_nonheapmemoryusage_committed{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1398,7 +1398,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "h": 1,
@@ -1412,7 +1412,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A"
         }
@@ -1427,7 +1427,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_Threading_ThreadCount",
       "fill": 1,
@@ -1470,7 +1470,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_threading_threadcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1482,7 +1482,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_threading_daemonthreadcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1525,7 +1525,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "h": 1,
@@ -1539,7 +1539,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A"
         }
@@ -1554,7 +1554,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "java_lang_ClassLoading_LoadedClassCount / java_lang_ClassLoading_UnloadedClassCount",
       "fill": 1,
@@ -1597,7 +1597,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_classloading_loadedclasscount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1608,7 +1608,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "java_lang_classloading_unloadedclasscount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1651,7 +1651,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "h": 1,
@@ -1665,7 +1665,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A"
         }
@@ -1680,7 +1680,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_GlobalRequestProcessor_bytesReceived /  Catalina_GlobalRequestProcessor_bytesSent",
       "fill": 1,
@@ -1728,7 +1728,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "increase(catalina_globalrequestprocessor_bytesreceived{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -1739,7 +1739,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "increase(catalina_globalrequestprocessor_bytessent{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -1785,7 +1785,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_GlobalRequestProcessor_requestCount  /   Catalina_GlobalRequestProcessor_errorCount",
       "fill": 1,
@@ -1833,7 +1833,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "increase(catalina_globalrequestprocessor_requestcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -1844,7 +1844,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "increase(catalina_globalrequestprocessor_errorcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -1890,7 +1890,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_GlobalRequestProcessor_processingTime",
       "fill": 1,
@@ -1933,7 +1933,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "increase(catalina_globalrequestprocessor_processingtime{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m]) / increase(catalina_globalrequestprocessor_requestcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -1979,7 +1979,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_readPool_connectionCount /  Catalina_ThreadPool_currentThreadsBusy  /  Catalina_ThreadPool_connectionCount   /   Catalina_ThreadPool_keepAliveCount",
       "fill": 1,
@@ -2022,7 +2022,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "catalina_threadpool_currentthreadcount{job=\"jmx-exporter\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2033,7 +2033,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "catalina_threadpool_currentthreadsbusy{job=\"jmx-exporter\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2044,7 +2044,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "catalina_threadpool_connectioncount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2055,7 +2055,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "catalina_threadpool_keepalivecount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2101,7 +2101,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_ThreadPool_maxThreads",
       "fill": 1,
@@ -2143,7 +2143,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "catalina_threadpool_maxthreads{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2190,7 +2190,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_ThreadPool_minSpareThreads",
       "fill": 1,
@@ -2232,7 +2232,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "catalina_threadpool_minsparethreads{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2279,7 +2279,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_ThreadPool_acceptCount",
       "fill": 1,
@@ -2322,7 +2322,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "catalina_threadpool_acceptcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2369,7 +2369,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_ThreadPool_pollerThreadCount",
       "fill": 1,
@@ -2412,7 +2412,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "catalina_threadpool_pollerthreadcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2458,7 +2458,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_Servlet_requestCount",
       "fill": 1,
@@ -2501,7 +2501,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "topk(5, increase(catalina_servlet_requestcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m]))",
           "format": "time_series",
@@ -2548,7 +2548,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_Servlet_errorCount",
       "fill": 1,
@@ -2591,7 +2591,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "topk(5, increase(catalina_servlet_errorcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m]))",
           "format": "time_series",
@@ -2638,7 +2638,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_Servlet_processingTime  /  Catalina_Servlet_requestCount",
       "fill": 1,
@@ -2681,7 +2681,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "topk(5, increase(catalina_servlet_processingtime{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m]) / increase(catalina_servlet_requestcount{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m]))",
           "format": "time_series",
@@ -2728,7 +2728,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Catalina_Manager_expiredSessions  /   Catalina_Manager_rejectedSessions",
       "fill": 1,
@@ -2771,7 +2771,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "sum(increase(catalina_manager_expiredsessions{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m])) by (instance)",
           "format": "time_series",
@@ -2782,7 +2782,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "expr": "sum(increase(catalina_manager_rejectedsessions{job=\"jmx-exporter\", pod=\"$pod\", instance=\"$instance\"}[1m])) by (instance)",
           "format": "time_series",
@@ -2837,26 +2837,27 @@
       {
         "current": {
           "selected": false,
-          "text": "Prometheus",
-          "value": "Prometheus"
+          "text": "default",
+          "value": "default"
         },
         "hide": 0,
         "includeAll": false,
         "multi": false,
-        "name": "datasource",
+        "name": "DS_PROMETHEUS",
         "options": [],
         "query": "prometheus",
         "queryValue": "",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
-        "type": "datasource"
+        "type": "datasource",
+        "label": "Datasource"
       },
       {
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${datasource}"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(up{job=\"jmx-exporter\"}, namespace)",
         "hide": 0,
@@ -2878,7 +2879,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${datasource}"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(up{job=\"jmx-exporter\",namespace=\"$namespace\"}, pod)",
         "hide": 0,
@@ -2903,7 +2904,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${datasource}"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(up{job=\"jmx-exporter\", pod=\"$pod\"}, instance)",
         "hide": 0,

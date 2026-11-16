@@ -32,6 +32,13 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
+Sanitize a folder title into a DNS-safe slug (used as GrafanaFolder CR name segment).
+*/}}
+{{- define "gfdsh.folderSlug" -}}
+{{- . | trimPrefix "_" | lower | replace " " "-" | replace "_" "-" }}
+{{- end }}
+
+{{/*
 Selector labels
 */}}
 {{- define "gfdsh.selectorLabels" -}}

@@ -1429,13 +1429,13 @@
     "list": [
       {
         "current": {
-          "selected": true,
-          "text": "Loki",
-          "value": "Loki"
+          "selected": false,
+          "text": "default",
+          "value": "default"
         },
         "hide": 0,
         "includeAll": false,
-        "label": "Datasource",
+        "label": "Loki datasource",
         "multi": false,
         "name": "DS_LOKI",
         "options": [],
