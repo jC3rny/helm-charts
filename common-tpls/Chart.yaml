@@ -2,6 +2,9 @@ apiVersion: v2
 name: common-tpls
 description: A library Helm chart for common usage
 
+sources:
+  - https://github.com/jC3rny/helm-charts
+
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives

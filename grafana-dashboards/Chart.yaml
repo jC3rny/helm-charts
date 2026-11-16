@@ -2,6 +2,9 @@ apiVersion: v2
 name: grafana-dashboards
 description: A Helm chart for Kubernetes
 
+sources:
+  - https://github.com/jC3rny/helm-charts
+
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives

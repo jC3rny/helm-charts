@@ -2,6 +2,9 @@ apiVersion: v2
 name: kube-rbac
 description: A Helm chart for Role-based access control (RBAC) management
 
+sources:
+  - https://github.com/jC3rny/helm-charts
+
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
