@@ -1,0 +1,1273 @@
+
+agent:
+  fullnameOverride: grafana-alloy
+
+  # configMap holds environment-specific values injected into the Alloy config via Helm templating.
+  # Nested under alloy: so it is accessible as .Values.configMap inside the sub-chart's tpl scope.
+  # Override these in your env-specific values file (e.g. values-<env>.yaml).
+  configMap:
+    cluster:
+      # Kubernetes cluster identifier — added as an external label on all metrics, logs and traces.
+      name: ""
+      # Cluster region / location — added as an external label on all metrics, logs and traces.
+      location: ""
+      # Managed Kubernetes (AKS, EKS, GKE): the control plane is hidden and kube-proxy
+      # metrics are not reachable on the node IPs, so the kube-proxy, kube-scheduler,
+      # kube-controller-manager and etcd scrapes are skipped. The apiserver scrape stays on.
+      # Set to false on self-managed clusters (e.g. k3s) to scrape them.
+      managed: true
+    loki:
+      # Loki push endpoint. Typically the loki-gateway service in the loki namespace.
+      url: ""
+    mimir:
+      # Mimir remote_write endpoint (Prometheus format). Typically the mimir-nginx service in the mimir namespace.
+      url: ""
+      # Mimir OTLP ingest endpoint. Used to forward OTLP metrics directly without Prometheus conversion.
+      otlp_endpoint: ""
+      # Mimir ruler config API base URL (via mimir-gateway). Consumed by mimir.rules.kubernetes
+      # to sync PrometheusRule CRDs (recording + alerting rules) into the Mimir ruler.
+      ruler_address: ""
+      # Namespaces whose PrometheusRules are excluded from the Mimir ruler sync. A single
+      # rule group with invalid PromQL aborts the whole conversion, so quarantine offenders
+      # here (e.g. cloudnative-pg's CNPGCluster* rules). Empty = sync all namespaces.
+      excludeRuleNamespaces: []
+      # Mimir Alertmanager endpoint. Consumed by mimir.alerts.kubernetes to sync AlertmanagerConfig
+      # CRDs into the Mimir Alertmanager. Typically the mimir-gateway service (routes /api/v1/alerts etc.).
+      alertmanager_url: ""
+      # Base ("global") Alertmanager configuration that discovered AlertmanagerConfig CRDs are merged
+      # into. Required by mimir.alerts.kubernetes. Each CRD is added as a child route under this config.
+      # Override per-env to set real receivers (Slack, email, PagerDuty, …). Default is a null sink.
+      alertmanager_config: |
+        route:
+          receiver: "null"
+        receivers:
+          - name: "null"
+    tempo:
+      # Tempo OTLP gRPC endpoint (host:port). Typically tempo-distributor in the tempo namespace.
+      endpoint: ""
+    pyroscope:
+      # Pyroscope push endpoint. Typically the pyroscope service in the grafana-pyroscope namespace.
+      url: ""
+      # Namespace Pyroscope runs in. Its headless Service is dropped from ServiceMonitor
+      # discovery so the pod is not scraped twice (see prometheus.operator.servicemonitors).
+      # Empty = the release namespace (where Alloy is installed).
+      namespace: ""
+      # Container names to exclude from pprof scraping. Add any container that has no /debug/pprof
+      # endpoint (nginx proxies, Python sidecars, etc.). Joined with | to form a regex.
+      # Override in env-specific values file.
+      dropContainers: []
+      # Port names to exclude from pprof scraping. gRPC, memberlist and webhook ports have no pprof
+      # endpoint. Regex patterns are allowed (e.g. webhook.*). Joined with | to form a regex.
+      # Override in env-specific values file.
+      dropPortNames: []
+
+    # kubelet + cAdvisor scrape settings — consumed by the kubelet/cadvisor
+    # prometheus.scrape blocks in alloy.configMap.content below.
+    kubelet:
+      # Kubelet HTTPS metrics port on each node (built as nodeInternalIP:port). k3s default: 10250.
+      port: 10250
+      # job label for ALL kubelet endpoints (/metrics, /metrics/cadvisor, /metrics/probes).
+      # kube-prometheus-stack uses a single job=kubelet, distinguished by the metrics_path label.
+      job: kubelet
+
+    # Control-plane components — embedded in the k3s server process and exposed
+    # on the node IPs (requires k3s bind-address=0.0.0.0 args + --etcd-expose-metrics,
+    # and ports 10249/10257/10259/2381 reachable from the Alloy pods). Scheduler,
+    # controller-manager and etcd run on control-plane nodes only. Everything except
+    # apiserver is scraped only when cluster.managed is false.
+    controlPlane:
+      apiserver:
+        job: apiserver
+      kubeProxy:
+        port: 10249
+        job: kube-proxy
+      kubeScheduler:
+        port: 10259
+        job: kube-scheduler
+      kubeControllerManager:
+        port: 10257
+        job: kube-controller-manager
+      etcd:
+        port: 2381
+        job: etcd
+
+    # CoreDNS pods (kube-system, label k8s-app=kube-dns) expose metrics on this port.
+    coredns:
+      port: 9153
+      job: coredns
+
+  alloy:
+    extraPorts:
+      - name: otlp-grpc
+        port: 4317
+        targetPort: 4317
+        protocol: TCP
+      - name: otlp-http
+        port: 4318
+        targetPort: 4318
+        protocol: TCP
+      - name: jaeger-compact
+        port: 6831
+        targetPort: 6831
+        protocol: UDP
+      - name: jaeger-http
+        port: 14268
+        targetPort: 14268
+        protocol: TCP
+
+    enableReporting: false
+
+    # mimir.alerts.kubernetes is an experimental component, so the minimum stability level must be
+    # lowered to "experimental". This still permits all generally-available and public-preview components.
+    stabilityLevel: experimental
+
+    clustering:
+      enabled: true
+
+    podAnnotations:
+      profiles.grafana.com/cpu.scrape: "true"
+      profiles.grafana.com/memory.scrape: "true"
+      profiles.grafana.com/goroutine.scrape: "true"
+
+    # Node-local path — survives pod restarts so WAL is replayed after upgrades/crashes.
+    storagePath: /var/lib/grafana-alloy
+
+    mounts:
+      varlog: true
+      dockercontainers: false
+
+    configMap:
+      content: |
+        // ============================================================
+        // Kubernetes pod discovery — all pods on this node
+        // ============================================================
+
+        discovery.kubernetes "pods" {
+          role = "pod"
+          selectors {
+            role  = "pod"
+            field = "spec.nodeName=" + sys.env("HOSTNAME")
+          }
+        }
+
+        // ============================================================
+        // Common relabeling for kubernetes-pods job
+        // ============================================================
+
+        discovery.relabel "pods" {
+          targets = discovery.kubernetes.pods.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_controller_name"]
+            regex         = "([0-9a-z-.]+?)(-[0-9a-f]{8,10})?"
+            action        = "replace"
+            target_label  = "__tmp_controller_name"
+          }
+
+          rule {
+            source_labels = [
+              "__meta_kubernetes_pod_label_app_kubernetes_io_name",
+              "__meta_kubernetes_pod_label_app",
+              "__tmp_controller_name",
+              "__meta_kubernetes_pod_name",
+            ]
+            regex        = "^;*([^;]+)(;.*)?$"
+            action       = "replace"
+            target_label = "app"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_instance", "__meta_kubernetes_pod_label_instance"]
+            regex        = "^;*([^;]+)(;.*)?$"
+            action       = "replace"
+            target_label = "instance"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_component", "__meta_kubernetes_pod_label_component"]
+            regex        = "^;*([^;]+)(;.*)?$"
+            action       = "replace"
+            target_label = "component"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_node_name"]
+            action        = "replace"
+            target_label  = "node_name"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_namespace"]
+            action        = "replace"
+            target_label  = "namespace"
+          }
+
+          rule {
+            source_labels = ["namespace", "app"]
+            separator     = "/"
+            action        = "replace"
+            target_label  = "job"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_name"]
+            action        = "replace"
+            target_label  = "pod"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_container_name"]
+            action        = "replace"
+            target_label  = "container"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+            separator     = "/"
+            action        = "replace"
+            replacement   = "/var/log/pods/*$1/*.log"
+            target_label  = "__path__"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_container_id"]
+            action        = "replace"
+            regex         = "^(\\w+)://.+$"
+            replacement   = "$1"
+            target_label  = "tmp_container_runtime"
+          }
+        }
+
+        // ============================================================
+        // Loki write endpoint
+        // ============================================================
+
+        loki.write "default" {
+          endpoint {
+            url = "{{ .Values.configMap.loki.url }}"
+          }
+          external_labels = {
+            kubernetes_cluster = "{{ .Values.configMap.cluster.name }}",
+            location           = "{{ .Values.configMap.cluster.location }}",
+          }
+        }
+
+        // ============================================================
+        // Log processing
+        // ============================================================
+
+        loki.process "pods" {
+          stage.match {
+            selector = "{tmp_container_runtime=\"containerd\"}"
+            stage.cri { }
+          }
+
+          stage.json {
+            expressions = {
+              trace_id     = "",
+              span_id      = "",
+              log_level    = "",
+              category     = "",
+              message      = "",
+              service_name = "",
+              exception    = "",
+              error_hash   = "",
+            }
+          }
+
+          stage.labels {
+            values = {
+              service_name = "",
+            }
+          }
+
+          stage.structured_metadata {
+            values = {
+              trace_id   = "",
+              span_id    = "",
+              log_level  = "",
+              category   = "",
+              message    = "",
+              exception  = "",
+              error_hash = "",
+            }
+          }
+
+          stage.label_drop {
+            values = ["tmp_container_runtime"]
+          }
+
+          forward_to = [loki.write.default.receiver]
+        }
+
+        // ============================================================
+        // Pod log collection
+        // ============================================================
+
+        local.file_match "pods" {
+          path_targets = discovery.relabel.pods.output
+        }
+
+        loki.source.file "pods" {
+          targets       = local.file_match.pods.targets
+          forward_to    = [loki.process.pods.receiver]
+          tail_from_end = true
+        }
+
+        // ============================================================
+        // Node journal logs
+        // ============================================================
+
+        discovery.relabel "journal" {
+          targets = []
+
+          rule {
+            source_labels = ["__journal__systemd_unit"]
+            target_label  = "unit"
+          }
+
+          rule {
+            source_labels = ["__journal__hostname"]
+            target_label  = "node_name"
+          }
+
+          rule {
+            source_labels = ["__journal__transport"]
+            target_label  = "transport"
+          }
+
+          rule {
+            action       = "replace"
+            replacement  = "node/journal"
+            target_label = "job"
+          }
+        }
+
+        loki.source.journal "node" {
+          path          = "/var/log/journal"
+          relabel_rules = discovery.relabel.journal.rules
+          forward_to    = [loki.write.default.receiver]
+        }
+
+        // ============================================================
+        // Metrics: ServiceMonitor + PodMonitor + Probe discovery
+        // ============================================================
+
+        prometheus.operator.servicemonitors "default" {
+          forward_to = [prometheus.remote_write.mimir.receiver]
+          clustering {
+            enabled = true
+          }
+
+          // The pyroscope chart (2.0.2) marks its headless Service with
+          // prometheus.io/service-monitor: "false" as an ANNOTATION, while its own
+          // ServiceMonitor excludes on that key as a LABEL, so both Services match and
+          // the one pod is scraped twice (jobs pyroscope and pyroscope-headless, every
+          // series duplicated). Drop the headless endpoint here.
+          rule {
+            source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_service_name"]
+            separator     = ";"
+            regex         = "{{ .Values.configMap.pyroscope.namespace | default .Release.Namespace }};pyroscope-headless"
+            action        = "drop"
+          }
+        }
+
+        prometheus.operator.podmonitors "default" {
+          forward_to = [prometheus.remote_write.mimir.receiver]
+          clustering {
+            enabled = true
+          }
+        }
+
+        // Probe CRDs (e.g. blackbox-exporter targets). Scrapes nothing when no Probes exist.
+        prometheus.operator.probes "default" {
+          forward_to = [prometheus.remote_write.mimir.receiver]
+          clustering {
+            enabled = true
+          }
+        }
+
+        // ============================================================
+        // Metrics: kubelet + cAdvisor (container_* / kubelet_* metrics)
+        //   Not provided by ServiceMonitors — scraped directly from each
+        //   node's kubelet on :10250. RBAC (nodes, nodes/metrics,
+        //   nonResourceURLs /metrics) comes from the chart's default
+        //   rbac.clusterRules; cluster/location labels are added downstream
+        //   by prometheus.remote_write.mimir. Targets are sharded across the
+        //   Alloy DaemonSet via clustering.
+        // ============================================================
+
+        discovery.kubernetes "nodes" {
+          role = "node"
+        }
+
+        // kubelet /metrics
+        discovery.relabel "kubelet" {
+          targets = discovery.kubernetes.nodes.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            regex         = "(.+)"
+            replacement   = "$1:{{ .Values.configMap.kubelet.port }}"
+            target_label  = "__address__"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            action        = "replace"
+            target_label  = "node"
+          }
+          // KPS stamps metrics_path so rules/dashboards can distinguish the kubelet endpoints.
+          //
+          // Set as a literal, unlike the cadvisor and probes blocks below which copy it
+          // from __metrics_path__. Those two set __metrics_path__ first because they have
+          // to change the path they scrape; this one uses prometheus.scrape's default, and
+          // discovery.kubernetes(role=node) does not set the meta-label. The default is
+          // applied AFTER relabeling, so copying it here reads an empty value and the
+          // label is dropped entirely.
+          //
+          // That is not cosmetic. kube-prometheus-stack's KubeletDown rule is
+          // `absent(up{job="kubelet", metrics_path="/metrics"} == 1)`, so a missing label
+          // means the selector matches nothing, absent() returns 1, and KubeletDown fires
+          // permanently with every kubelet healthy.
+          rule {
+            action       = "replace"
+            target_label = "metrics_path"
+            replacement  = "/metrics"
+          }
+        }
+
+        prometheus.scrape "kubelet" {
+          targets           = discovery.relabel.kubelet.output
+          forward_to        = [prometheus.relabel.kubelet_drop_control_plane.receiver]
+          job_name          = "{{ .Values.configMap.kubelet.job }}"
+          // Preserve the target's own namespace/pod/container labels instead of
+          // letting Alloy's pod labels (namespace=monitoring) clobber them.
+          honor_labels      = true
+          scheme            = "https"
+          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          tls_config {
+            ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            insecure_skip_verify = true
+          }
+          clustering {
+            enabled = true
+          }
+        }
+
+        // k3s runs the apiserver (and its embedded etcd client) inside the same process
+        // as the kubelet, so kubelet /metrics on server nodes also exposes every
+        // apiserver_*/etcd_* family. Those are already scraped once as job=apiserver;
+        // under job=kubelet they are an exact duplicate (apiserver_request_duration_seconds_bucket
+        // alone is a large share), enough to push a Mimir tenant into
+        // max_global_series_per_user and reject new series cluster-wide. Nothing reads
+        // them under job=kubelet. Only this scrape is affected: cAdvisor and probes have
+        // their own scrape blocks.
+        prometheus.relabel "kubelet_drop_control_plane" {
+          forward_to = [prometheus.remote_write.mimir.receiver]
+
+          rule {
+            source_labels = ["__name__"]
+            regex         = "apiserver_.*|etcd_.*|apiextensions_.*|aggregator_.*|authentication_.*|authenticated_.*|authorization_.*|admission_.*|watch_cache_.*|kube_apiserver_.*|field_validation_.*"
+            action        = "drop"
+          }
+          // kubernetes_feature_enabled is one static series per feature gate per node,
+          // and the embedded scheduler's per-plugin latency histogram only exists on the
+          // k3s servers. Neither is read by a rule or dashboard.
+          rule {
+            source_labels = ["__name__"]
+            regex         = "kubernetes_feature_enabled|scheduler_plugin_execution_duration_seconds_bucket"
+            action        = "drop"
+          }
+          // kube-prometheus-stack's kubelet metricRelabelings: intermediate buckets of the
+          // volume operation histograms, read by nothing here.
+          rule {
+            source_labels = ["__name__", "le"]
+            separator     = ";"
+            regex         = "(csi_operations|storage_operation_duration)_seconds_bucket;(0\\.25|2\\.5|15|25|120|600)(\\.0)?"
+            action        = "drop"
+          }
+        }
+
+        // cAdvisor /metrics/cadvisor — per-container resource usage (container_*)
+        discovery.relabel "cadvisor" {
+          targets = discovery.kubernetes.nodes.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            regex         = "(.+)"
+            replacement   = "$1:{{ .Values.configMap.kubelet.port }}"
+            target_label  = "__address__"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            action        = "replace"
+            target_label  = "node"
+          }
+          rule {
+            action       = "replace"
+            target_label = "__metrics_path__"
+            replacement  = "/metrics/cadvisor"
+          }
+          // Expose the path as a label so container_* carries metrics_path="/metrics/cadvisor".
+          rule {
+            source_labels = ["__metrics_path__"]
+            action        = "replace"
+            target_label  = "metrics_path"
+          }
+        }
+
+        prometheus.scrape "cadvisor" {
+          targets           = discovery.relabel.cadvisor.output
+          forward_to        = [prometheus.relabel.cadvisor_drop.receiver]
+          job_name          = "{{ .Values.configMap.kubelet.job }}"
+          // Preserve cAdvisor's real namespace/pod/container labels (see kubelet).
+          honor_labels      = true
+          // cAdvisor stamps its own timestamps, which by default exempts its series from
+          // staleness markers: a deleted container then stays visible for the 5m lookback
+          // and per-namespace sums double count after every rollout. Same as KPS.
+          track_timestamps_staleness = true
+          scheme            = "https"
+          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          tls_config {
+            ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            insecure_skip_verify = true
+          }
+          clustering {
+            enabled = true
+          }
+        }
+
+        // kube-prometheus-stack's cAdvisorMetricRelabelings (chart 82.2.1), which this
+        // scrape replaced without carrying over: roughly a third of all cAdvisor series.
+        // Two carve-outs from the upstream list, both read by dashboards:
+        // container_cpu_cfs_throttled_seconds_total (Views / Global, Namespaces, Pods)
+        // and container_spec_cpu_* (Application / Overview, CPU Quota). No rule reads
+        // anything dropped here except the KPS swap recording rule, empty either way.
+        prometheus.relabel "cadvisor_drop" {
+          forward_to = [prometheus.remote_write.mimir.receiver]
+
+          rule {
+            source_labels = ["__name__"]
+            regex         = "container_cpu_(load_average_10s|system_seconds_total|user_seconds_total)"
+            action        = "drop"
+          }
+          rule {
+            source_labels = ["__name__"]
+            regex         = "container_fs_(io_current|io_time_seconds_total|io_time_weighted_seconds_total|reads_merged_total|sector_reads_total|sector_writes_total|writes_merged_total)"
+            action        = "drop"
+          }
+          rule {
+            source_labels = ["__name__"]
+            regex         = "container_memory_(mapped_file|swap)"
+            action        = "drop"
+          }
+          rule {
+            source_labels = ["__name__"]
+            regex         = "container_(file_descriptors|tasks_state|threads_max)"
+            action        = "drop"
+          }
+          rule {
+            source_labels = ["__name__", "scope"]
+            separator     = ";"
+            regex         = "container_memory_failures_total;hierarchy"
+            action        = "drop"
+          }
+          rule {
+            source_labels = ["__name__", "interface"]
+            separator     = ";"
+            regex         = "container_network_.*;(cali|cilium|cni|lxc|nodelocaldns|tunl).*"
+            action        = "drop"
+          }
+          // Upstream drops container_spec.* entirely; keep the cpu ones (see above).
+          rule {
+            source_labels = ["__name__"]
+            regex         = "container_spec_memory_.*"
+            action        = "drop"
+          }
+          // Cgroup series with no pod: node and system slices, not containers.
+          rule {
+            source_labels = ["id", "pod"]
+            separator     = ";"
+            regex         = ".+;"
+            action        = "drop"
+          }
+        }
+
+        // kubelet /metrics/probes — liveness/readiness probe metrics (prober_*)
+        discovery.relabel "kubelet_probes" {
+          targets = discovery.kubernetes.nodes.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            regex         = "(.+)"
+            replacement   = "$1:{{ .Values.configMap.kubelet.port }}"
+            target_label  = "__address__"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            action        = "replace"
+            target_label  = "node"
+          }
+          rule {
+            action       = "replace"
+            target_label = "__metrics_path__"
+            replacement  = "/metrics/probes"
+          }
+          rule {
+            source_labels = ["__metrics_path__"]
+            action        = "replace"
+            target_label  = "metrics_path"
+          }
+        }
+
+        prometheus.scrape "kubelet_probes" {
+          targets           = discovery.relabel.kubelet_probes.output
+          forward_to        = [prometheus.remote_write.mimir.receiver]
+          job_name          = "{{ .Values.configMap.kubelet.job }}"
+          honor_labels      = true
+          scheme            = "https"
+          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          tls_config {
+            ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            insecure_skip_verify = true
+          }
+          clustering {
+            enabled = true
+          }
+        }
+
+        // ============================================================
+        // Metrics: kube-apiserver (default/kubernetes endpoints, :443)
+        // ============================================================
+
+        discovery.kubernetes "apiserver" {
+          role = "endpoints"
+          namespaces {
+            names = ["default"]
+          }
+        }
+
+        discovery.relabel "apiserver" {
+          targets = discovery.kubernetes.apiserver.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_service_name", "__meta_kubernetes_endpoint_port_name"]
+            separator     = ";"
+            regex         = "default;kubernetes;https"
+            action        = "keep"
+          }
+        }
+
+        prometheus.scrape "apiserver" {
+          targets           = discovery.relabel.apiserver.output
+          forward_to        = [prometheus.relabel.apiserver_drop_buckets.receiver]
+          job_name          = "{{ .Values.configMap.controlPlane.apiserver.job }}"
+          scheme            = "https"
+          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          tls_config {
+            ca_file     = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            server_name = "kubernetes.default.svc"
+          }
+          clustering {
+            enabled = true
+          }
+        }
+
+        // kube-prometheus-stack's kubeApiServer metricRelabelings (chart 82.2.1), which
+        // this scrape replaced without carrying over. Drops the intermediate buckets of
+        // the four request-latency histograms and keeps the ones the upstream SLO rules
+        // read: le 0.05, 0.1, 1, 5, 10, 30, 60, +Inf, plus 0.005 and 0.025 where the
+        // histogram has them (request and etcd, not sli). Roughly a third of all
+        // apiserver series. No rule loaded here reads the dropped buckets.
+        prometheus.relabel "apiserver_drop_buckets" {
+          forward_to = [prometheus.remote_write.mimir.receiver]
+
+          rule {
+            source_labels = ["__name__", "le"]
+            separator     = ";"
+            regex         = "(etcd_request|apiserver_request_slo|apiserver_request_sli|apiserver_request)_duration_seconds_bucket;(0\\.15|0\\.2|0\\.3|0\\.35|0\\.4|0\\.45|0\\.6|0\\.7|0\\.8|0\\.9|1\\.25|1\\.5|1\\.75|2|3|3\\.5|4|4\\.5|6|7|8|9|15|20|40|45|50)(\\.0)?"
+            action        = "drop"
+          }
+        }
+
+        {{- if not .Values.configMap.cluster.managed }}
+
+        // ============================================================
+        // Metrics: kube-proxy (all nodes, HTTP :10249)
+        // ============================================================
+
+        discovery.relabel "kube_proxy" {
+          targets = discovery.kubernetes.nodes.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            regex         = "(.+)"
+            replacement   = "$1:{{ .Values.configMap.controlPlane.kubeProxy.port }}"
+            target_label  = "__address__"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            action        = "replace"
+            target_label  = "node"
+          }
+        }
+
+        prometheus.scrape "kube_proxy" {
+          targets    = discovery.relabel.kube_proxy.output
+          forward_to = [prometheus.remote_write.mimir.receiver]
+          job_name   = "{{ .Values.configMap.controlPlane.kubeProxy.job }}"
+          clustering {
+            enabled = true
+          }
+        }
+
+        // ============================================================
+        // Metrics: kube-scheduler (control-plane nodes, HTTPS :10259)
+        // ============================================================
+
+        discovery.relabel "kube_scheduler" {
+          targets = discovery.kubernetes.nodes.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_node_label_node_role_kubernetes_io_control_plane"]
+            regex         = "true"
+            action        = "keep"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            regex         = "(.+)"
+            replacement   = "$1:{{ .Values.configMap.controlPlane.kubeScheduler.port }}"
+            target_label  = "__address__"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            action        = "replace"
+            target_label  = "node"
+          }
+        }
+
+        prometheus.scrape "kube_scheduler" {
+          targets           = discovery.relabel.kube_scheduler.output
+          forward_to        = [prometheus.remote_write.mimir.receiver]
+          job_name          = "{{ .Values.configMap.controlPlane.kubeScheduler.job }}"
+          scheme            = "https"
+          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          tls_config {
+            insecure_skip_verify = true
+          }
+          clustering {
+            enabled = true
+          }
+        }
+
+        // ============================================================
+        // Metrics: kube-controller-manager (control-plane nodes, HTTPS :10257)
+        // ============================================================
+
+        discovery.relabel "kube_controller_manager" {
+          targets = discovery.kubernetes.nodes.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_node_label_node_role_kubernetes_io_control_plane"]
+            regex         = "true"
+            action        = "keep"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            regex         = "(.+)"
+            replacement   = "$1:{{ .Values.configMap.controlPlane.kubeControllerManager.port }}"
+            target_label  = "__address__"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            action        = "replace"
+            target_label  = "node"
+          }
+        }
+
+        prometheus.scrape "kube_controller_manager" {
+          targets           = discovery.relabel.kube_controller_manager.output
+          forward_to        = [prometheus.remote_write.mimir.receiver]
+          job_name          = "{{ .Values.configMap.controlPlane.kubeControllerManager.job }}"
+          scheme            = "https"
+          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          tls_config {
+            insecure_skip_verify = true
+          }
+          clustering {
+            enabled = true
+          }
+        }
+
+        // ============================================================
+        // Metrics: etcd (control-plane nodes, HTTP :2381)
+        // ============================================================
+
+        discovery.relabel "etcd" {
+          targets = discovery.kubernetes.nodes.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_node_label_node_role_kubernetes_io_control_plane"]
+            regex         = "true"
+            action        = "keep"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            regex         = "(.+)"
+            replacement   = "$1:{{ .Values.configMap.controlPlane.etcd.port }}"
+            target_label  = "__address__"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            action        = "replace"
+            target_label  = "node"
+          }
+        }
+
+        prometheus.scrape "etcd" {
+          targets    = discovery.relabel.etcd.output
+          forward_to = [prometheus.remote_write.mimir.receiver]
+          job_name   = "{{ .Values.configMap.controlPlane.etcd.job }}"
+          clustering {
+            enabled = true
+          }
+        }
+        {{- end }}
+
+        // ============================================================
+        // Metrics: CoreDNS (kube-system pods, HTTP :9153)
+        // ============================================================
+
+        discovery.kubernetes "coredns" {
+          role = "pod"
+          namespaces {
+            names = ["kube-system"]
+          }
+        }
+
+        discovery.relabel "coredns" {
+          targets = discovery.kubernetes.coredns.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_label_k8s_app"]
+            regex         = "kube-dns"
+            action        = "keep"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_pod_ip"]
+            regex         = "(.+)"
+            replacement   = "$1:{{ .Values.configMap.coredns.port }}"
+            target_label  = "__address__"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_pod_name"]
+            action        = "replace"
+            target_label  = "pod"
+          }
+        }
+
+        prometheus.scrape "coredns" {
+          targets    = discovery.relabel.coredns.output
+          forward_to = [prometheus.remote_write.mimir.receiver]
+          job_name   = "{{ .Values.configMap.coredns.job }}"
+          clustering {
+            enabled = true
+          }
+        }
+
+        // ============================================================
+        // Metrics: forward to Mimir
+        // ============================================================
+
+        prometheus.remote_write "mimir" {
+          endpoint {
+            url = "{{ .Values.configMap.mimir.url }}"
+          }
+          external_labels = {
+            kubernetes_cluster = "{{ .Values.configMap.cluster.name }}",
+            location           = "{{ .Values.configMap.cluster.location }}",
+          }
+        }
+
+        // ============================================================
+        // Alerting: sync AlertmanagerConfig CRDs into the Mimir Alertmanager
+        // ============================================================
+
+        // ============================================================
+        // Rules: sync PrometheusRule CRDs into the Mimir ruler
+        // ============================================================
+
+        mimir.rules.kubernetes "default" {
+          // Mimir ruler config API (via mimir-gateway). Watches PrometheusRule CRDs
+          // and reconciles them into Mimir's ruler. RBAC for prometheusrules is
+          // granted by the chart's default rbac.rules.
+          address = "{{ .Values.configMap.mimir.ruler_address }}"
+          {{- with .Values.configMap.mimir.excludeRuleNamespaces }}
+
+          // Quarantine namespaces whose PrometheusRules break the sync (invalid PromQL
+          // aborts the whole conversion). Configured via configMap.mimir.excludeRuleNamespaces.
+          rule_namespace_selector {
+            match_expression {
+              key      = "kubernetes.io/metadata.name"
+              operator = "NotIn"
+              values   = {{ . | toJson }}
+            }
+          }
+          {{- end }}
+        }
+
+        mimir.alerts.kubernetes "default" {
+          // Mimir Alertmanager endpoint (mimir-gateway). Experimental component — requires
+          // alloy.stabilityLevel=experimental. Watches AlertmanagerConfig CRDs and reconciles
+          // them with Mimir's Alertmanager API every sync_interval (default 5m).
+          address = "{{ .Values.configMap.mimir.alertmanager_url }}"
+
+          // Base Alertmanager config that discovered CRDs are merged into. toJson renders the
+          // multi-line YAML as a single escaped string literal (valid River string syntax).
+          global_config = {{ .Values.configMap.mimir.alertmanager_config | toJson }}
+
+          // Match all AlertmanagerConfig resources in all namespaces (no selector blocks).
+
+          // Route on the matchers each CRD declares, over alerts from every namespace.
+          //
+          // The default strategy, "OnNamespace", appends `namespace=<the CRD's own namespace>`
+          // to every route it discovers. That is a multi-tenancy guard: it stops a team in one
+          // namespace writing a route that captures another team's alerts. It is the wrong
+          // shape here, because the AlertmanagerConfigs are platform-owned and live in one
+          // namespace (e.g. monitoring) while the alerts they route come from everywhere.
+          //
+          // Left at the default, a route like `namespace=~".*-prod"` becomes
+          // `namespace="monitoring" AND namespace=~".*-prod"`, which no alert can satisfy.
+          // It fails silently: the sync succeeds, Mimir accepts the config, and nothing is ever
+          // delivered.
+          //
+          // ⚠ With "None" there is no automatic scoping left, so the matchers in each CRD are
+          // the entire routing decision and must be mutually exclusive. Merge order between
+          // separate CRDs is not guaranteed, so two routes that can both match the same alert
+          // will deliver to whichever happens to be merged first.
+          alertmanagerconfig_matcher {
+            strategy = "None"
+          }
+        }
+
+        // Same CRDs, pushed a second time to the "fake" tenant.
+        //
+        // Mimir's Alertmanager is multi-tenant and the two rulers write to different
+        // tenants, so one config is not enough:
+        //
+        //   Alloy   sends no X-Scope-OrgID -> the gateway substitutes its no_auth_tenant,
+        //           which is "anonymous". That is where the block above lands.
+        //   Loki    runs auth_enabled=false, which hardcodes the tenant "fake", and the
+        //           gateway's `map` only fills the header in when it is EMPTY - a value
+        //           the client set is passed straight through. So Loki's ruler notifies
+        //           tenant "fake".
+        //
+        // Tenant "fake" has no config of its own, so it falls back to the chart's default
+        // fallbackConfig: a receiver named "null" that discards everything. Without this
+        // block, Loki alerts fire correctly and are silently dropped there.
+        //
+        // Both instances read the same AlertmanagerConfig CRDs, so the routes cannot drift
+        // apart. No alert exists in both tenants, so this cannot double-notify.
+        //
+        // The real fix is one tenant everywhere. Not done here because the two candidates
+        // both cost more than they are worth: `no_auth_tenant: fake` on Mimir strands the
+        // blocks already written under "anonymous", and pointing Loki at "anonymous"
+        // needs a header on the ruler's alertmanager_client that is not documented as
+        // supported. Revisit when Loki grows recording rules - its remote_write still lands
+        // in "fake" and is invisible to Grafana's mimir datasource.
+        mimir.alerts.kubernetes "loki_tenant" {
+          address       = "{{ .Values.configMap.mimir.alertmanager_url }}"
+          global_config = {{ .Values.configMap.mimir.alertmanager_config | toJson }}
+
+          http_headers = {
+            "X-Scope-OrgID" = ["fake"],
+          }
+
+          alertmanagerconfig_matcher {
+            strategy = "None"
+          }
+        }
+
+        // ============================================================
+        // Traces: OTLP receiver
+        // ============================================================
+
+        otelcol.receiver.jaeger "default" {
+          protocols {
+            thrift_compact {
+              endpoint = "0.0.0.0:6831"
+            }
+            thrift_http {
+              endpoint = "0.0.0.0:14268"
+            }
+          }
+          output {
+            traces = [otelcol.processor.k8sattributes.default.input]
+          }
+        }
+
+        otelcol.receiver.otlp "default" {
+          grpc {
+            endpoint = "0.0.0.0:4317"
+          }
+          http {
+            endpoint = "0.0.0.0:4318"
+          }
+          output {
+            metrics = [otelcol.exporter.otlphttp.mimir.input]
+            traces  = [otelcol.processor.k8sattributes.default.input]
+          }
+        }
+
+        // ============================================================
+        // Metrics: forward OTLP metrics natively to Mimir
+        // ============================================================
+
+        otelcol.exporter.otlphttp "mimir" {
+          client {
+            endpoint = "{{ .Values.configMap.mimir.otlp_endpoint }}"
+            tls {
+              insecure = true
+            }
+          }
+        }
+
+        // ============================================================
+        // Traces: enrich with k8s metadata
+        // ============================================================
+
+        otelcol.processor.k8sattributes "default" {
+          extract {
+            metadata = [
+              "k8s.pod.name",
+              "k8s.pod.uid",
+              "k8s.namespace.name",
+              "k8s.node.name",
+              "k8s.deployment.name",
+              "k8s.container.name",
+            ]
+          }
+
+          pod_association {
+            source {
+              from = "resource_attribute"
+              name = "k8s.pod.ip"
+            }
+          }
+
+          pod_association {
+            source {
+              from = "connection"
+            }
+          }
+
+          output {
+            traces = [otelcol.processor.attributes.add_cluster.input]
+          }
+        }
+
+        // ============================================================
+        // Traces: add static cluster label
+        // ============================================================
+
+        otelcol.processor.attributes "add_cluster" {
+          action {
+            key    = "kubernetes_cluster"
+            value  = "{{ .Values.configMap.cluster.name }}"
+            action = "upsert"
+          }
+          output {
+            traces = [otelcol.exporter.otlp.tempo.input]
+          }
+        }
+
+        // ============================================================
+        // Traces: forward to Tempo
+        // ============================================================
+
+        otelcol.exporter.otlp "tempo" {
+          client {
+            endpoint = "{{ .Values.configMap.tempo.endpoint }}"
+            tls {
+              insecure = true
+            }
+          }
+        }
+
+        // ============================================================
+        // Profiles: pod discovery filtered by opt-in annotations
+        // ============================================================
+
+        discovery.kubernetes "pyroscope_pods" {
+          role = "pod"
+        }
+
+        discovery.relabel "pyroscope_pods" {
+          targets = discovery.kubernetes.pyroscope_pods.targets
+
+          // keep only pods that opted in to at least one profile type
+          rule {
+            source_labels = [
+              "__meta_kubernetes_pod_annotation_profiles_grafana_com_cpu_scrape",
+              "__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_scrape",
+              "__meta_kubernetes_pod_annotation_profiles_grafana_com_goroutine_scrape",
+            ]
+            separator    = ";"
+            regex        = ".*(true).*"
+            action       = "keep"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_namespace"]
+            target_label  = "namespace"
+          }
+
+          rule {
+            source_labels = [
+              "__meta_kubernetes_pod_label_app_kubernetes_io_name",
+              "__meta_kubernetes_pod_label_app",
+              "__meta_kubernetes_pod_name",
+            ]
+            regex        = "^;*([^;]+)(;.*)?$"
+            action       = "replace"
+            target_label = "app"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_name"]
+            target_label  = "pod"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_container_name"]
+            target_label  = "container"
+          }
+
+          rule {
+            source_labels = ["namespace", "app"]
+            separator     = "/"
+            target_label  = "job"
+          }
+
+          // Drop port names with no pprof endpoint (gRPC, memberlist, HTTPS webhook ports).
+          // Configurable via .Values.configMap.pyroscope.dropPortNames.
+          rule {
+            source_labels = ["__meta_kubernetes_pod_container_port_name"]
+            regex         = "{{ join "|" .Values.configMap.pyroscope.dropPortNames }}"
+            action        = "drop"
+          }
+
+          // Drop containers with no pprof endpoint (nginx proxies, Python sidecars, etc.).
+          // Configurable via .Values.configMap.pyroscope.dropContainers.
+          rule {
+            source_labels = ["__meta_kubernetes_pod_container_name"]
+            regex         = "{{ join "|" .Values.configMap.pyroscope.dropContainers }}"
+            action        = "drop"
+          }
+
+          // Apply profiles.grafana.com/port annotation to __address__ when set.
+          // Alloy defaults to the first container port; some apps expose pprof on
+          // a different port (e.g. ingress-nginx: 10254, envoy-gateway: 19001).
+          // NOTE: do NOT set __profile_path__ here — pyroscope.scrape manages paths
+          // internally per profile type (cpu=/debug/pprof/profile, memory=/debug/pprof/heap,
+          // goroutine=/debug/pprof/goroutine). Overriding it forces all types to the
+          // cpu path, causing "cpu profiling already in use" for memory/goroutine scrapes.
+          rule {
+            source_labels = ["__meta_kubernetes_pod_ip", "__meta_kubernetes_pod_annotation_profiles_grafana_com_port"]
+            regex         = "(.+);(\\d+)"
+            replacement   = "$1:$2"
+            target_label  = "__address__"
+          }
+        }
+
+        // ============================================================
+        // Profiles: scrape pprof from opted-in pods
+        // ============================================================
+
+        pyroscope.scrape "pods" {
+          targets    = discovery.relabel.pyroscope_pods.output
+          forward_to = [pyroscope.write.default.receiver]
+
+          // delta=false fixes CPU profiling at 30s regardless of scrape_interval.
+          // scrape_timeout must exceed 30s — default (10s) causes context deadline exceeded,
+          // which leaves the CPU profiler running on the target until it finishes, then the
+          // next scrape arrives into a still-locked profiler → "cpu profiling already in use".
+          // scrape_interval=60s gives a genuine 30s gap after the 30s CPU profile finishes.
+          scrape_interval = "60s"
+          scrape_timeout  = "35s"
+
+          clustering {
+            enabled = true
+          }
+
+          profiling_config {
+            profile.process_cpu {
+              enabled = true
+              // delta=true (default) uses ?seconds=scrape_interval-1, leaving only a 1s gap
+              // before the next scrape fires — timing jitter causes "cpu profiling already in use".
+              // delta=false uses a fixed 30s profile duration; with scrape_interval=60s this
+              // gives a genuine 30s gap and eliminates the conflict.
+              delta = false
+            }
+            profile.memory {
+              enabled = true
+            }
+            profile.goroutine {
+              enabled = true
+            }
+            profile.block {
+              enabled = false
+            }
+            profile.mutex {
+              enabled = false
+            }
+          }
+        }
+
+        // ============================================================
+        // Profiles: forward to Pyroscope
+        // ============================================================
+
+        pyroscope.write "default" {
+          endpoint {
+            url = "{{ .Values.configMap.pyroscope.url }}"
+          }
+          external_labels = {
+            kubernetes_cluster = "{{ .Values.configMap.cluster.name }}",
+            location           = "{{ .Values.configMap.cluster.location }}",
+          }
+        }
+
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    additionalLabels: {}
+    # Alloy's own per-scrape-pool bookkeeping: the target sync histogram and summary
+    # and dial failures by dialer and reason, all high-cardinality. Nothing graphs
+    # them; the _sum/_count of the sync summary stay.
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: prometheus_target_sync_length_histogram_seconds_bucket|prometheus_target_sync_length_seconds|net_conntrack_dialer_conn_failed_total
+        action: drop
+
+  rbac:
+    create: true
+
+  controller:
+    type: daemonset
+    # tolerate all node taints — DaemonSet must run on every node to collect logs
+    tolerations:
+      - operator: Exists
+    volumeClaimTemplates: []
+    volumes:
+      extra:
+        - name: alloy-wal
+          hostPath:
+            path: /var/lib/grafana-alloy
+            type: DirectoryOrCreate
+    volumeMounts:
+      - name: alloy-wal
+        mountPath: /var/lib/grafana-alloy
+
+  networkPolicy:
+    enabled: false
